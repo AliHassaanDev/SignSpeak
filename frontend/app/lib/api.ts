@@ -1,13 +1,13 @@
 /**
  * API Client Layer for SignBridge PK
  * Connects Next.js frontend to FastAPI backend (http://localhost:8000)
- * with robust client-side fallback.
+ * Handles PSL-to-Urdu video translation.
  */
 
-import { urduToPSLModel, UrduToPSLInferenceResult } from "./urdutopsl-model";
-
+// URL of your FastAPI Python server
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
 
+// Defines the structure of the data returned by the backend's /model-info endpoint
 export interface BackendModelInfo {
   model_name: string;
   supported_datasets: string[];
@@ -15,34 +15,15 @@ export interface BackendModelInfo {
   exported_format: string;
 }
 
-export interface BackendTokenResponse {
-  id: string;
-  urdu: string;
-  gloss: string;
-  english: string;
-  category: string;
-  duration_ms: number;
-  confidence: number;
-  description: string;
-  avatar_pose?: import("./psl-dictionary").PSLSign["avatarPose"];
-}
-
-export interface BackendTranslateResponse {
-  model_name: string;
-  model_version: string;
-  input_urdu: string;
-  normalized_text: string;
-  tokens: BackendTokenResponse[];
-  gloss_sequence: string[];
-  total_duration_ms: number;
-  model_confidence: number;
-}
-
+// Main API Wrapper Class
 export class SignBridgeAPI {
   private static instance: SignBridgeAPI;
+  
+  // Cache variables to prevent spamming the backend with health checks
   private isBackendOnline: boolean | null = null;
   private lastHealthCheck = 0;
 
+  // Singleton pattern: ensures we only ever create one instance of this API client
   public static getInstance(): SignBridgeAPI {
     if (!SignBridgeAPI.instance) {
       SignBridgeAPI.instance = new SignBridgeAPI();
@@ -51,22 +32,25 @@ export class SignBridgeAPI {
   }
 
   /**
-   * Check if the FastAPI backend is running and reachable
+   * Check if the FastAPI backend is running and reachable.
+   * Caches the result for 10 seconds to avoid unnecessary network requests.
    */
   public async checkHealth(): Promise<boolean> {
     const now = Date.now();
-    // Cache health status for 10 seconds
+    // If we checked within the last 10 seconds, return the cached result
     if (this.isBackendOnline !== null && now - this.lastHealthCheck < 10000) {
       return this.isBackendOnline;
     }
 
     try {
+      // Attempt to ping the base URL with a 3-second timeout
       const res = await fetch(`${BACKEND_URL}/`, {
         method: "GET",
         signal: AbortSignal.timeout(3000),
       });
       this.isBackendOnline = res.ok;
     } catch {
+      // If fetch fails (server down or timeout), mark as offline
       this.isBackendOnline = false;
     }
     this.lastHealthCheck = now;
@@ -91,69 +75,108 @@ export class SignBridgeAPI {
     return null;
   }
 
+
   /**
-   * Translate Urdu text to PSL tokens using Backend when available,
-   * falling back smoothly to the client-side urdutopsl engine.
+   * Translate PSL video to Urdu word using the backend GRU model
    */
-  public async translateUrduToPSL(text: string): Promise<UrduToPSLInferenceResult> {
+  public async translatePSLToUrdu(videoBlob: Blob): Promise<{
+    id: string;
+    confidence: number;
+    urdu?: string;
+    english?: string;
+    gloss?: string;
+    tokens?: any[];
+    intent?: any;
+    source?: string;
+  }> {
+    // First, verify the backend is actually running before attempting upload
+    const isOnline = await this.checkHealth();
+    if (isOnline) {
+      try {
+        // We must use FormData to send binary files (like Blob/videos) via HTTP POST
+        const formData = new FormData();
+        formData.append("video", videoBlob, "recording.webm");
+        
+        // Send the video to the FastAPI translation endpoint
+        const res = await fetch(`${BACKEND_URL}/api/translate/psl-to-urdu`, {
+          method: "POST",
+          body: formData,
+        });
+
+        // If successful, parse the JSON response which contains the predicted signs & tokens
+        if (res.ok) {
+          const backendData = await res.json();
+          return {
+            id: backendData.id,
+            confidence: backendData.confidence,
+            urdu: backendData.urdu,
+            english: backendData.english,
+            gloss: backendData.gloss,
+            tokens: backendData.tokens || [],
+            intent: backendData.intent || null,
+            source: backendData.source || "gru_model",
+          };
+        } else {
+          const errData = await res.json().catch(() => null);
+          const errorMessage = errData?.detail || `Server returned ${res.status}`;
+          return { id: "none", confidence: 0, tokens: [], error: errorMessage };
+        }
+      } catch (err: any) {
+        console.warn("[SignBridgeAPI] Backend video translation failed:", err);
+        return { id: "none", confidence: 0, tokens: [], error: err.message };
+      }
+    }
+    // Return a default "none" response if offline
+    return { id: "none", confidence: 0, tokens: [], error: "Backend is offline or unreachable." };
+  }
+
+  /**
+   * Translates Urdu text into PSL sign tokens and 3D animation metadata
+   */
+  public async translateUrduToPSL(text: string): Promise<any> {
     const isOnline = await this.checkHealth();
     if (isOnline) {
       try {
         const res = await fetch(`${BACKEND_URL}/api/translate/urdu-to-psl`, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            text,
-            include_avatar_poses: true,
-            speed_factor: 1.0,
-          }),
-          signal: AbortSignal.timeout(5000),
+          headers: {
+            "Content-Type": "application/json",
+            // Passing a dummy API key to satisfy the new security layer
+            "x-api-key": "valid-dev-key"
+          },
+          body: JSON.stringify({ text }),
         });
 
         if (res.ok) {
-          const backendData: BackendTranslateResponse = await res.json();
-          // Map backend response format to frontend UrduToPSLInferenceResult format
+          const data = await res.json();
           return {
-            modelName: "urdutopsl",
-            modelVersion: "1.0.0-hybrid",
-            inputUrdu: backendData.input_urdu,
-            normalizedText: backendData.normalized_text,
-            tokens: backendData.tokens.map((t) => ({
-              id: t.id,
-              urdu: t.urdu,
-              gloss: t.gloss,
-              english: t.english,
-              category: t.category as "greeting" | "question" | "emergency" | "daily" | "alphabet" | "number",
-              duration: t.duration_ms,
-              description: t.description,
-              avatarPose: t.avatar_pose || {
-                leftArm: { shoulderAngle: 15, elbowAngle: 25, handShape: "open" },
-                rightArm: { shoulderAngle: 15, elbowAngle: 25, handShape: "open" },
-                headTilt: 0,
-                expression: "neutral",
-                motionType: "none",
-              },
-            })),
-            glossSequence: backendData.gloss_sequence,
-            totalDurationMs: backendData.total_duration_ms,
-            wordCount: backendData.normalized_text.split(" ").filter(Boolean).length,
-            signCount: backendData.tokens.length,
-            modelConfidence: backendData.model_confidence,
-            breakdown: backendData.tokens.map((t) => ({
-              segment: t.urdu,
-              type: t.category === "alphabet" ? "fingerspell" : "word_sign",
-              gloss: t.gloss,
-              confidence: t.confidence,
-            })),
+            modelName: data.model_name,
+            modelVersion: data.model_version,
+            inputUrdu: data.input_urdu,
+            normalizedText: data.normalized_text,
+            tokens: data.tokens || [],
+            video_url: data.video_url,
+            glossSequence: data.gloss_sequence,
+            totalDurationMs: data.total_duration_ms,
+            modelConfidence: data.model_confidence,
+            signCount: data.tokens ? data.tokens.length : 0
           };
+        } else {
+          console.error("[SignBridgeAPI] Urdu to PSL Translation failed:", await res.text());
         }
       } catch (err) {
-        console.warn("[SignBridgeAPI] Backend translation failed, falling back to local engine:", err);
+        console.warn("[SignBridgeAPI] Backend translation failed:", err);
       }
     }
-
-    // Fallback: Client-side urdutopsl model
-    return await urduToPSLModel.infer(text);
+    
+    // Return empty fallback on failure
+    return {
+      tokens: [],
+      modelName: "fallback",
+      modelVersion: "v0",
+      modelConfidence: 0,
+      signCount: 0
+    };
   }
 }
 

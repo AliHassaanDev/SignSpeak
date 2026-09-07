@@ -29,7 +29,7 @@ def process_tts(payload: TTSRequest):
     """
     try:
         audio_bytes = tts_service.synthesize_speech(payload.text, payload.language)
-        return Response(content=audio_bytes, media_type="audio/wav")
+        return Response(content=audio_bytes, media_type="audio/mpeg")
     except Exception as e:
         traceback.print_exc()
         raise HTTPException(status_code=500, detail=str(e))

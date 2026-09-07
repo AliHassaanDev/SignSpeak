@@ -23,6 +23,7 @@ class UrduToPSLResponse(BaseModel):
     input_urdu: str
     normalized_text: str
     tokens: List[PSLTokenResponse]
+    video_url: Optional[str] = None
     gloss_sequence: List[str]
     total_duration_ms: int
     model_confidence: float

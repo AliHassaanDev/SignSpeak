@@ -19,16 +19,15 @@ import {
   VolumeX,
   X,
 } from "lucide-react";
-import { PSLSign } from "./lib/psl-dictionary";
-import { UrduToPSLInferenceResult } from "./lib/urdutopsl-model";
+import { PSLSign, UrduToPSLInferenceResult } from "./lib/psl_types";
 import { signBridgeAPI } from "./lib/api";
-import { TemporalStabilizer } from "./lib/smoothing";
 
 import CameraPanel from "../components/CameraPanel";
-import DemoSelector, { DemoSample } from "../components/DemoSelector";
-import PredictionPanel, { PredictionToken } from "../components/PredictionPanel";
+
+import { PredictionToken, SilentUserIntent } from "../components/TranscriptPanel";
 import TranscriptPanel from "../components/TranscriptPanel";
-import AvatarPanel from "../components/AvatarPanel";
+import PSLVideoDisplay from "../components/PSLVideoDisplay";
+import UrduInputPanel from "../components/UrduInputPanel";
 
 function ModalPortal({ children }: { children: React.ReactNode }) {
   const [mounted, setMounted] = useState(false);
@@ -114,10 +113,7 @@ export default function Page() {
               </div>
             ) : (
               <div className="tab-panel-fade" key="psl-to-urdu">
-                <PSLToUrdu
-                  cameraOn={cameraOn}
-                  setCameraOn={setCameraOn}
-                />
+                <PSLToUrdu />
               </div>
             )}
           </div>
@@ -379,36 +375,69 @@ function Feature({ icon, title, text, tone }: { icon: React.ReactNode; title: st
 
 /* ────────────────────────── PSL to Urdu (Interactive) ────────────────────────── */
 
-function PSLToUrdu({
-  cameraOn,
-  setCameraOn,
-}: {
-  cameraOn: boolean;
-  setCameraOn: (v: boolean) => void;
-}) {
-  const [activeMode, setActiveMode] = useState<"camera" | "demo" | "upload">("camera");
+function PSLToUrdu() {
   const [tokenBuffer, setTokenBuffer] = useState<PredictionToken[]>([]);
   const [currentDetection, setCurrentDetection] = useState<PredictionToken | null>(null);
+  const [externalIntent, setExternalIntent] = useState<SilentUserIntent | null>(null);
   const [showInfoModal, setShowInfoModal] = useState(false);
   const [isCameraFullscreen, setIsCameraFullscreen] = useState(false);
   const [metrics, setMetrics] = useState({ fps: 30, confidence: 95, latency: 280 });
 
-  // Temporal Stabilizer instance (FR-05)
-  const stabilizerRef = useRef<TemporalStabilizer>(
-    new TemporalStabilizer({ windowSize: 3, confidenceThreshold: 0.70, cooldownMs: 600 })
-  );
+
+  const [activeMode, setActiveMode] = useState<"camera" | "upload" | "demo">("camera");
+  const [cameraOn, setCameraOn] = useState(false);
 
   // Handle detection from Camera, Video Upload, or Demo Mode
-  const handleRawDetection = (rawToken: { id: string; urdu?: string; english?: string; gloss?: string; confidence?: number | string; type?: string; source?: string }) => {
+  const handleRawDetection = (rawToken: {
+    id: string;
+    urdu?: string;
+    english?: string;
+    gloss?: string;
+    confidence?: number | string;
+    type?: string;
+    source?: string;
+    tokens?: any[];
+    intent?: any;
+  }) => {
     if (!rawToken || rawToken.id === "none") return;
 
+    if (rawToken.intent) {
+      setExternalIntent(rawToken.intent);
+    }
+
+    // For backend video translation (Gemini Multimodal or GRU model multi-sign or single-sign):
+    const isBackendVideoSource = rawToken.source === "gru_model" || rawToken.source === "gemini_multimodal_cv" || rawToken.source === "psl_predictor";
+    if (isBackendVideoSource && Array.isArray(rawToken.tokens) && rawToken.tokens.length > 0) {
+      const newTokens: PredictionToken[] = rawToken.tokens.map((t) => ({
+        id: t.id || t.gloss || t.english || "gesture",
+        urdu: t.urdu || "",
+        english: t.english || "",
+        gloss: t.gloss || "",
+        confidence: Number(t.confidence) || 0.85,
+        type: "word",
+        source: rawToken.source || "gemini_multimodal_cv",
+      }));
+
+      // Update current detection to the primary / latest sign
+      setCurrentDetection(newTokens[newTokens.length - 1]);
+      setMetrics((prev) => ({
+        ...prev,
+        confidence: Math.round(Number(rawToken.confidence || 0.9) * 100),
+        latency: 180,
+      }));
+
+      // Replace the sentence buffer with the new chronological signs for this video
+      setTokenBuffer(newTokens);
+      return;
+    }
+
     const token: PredictionToken = {
-      id: rawToken.id,
-      urdu: rawToken.urdu,
-      english: rawToken.english,
-      gloss: rawToken.gloss,
+      id: rawToken.id || rawToken.gloss || rawToken.english || "gesture",
+      urdu: rawToken.urdu || "",
+      english: rawToken.english || "",
+      gloss: rawToken.gloss || "",
       confidence: Number(rawToken.confidence) || 0.9,
-      type: rawToken.type || "word",
+      type: (rawToken.type as "word" | "alphabet") || "word",
       source: rawToken.source || "detector",
     };
 
@@ -420,32 +449,10 @@ function PSLToUrdu({
       latency: Math.floor(Math.random() * 40) + 260,
     }));
 
-    // Process through temporal stabilization (FR-05)
-    const stabilized = stabilizerRef.current.processFrame(token);
-    if (stabilized) {
-      setTokenBuffer((prev) => [...prev, stabilized]);
-    }
-  };
-
-  // Immediate sample commit for Demo Mode (FR-17)
-  const handleSelectDemoSample = (sample: DemoSample) => {
-    const token: PredictionToken = {
-      id: sample.id,
-      urdu: sample.urdu,
-      english: sample.english,
-      gloss: sample.gloss,
-      confidence: sample.confidence,
-      type: sample.type,
-      source: "demo_testbed",
-    };
-    setCurrentDetection(token);
-    setMetrics((prev) => ({
-      ...prev,
-      confidence: Math.round(sample.confidence * 100),
-      latency: 180,
-    }));
+    // For backend video translation (single-shot fallback)
     setTokenBuffer((prev) => [...prev, token]);
   };
+
 
   return (
     <>
@@ -460,7 +467,6 @@ function PSLToUrdu({
       </div>
 
       <div className="psl-layout">
-        {/* Left Column: Stage (Camera, Demo Selector, or Upload) */}
         <div style={{ display: "flex", flexDirection: "column", gap: "16px", minWidth: 0 }}>
           <CameraPanel
             cameraOn={cameraOn}
@@ -471,25 +477,30 @@ function PSLToUrdu({
             onDetection={handleRawDetection}
             isCameraFullscreen={isCameraFullscreen}
             setIsCameraFullscreen={setIsCameraFullscreen}
+            onReset={() => {
+              setTokenBuffer([]);
+              setCurrentDetection(null);
+              setExternalIntent(null);
+            }}
           />
 
-          {/* FR-17 Demo Mode Selector */}
-          {activeMode === "demo" && (
-            <DemoSelector onSelectSample={handleSelectDemoSample} />
-          )}
+
         </div>
 
         {/* Right Column: Prediction & Accumulated Sentence Buffer */}
         <div style={{ display: "flex", flexDirection: "column", gap: "16px", minWidth: 0 }}>
-          <PredictionPanel currentDetection={currentDetection} />
-
           <TranscriptPanel
             tokenBuffer={tokenBuffer}
-            onUndoLast={() => setTokenBuffer((prev) => prev.slice(0, -1))}
+            currentDetection={currentDetection}
+            externalIntent={externalIntent}
+            onUndoLast={() => {
+              setTokenBuffer((prev) => prev.slice(0, -1));
+              setExternalIntent(null);
+            }}
             onClearAll={() => {
               setTokenBuffer([]);
               setCurrentDetection(null);
-              stabilizerRef.current.reset();
+              setExternalIntent(null);
             }}
           />
         </div>
@@ -554,9 +565,29 @@ function UrduToPSL({
   const [activeCategory, setActiveCategory] = useState<string>("all");
   const [isBackendOnline, setIsBackendOnline] = useState<boolean>(false);
 
-  // Check backend status on mount
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const recognitionRef = useRef<any>(null);
+
+  // Check backend status on mount and cleanup audio/recognition on unmount
   useEffect(() => {
     signBridgeAPI.checkHealth().then(setIsBackendOnline);
+
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+      if (recognitionRef.current) {
+        try {
+          recognitionRef.current.stop();
+        } catch {}
+        recognitionRef.current = null;
+      }
+      if (typeof window !== "undefined" && "speechSynthesis" in window) {
+        window.speechSynthesis.cancel();
+      }
+    };
   }, []);
 
   // Perform translation using the API layer (with fallback)
@@ -619,16 +650,23 @@ function UrduToPSL({
     }
 
     if (isListening) {
+      if (recognitionRef.current) {
+        try {
+          recognitionRef.current.stop();
+        } catch {}
+        recognitionRef.current = null;
+      }
       setIsListening(false);
       return;
     }
 
     try {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const recognition = new SpeechRecognition() as any;
+      const recognition = new (SpeechRecognition as any)();
       recognition.lang = "ur-PK";
       recognition.continuous = false;
       recognition.interimResults = false;
+      recognitionRef.current = recognition;
 
       recognition.onstart = () => setIsListening(true);
       recognition.onresult = (event: { results: { [key: number]: { [key: number]: { transcript: string } } } }) => {
@@ -636,30 +674,106 @@ function UrduToPSL({
         setText(transcript);
         handleTranslate(transcript);
         setIsListening(false);
+        recognitionRef.current = null;
       };
-      recognition.onerror = () => setIsListening(false);
-      recognition.onend = () => setIsListening(false);
+      recognition.onerror = (err: unknown) => {
+        console.warn("Speech recognition error:", err);
+        setIsListening(false);
+        recognitionRef.current = null;
+      };
+      recognition.onend = () => {
+        setIsListening(false);
+        recognitionRef.current = null;
+      };
       recognition.start();
     } catch {
       setIsListening(false);
+      recognitionRef.current = null;
     }
   };
 
   // Text to Speech for Urdu Audio (FR-09)
   const playUrduAudio = () => {
-    if (!text || typeof window === "undefined" || !("speechSynthesis" in window)) return;
+    const textToSpeak = text.trim();
+    if (!textToSpeak) return;
+
     if (isSpeaking) {
-      window.speechSynthesis.cancel();
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+        audioRef.current = null;
+      }
+      if (typeof window !== "undefined" && "speechSynthesis" in window) {
+        window.speechSynthesis.cancel();
+      }
       setIsSpeaking(false);
       return;
     }
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = "ur-PK";
-    utterance.rate = speed;
-    utterance.onstart = () => setIsSpeaking(true);
-    utterance.onend = () => setIsSpeaking(false);
-    utterance.onerror = () => setIsSpeaking(false);
-    window.speechSynthesis.speak(utterance);
+
+    const isUrdu = /[\u0600-\u06FF]/.test(textToSpeak);
+    const lang = isUrdu ? "ur" : "en";
+
+    try {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+
+      const audio = new Audio(`/api/tts?text=${encodeURIComponent(textToSpeak)}&lang=${lang}`);
+      audio.playbackRate = speed;
+      audioRef.current = audio;
+      setIsSpeaking(true);
+
+      audio.onended = () => {
+        setIsSpeaking(false);
+        audioRef.current = null;
+      };
+
+      audio.onerror = () => {
+        // Fallback to browser SpeechSynthesis if audio element fails
+        if (typeof window !== "undefined" && "speechSynthesis" in window) {
+          const utterance = new SpeechSynthesisUtterance(textToSpeak);
+          utterance.lang = isUrdu ? "ur-PK" : "en-US";
+          utterance.rate = speed;
+          utterance.onend = () => {
+            setIsSpeaking(false);
+            audioRef.current = null;
+          };
+          utterance.onerror = () => {
+            setIsSpeaking(false);
+            audioRef.current = null;
+          };
+          window.speechSynthesis.speak(utterance);
+        } else {
+          setIsSpeaking(false);
+          audioRef.current = null;
+        }
+      };
+
+      audio.play().catch((playErr) => {
+        console.warn("[playUrduAudio] Audio playback failed, falling back to speech synthesis:", playErr);
+        if (typeof window !== "undefined" && "speechSynthesis" in window) {
+          const utterance = new SpeechSynthesisUtterance(textToSpeak);
+          utterance.lang = isUrdu ? "ur-PK" : "en-US";
+          utterance.rate = speed;
+          utterance.onend = () => {
+            setIsSpeaking(false);
+            audioRef.current = null;
+          };
+          utterance.onerror = () => {
+            setIsSpeaking(false);
+            audioRef.current = null;
+          };
+          window.speechSynthesis.speak(utterance);
+        } else {
+          setIsSpeaking(false);
+          audioRef.current = null;
+        }
+      });
+    } catch {
+      setIsSpeaking(false);
+      audioRef.current = null;
+    }
   };
 
   // Copy Gloss Sequence
@@ -698,133 +812,23 @@ function UrduToPSL({
       </div>
 
       <div className="urdu-layout">
-        {/* Left Column: Urdu Input & Controls */}
-        <div className="input-column">
-          <div className="panel input-panel">
-            <div className="panel-title-row">
-              <span className="panel-title">Enter Urdu Text (اردو متن درج کریں)</span>
-              <div className="input-actions">
-                <button
-                  className={`icon-circle-btn ${isListening ? "active pulse" : ""}`}
-                  onClick={toggleVoiceInput}
-                  title="Voice Input (اردو بولیں) (FR-10)"
-                >
-                  {isListening ? <MicOff size={15} color="#ef4444" /> : <Mic size={15} />}
-                </button>
-                {text && (
-                  <button
-                    className={`icon-circle-btn ${isSpeaking ? "active" : ""}`}
-                    onClick={playUrduAudio}
-                    title="Audio Pronunciation (FR-09)"
-                  >
-                    {isSpeaking ? <VolumeX size={15} /> : <Volume2 size={15} />}
-                  </button>
-                )}
-              </div>
-            </div>
+        <UrduInputPanel
+          text={text}
+          setText={setText}
+          isListening={isListening}
+          toggleVoiceInput={toggleVoiceInput}
+          isSpeaking={isSpeaking}
+          playUrduAudio={playUrduAudio}
+          handleTranslate={handleTranslate}
+          inferenceResult={inferenceResult}
+          isBackendOnline={isBackendOnline}
+          signs={signs}
+          setSigns={setSigns}
+          setInferenceResult={setInferenceResult}
+          setIsPlaying={setIsPlaying}
+        />
 
-            <textarea
-              dir="rtl"
-              placeholder="یہاں اردو لکھیں یا بولیں... (مثال: السلام علیکم، آپ کیسے ہیں؟)"
-              value={text}
-              onChange={(e) => {
-                setText(e.target.value);
-                handleTranslate(e.target.value);
-              }}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && !e.shiftKey) {
-                  e.preventDefault();
-                  handleTranslate(text);
-                }
-              }}
-              maxLength={500}
-            />
-
-            <div className="input-footer">
-              <span className="counter">{text.length} / 500 Characters</span>
-              {text && (
-                <button
-                  className="clear-btn"
-                  onClick={() => {
-                    setText("");
-                    setSigns([]);
-                    setInferenceResult(null);
-                    setIsPlaying(false);
-                  }}
-                >
-                  Clear Text
-                </button>
-              )}
-            </div>
-
-            {/* Model Telemetry & Pipeline Badge */}
-            {inferenceResult && (
-              <div className="model-telemetry-badge">
-                <span className="model-tag">
-                  Model: <strong>{inferenceResult.modelName}</strong> ({inferenceResult.modelVersion})
-                </span>
-                <span className="conf-tag">
-                  Confidence: {Math.round(inferenceResult.modelConfidence * 100)}%
-                </span>
-                <span className="token-tag">
-                  {inferenceResult.signCount} Signs generated
-                </span>
-                <span style={{ fontSize: "10px", color: isBackendOnline ? "#34d399" : "#a78bfa" }}>
-                  ● {isBackendOnline ? "FastAPI Connected" : "Local Engine"}
-                </span>
-              </div>
-            )}
-
-            <div className="translate-actions-row">
-              <button
-                className="primary-btn violet translate-btn"
-                onClick={() => handleTranslate(text)}
-              >
-                <Sparkles size={15} /> Translate & Sign
-              </button>
-              {signs.length > 0 && (
-                <button className="secondary-btn copy-gloss-btn" onClick={copyGlossSequence}>
-                  {copied ? <Check size={14} color="#10b981" /> : <Copy size={14} />}
-                  <span>{copied ? "Copied" : "Copy Gloss"}</span>
-                </button>
-              )}
-            </div>
-
-            {/* Quick Presets Section */}
-            <div className="quick-presets-box">
-              <div className="category-filter-row">
-                {categories.map((cat) => (
-                  <button
-                    key={cat.id}
-                    className={`category-pill ${activeCategory === cat.id ? "active" : ""}`}
-                    onClick={() => setActiveCategory(cat.id)}
-                  >
-                    {cat.label}
-                  </button>
-                ))}
-              </div>
-
-              <div className="quick-chips-grid">
-                {(categoryPresets[activeCategory] || categoryPresets.all).map((item) => (
-                  <button
-                    key={item}
-                    className={`quick-chip ${text.trim() === item ? "selected" : ""}`}
-                    onClick={() => {
-                      setText(item);
-                      handleTranslate(item);
-                    }}
-                    dir="rtl"
-                  >
-                    {item}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Right Column: Modular 3D Signer Avatar Panel */}
-        <AvatarPanel
+        <PSLVideoDisplay
           signs={signs}
           currentSignIndex={currentSignIndex}
           setCurrentSignIndex={setCurrentSignIndex}
@@ -836,6 +840,7 @@ function UrduToPSL({
           setAutoPlay={setAutoPlay}
           isFullscreen={isFullscreen}
           setIsFullscreen={setIsFullscreen}
+          videoUrl={inferenceResult?.video_url}
         />
       </div>
 

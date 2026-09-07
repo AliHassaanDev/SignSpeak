@@ -12,8 +12,10 @@ import {
   RefreshCw,
   Maximize2,
   Minimize2,
+  Trash2,
+  Play
 } from "lucide-react";
-import { drawHandSkeleton, generateSyntheticHandLandmarks } from "../app/lib/mediapipe";
+import { signBridgeAPI } from "../app/lib/api";
 
 export interface CameraPanelProps {
   cameraOn: boolean;
@@ -24,6 +26,7 @@ export interface CameraPanelProps {
   onDetection: (token: { id: string; urdu?: string; english?: string; gloss?: string; confidence?: number | string; type?: string; source?: string }) => void;
   isCameraFullscreen: boolean;
   setIsCameraFullscreen: (v: boolean) => void;
+  onReset?: () => void;
 }
 
 export default function CameraPanel({
@@ -35,9 +38,10 @@ export default function CameraPanel({
   onDetection,
   isCameraFullscreen,
   setIsCameraFullscreen,
+  onReset,
 }: CameraPanelProps) {
   const [cameraError, setCameraError] = useState<string | null>(null);
-  const [uploadedMedia, setUploadedMedia] = useState<{ url: string; type: "video" | "image"; name: string } | null>(null);
+  const [uploadedMedia, setUploadedMedia] = useState<{ url: string; type: "video" | "image"; name: string; file?: Blob | File } | null>(null);
 
 
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -45,6 +49,11 @@ export default function CameraPanel({
   const streamRef = useRef<MediaStream | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const animFrameRef = useRef<number | null>(null);
+
+  const [isTranslating, setIsTranslating] = useState(false);
+
+  const [isRecording, setIsRecording] = useState(false);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
 
   // Start Real User Webcam
   const startCamera = async () => {
@@ -74,8 +83,42 @@ export default function CameraPanel({
     }
   };
 
+  const startRecording = () => {
+    if (!streamRef.current) return;
+    const recorder = new MediaRecorder(streamRef.current, { mimeType: 'video/webm' });
+    const localChunks: Blob[] = [];
+    
+    recorder.ondataavailable = (e) => {
+      if (e.data.size > 0) {
+        localChunks.push(e.data);
+      }
+    };
+
+    recorder.onstop = () => {
+      // Create a local blob from recorded chunks and switch to upload mode to preview it
+      const blob = new Blob(localChunks, { type: "video/webm" });
+      const url = URL.createObjectURL(blob);
+      onReset?.();
+      setUploadedMedia({ url, type: "video", name: "recorded-video.webm", file: blob });
+      setActiveMode("upload");
+      stopCamera(); // stop live camera after recording
+    };
+
+    mediaRecorderRef.current = recorder;
+    recorder.start(100);
+    setIsRecording(true);
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state === "recording") {
+      mediaRecorderRef.current.stop();
+    }
+    setIsRecording(false);
+  };
+
   // Stop Webcam
   const stopCamera = () => {
+    if (isRecording) stopRecording();
     if (streamRef.current) {
       streamRef.current.getTracks().forEach((track) => track.stop());
       streamRef.current = null;
@@ -109,69 +152,9 @@ export default function CameraPanel({
     }
   }, [cameraOn]);
 
-  // Real-time Canvas Landmark & Skeleton Rendering Loop (FR-02)
-  useEffect(() => {
-    if (!cameraOn || !canvasRef.current) return;
+  // Real-time Canvas Landmark & Skeleton Rendering Loop (FR-02) (REMOVED)
 
-    const renderLoop = () => {
-      const canvas = canvasRef.current;
-      if (!canvas) return;
-      const ctx = canvas.getContext("2d");
-      if (!ctx) return;
-
-      const width = canvas.width;
-      const height = canvas.height;
-      ctx.clearRect(0, 0, width, height);
-
-      // Generate & draw real 21-point hand articulation landmarks
-      const landmarks = generateSyntheticHandLandmarks(performance.now());
-      drawHandSkeleton(ctx, landmarks, width, height, {
-        boneColor: "rgba(29, 184, 189, 0.85)",
-        jointColor: "#ffffff",
-        lineWidth: 2.5,
-        showBoundingBox: true,
-      });
-
-      animFrameRef.current = requestAnimationFrame(renderLoop);
-    };
-
-    animFrameRef.current = requestAnimationFrame(renderLoop);
-
-    return () => {
-      if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
-    };
-  }, [cameraOn]);
-
-  // Periodic Recognition Polling
-  useEffect(() => {
-    if (!cameraOn || !videoRef.current) return;
-
-    const interval = setInterval(async () => {
-      if (videoRef.current && videoRef.current.readyState === videoRef.current.HAVE_ENOUGH_DATA) {
-        const tempCanvas = document.createElement("canvas");
-        tempCanvas.width = videoRef.current.videoWidth || 640;
-        tempCanvas.height = videoRef.current.videoHeight || 480;
-        tempCanvas.getContext("2d")?.drawImage(videoRef.current, 0, 0);
-        const base64Image = tempCanvas.toDataURL("image/jpeg", 0.8);
-
-        try {
-          const res = await fetch("/api/recognize", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ base64Image }),
-          });
-          const data = await res.json();
-          if (data && data.id && data.id !== "none") {
-            onDetection(data);
-          }
-        } catch (err) {
-          console.error("Frame recognition error:", err);
-        }
-      }
-    }, 2000);
-
-    return () => clearInterval(interval);
-  }, [cameraOn, onDetection]);
+  // Periodic Recognition Polling (REMOVED)
 
   // Handle Fullscreen Scroll Lock
   useEffect(() => {
@@ -188,73 +171,33 @@ export default function CameraPanel({
     const file = e.target.files?.[0];
     if (!file) return;
 
+    onReset?.(); // Reset the transcript panel when a new file is uploaded
     const fileType = file.type.startsWith("video") ? "video" : "image";
     const objectUrl = URL.createObjectURL(file);
-    setUploadedMedia({ url: objectUrl, type: fileType, name: file.name });
-
-
-    try {
-      let base64Image = "";
-      if (fileType === "image") {
-        const reader = new FileReader();
-        base64Image = await new Promise((resolve) => {
-          reader.onloadend = () => resolve(reader.result as string);
-          reader.readAsDataURL(file);
-        });
-      } else {
-        const video = document.createElement("video");
-        video.src = objectUrl;
-        base64Image = await new Promise((resolve) => {
-          video.onloadeddata = () => {
-            video.currentTime = 1;
-          };
-          video.onseeked = () => {
-            const canvas = document.createElement("canvas");
-            canvas.width = video.videoWidth || 640;
-            canvas.height = video.videoHeight || 480;
-            canvas.getContext("2d")?.drawImage(video, 0, 0);
-            resolve(canvas.toDataURL("image/jpeg"));
-          };
-        });
-      }
-
-      const res = await fetch("/api/recognize", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ base64Image }),
-      });
-      const data = await res.json();
-      if (data && data.id && data.id !== "none") {
-        onDetection(data);
-      }
-    } catch (err) {
-      console.error("File upload recognition error:", err);
-    }
+    setUploadedMedia({ url: objectUrl, type: fileType, name: file.name, file });
+    e.target.value = "";
   };
 
   return (
     <div className={`panel camera-panel ${isCameraFullscreen ? "fullscreen-stage" : ""}`}>
       {/* Mode Switch Tabs */}
-      <div className="tab-row">
+      <div className="tab-row" style={{ display: 'flex' }}>
         <button
           className={`tab ${activeMode === "camera" ? "active" : ""}`}
-          onClick={() => setActiveMode("camera")}
-        >
-          <Camera size={15} /> Live Camera (کیمرا)
-        </button>
-        <button
-          className={`tab ${activeMode === "demo" ? "active" : ""}`}
+          style={{ flex: 1 }}
           onClick={() => {
-            setActiveMode("demo");
-            if (cameraOn) stopCamera();
+            setActiveMode("camera");
+            onReset?.();
           }}
         >
-          <PlayCircle size={15} /> Demo Mode (تجربہ گاہ)
+          <Camera size={15} /> Camera (کیمرا)
         </button>
         <button
           className={`tab ${activeMode === "upload" ? "active" : ""}`}
+          style={{ flex: 1 }}
           onClick={() => {
             setActiveMode("upload");
+            onReset?.();
             if (cameraOn) stopCamera();
           }}
         >
@@ -281,29 +224,10 @@ export default function CameraPanel({
                 className="camera-video-element"
               />
 
-              {/* Real-Time Landmark Tracking Canvas */}
-              <canvas
-                ref={canvasRef}
-                width={640}
-                height={480}
-                className="landmark-canvas-overlay"
-              />
-
               <div className="camera-corner tl" />
               <div className="camera-corner tr" />
               <div className="camera-corner bl" />
               <div className="camera-corner br" />
-
-              <span className="live-badge">
-                <span className="live-dot" /> LIVE INFERENCE
-              </span>
-
-              {/* Telemetry Metrics */}
-              <div className="telemetry-bar">
-                <span>FPS: {metrics.fps}</span>
-                <span>Confidence: {metrics.confidence}%</span>
-                <span>Latency: {metrics.latency}ms</span>
-              </div>
             </div>
           ) : (
             <div className="camera-off">
@@ -317,7 +241,13 @@ export default function CameraPanel({
                   <AlertCircle size={14} /> {cameraError}
                 </div>
               )}
-              <button className="primary-btn teal small" onClick={startCamera}>
+              <button
+                className="primary-btn teal small"
+                onClick={() => {
+                  onReset?.();
+                  startCamera();
+                }}
+              >
                 <Video size={15} /> Start Real Camera
               </button>
             </div>
@@ -343,15 +273,59 @@ export default function CameraPanel({
                     <img src={uploadedMedia.url} alt="Uploaded gesture" className="preview-image" />
                   </>
                 )}
-                <div className="upload-overlay-actions">
-                  <span className="file-name-tag">{uploadedMedia.name}</span>
-                  <button className="small-action-btn" onClick={() => fileInputRef.current?.click()}>
-                    <RefreshCw size={13} /> Change File
-                  </button>
+                <div className="upload-overlay-actions" style={{ boxSizing: 'border-box', flexWrap: 'wrap', gap: '10px' }}>
+                  <span className="file-name-tag" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '35%' }}>{uploadedMedia.name}</span>
+                  <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                    <button
+                      className="small-action-btn"
+                      style={{ height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                      onClick={() => {
+                        onReset?.();
+                        if (fileInputRef.current) {
+                          fileInputRef.current.value = "";
+                          fileInputRef.current.click();
+                        }
+                      }}
+                    >
+                      <RefreshCw size={13} /> Change File
+                    </button>
+                    <button className="danger-btn small" style={{ height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={() => { setUploadedMedia(null); onReset?.(); }}>
+                      <Trash2 size={13} />
+                    </button>
+                    <button className="primary-btn teal small" disabled={isTranslating} style={{ height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={async () => {
+                      if (!uploadedMedia.file) return;
+                      setIsTranslating(true);
+                      try {
+                        const result = await signBridgeAPI.translatePSLToUrdu(uploadedMedia.file) as any;
+                        if (result && result.id && result.id !== "none") {
+                          onDetection(result);
+                        } else {
+                          const err = result.error || "Failed to translate the video. Please ensure the subject is clear and try again.";
+                          alert(`Error: ${err}`);
+                        }
+                      } catch (err) {
+                        console.error("Translation failed:", err);
+                        alert("Translation encountered an error. Check console for details.");
+                      } finally {
+                        setIsTranslating(false);
+                      }
+                    }}>
+                      <Play size={13} /> {isTranslating ? "Translating..." : "Translate"}
+                    </button>
+                  </div>
                 </div>
               </div>
             ) : (
-              <div className="upload-dropzone" onClick={() => fileInputRef.current?.click()}>
+              <div
+                className="upload-dropzone"
+                onClick={() => {
+                  onReset?.();
+                  if (fileInputRef.current) {
+                    fileInputRef.current.value = "";
+                    fileInputRef.current.click();
+                  }
+                }}
+              >
                 <div className="upload-icon-circle">
                   <UploadCloud size={28} />
                 </div>
@@ -361,7 +335,11 @@ export default function CameraPanel({
                   className="primary-btn teal small"
                   onClick={(e) => {
                     e.stopPropagation();
-                    fileInputRef.current?.click();
+                    onReset?.();
+                    if (fileInputRef.current) {
+                      fileInputRef.current.value = "";
+                      fileInputRef.current.click();
+                    }
                   }}
                 >
                   Browse File
@@ -374,11 +352,19 @@ export default function CameraPanel({
 
       {/* Camera Stage Footer Controls */}
       {activeMode === "camera" && cameraOn && (
-        <div className="camera-controls-bar">
-          <button className="danger-btn small" onClick={stopCamera}>
-            <VideoOff size={14} /> Stop Camera
+        <div className="camera-controls-bar" style={{ display: 'flex', gap: '12px', width: '100%' }}>
+          {isRecording ? (
+            <button className="danger-btn" style={{ flex: 1, height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={stopRecording}>
+              <VideoOff size={16} /> Stop Recording
+            </button>
+          ) : (
+            <button className="primary-btn teal" style={{ flex: 1, height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={startRecording}>
+              <PlayCircle size={16} /> Record Video
+            </button>
+          )}
+          <button className="secondary-btn" style={{ flex: 1, height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={stopCamera}>
+            <VideoOff size={16} /> Stop Camera
           </button>
-          <span className="camera-tip-text">Perform PSL signs within the viewport frame</span>
         </div>
       )}
     </div>

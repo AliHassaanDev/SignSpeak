@@ -1,0 +1,28 @@
+{
+  "id": "video_translation",
+  "confidence": 0.93,
+  "source": "psl_predictor",
+  "intent": {
+    "urduSentence": "السلام علیکم، پانی۔",
+    "englishSentence": "Hello, water please.",
+    "intentSummary": "ویڈیو کا ترجمہ (Video Translation)",
+    "tone": "informative",
+    "modelUsed": "gemini-3.7-flash (video)"
+  },
+  "tokens": [
+    {
+      "id": "Hello / Peace be upon you (Assalam-o-Alaikum)",
+      "urdu": "السلام علیکم / ہیلو",
+      "english": "Hello / Peace be upon you (Assalam-o-Alaikum)",
+      "gloss": "SALAM",
+      "confidence": 0.95
+    },
+    {
+      "id": "Water",
+      "urdu": "پانی",
+      "english": "Water",
+      "gloss": "WATER",
+      "confidence": 0.92
+    }
+  ]
+}

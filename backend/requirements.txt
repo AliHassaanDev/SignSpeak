@@ -1,4 +1,4 @@
-﻿annotated-doc==0.0.5
+annotated-doc==0.0.5
 annotated-types==0.8.0
 anyio==4.14.2
 click==8.4.2
@@ -16,5 +16,6 @@ typing-inspection==0.4.4
 typing_extensions==4.16.0
 uvicorn==0.52.4
 watchfiles==1.2.0
-websockets==17.0.1
+websockets>=13.0,<15.0
 python-multipart==0.0.32
+google-genai>=2.20.0,<3.0.0
