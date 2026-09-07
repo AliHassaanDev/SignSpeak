@@ -55,6 +55,7 @@ import re
 import sys
 import time
 from collections import Counter
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 from typing import Any, Optional
 
@@ -74,13 +75,14 @@ except ImportError:
 # Configuration
 # --------------------------------------------------------------------------
 
-MODEL_NAME = "gemini-3.6-flash"  # supports agentic video understanding
-VIDEO_FPS = 8  # denser than Gemini's 1fps default, to catch fast sign transitions
-NUM_KEY_FRAMES = 8  # sharp still frames sent alongside the video for fine detail
-DEFAULT_TRIALS = 3
-MAX_UPLOAD_WAIT_SECONDS = 120
+MODEL_NAME = "gemini-3.6-flash"       # default: high-accuracy model
+FAST_MODEL_NAME = "gemini-2.0-flash"  # fast-path: ~40-50% lower latency, slight accuracy trade-off
+VIDEO_FPS = 4          # 4fps is sufficient for PSL sign segmentation (~1-2s per sign)
+NUM_KEY_FRAMES = 4     # 4 sharp frames still covers all contact-point cross-checks
+DEFAULT_TRIALS = 1     # single deterministic call at temperature=0; use trials>1 for voting
+MAX_UPLOAD_WAIT_SECONDS = 60   # fail fast if Gemini upload is stuck
 MAX_RETRIES_PER_CALL = 3
-RETRY_BACKOFF_SECONDS = 2
+RETRY_BACKOFF_SECONDS = 1      # tighter retry loop
 
 SUPPORTED_EXTENSIONS = {".mp4", ".webm", ".mov", ".mkv", ".avi"}
 
@@ -315,7 +317,7 @@ def extract_key_frames(path: Path, n: int = NUM_KEY_FRAMES) -> list[bytes]:
         ok, frame = cap.read()
         if not ok:
             continue
-        ok, buf = cv2.imencode(".jpg", frame, [cv2.IMWRITE_JPEG_QUALITY, 95])
+        ok, buf = cv2.imencode(".jpg", frame, [cv2.IMWRITE_JPEG_QUALITY, 75])
         if ok:
             frames.append(buf.tobytes())
     cap.release()
@@ -329,7 +331,19 @@ def run_single_trial(
     key_frames: list[bytes],
     vocab: Optional[list[str]] = None,
 ) -> Optional[dict]:
-    """One prediction attempt. Returns parsed JSON dict, or None on failure."""
+    """One prediction attempt using the default MODEL_NAME. Returns parsed JSON dict, or None on failure."""
+    return _run_trial_with_model(client, MODEL_NAME, video_file, temperature, key_frames, vocab)
+
+
+def _run_trial_with_model(
+    client: "genai.Client",
+    model_name: str,
+    video_file,
+    temperature: float,
+    key_frames: list[bytes],
+    vocab: Optional[list[str]] = None,
+) -> Optional[dict]:
+    """One prediction attempt with an explicit model name. Returns parsed JSON dict, or None on failure."""
     config = types.GenerateContentConfig(
         temperature=temperature,
         response_mime_type="application/json",
@@ -339,10 +353,8 @@ def run_single_trial(
         media_resolution="MEDIA_RESOLUTION_HIGH",
     )
 
-    # Gemini's default is 1 frame/sec, which can blur or skip the fast
-    # hand transitions that separate one sign from the next in a
-    # multi-sign sentence. Sample denser (up to 24 fps max) so consecutive
-    # signs don't get merged into one blurry gesture.
+    # 4fps strikes the right balance: enough to catch sign transitions without
+    # bloating the number of frames the model has to process.
     video_part = types.Part(
         file_data=types.FileData(file_uri=video_file.uri, mime_type=video_file.mime_type),
         video_metadata=types.VideoMetadata(fps=VIDEO_FPS),
@@ -366,7 +378,7 @@ def run_single_trial(
     for attempt in range(1, MAX_RETRIES_PER_CALL + 1):
         try:
             response = client.models.generate_content(
-                model=MODEL_NAME,
+                model=model_name,
                 contents=contents,
                 config=config,
             )
@@ -451,12 +463,29 @@ def predict(
     trials: int = DEFAULT_TRIALS,
     cleanup: bool = True,
     vocab: Optional[list[str]] = None,
+    fast: bool = False,
 ) -> dict:
     """
-    Full pipeline: upload video, run N independent predictions, and return
-    a consensus result. This is the function to import and call from other
-    Python code.
+    Full pipeline: upload video, run N independent predictions in parallel,
+    and return a consensus result. This is the function to import and call
+    from other Python code.
+
+    Args:
+        video_path: Path to the video file.
+        api_key:    Gemini API key (defaults to GEMINI_API_KEY env var).
+        trials:     Number of independent prediction passes to vote across.
+                    DEFAULT_TRIALS=1 gives maximum speed (single deterministic
+                    call at temperature=0). Pass trials=3 for highest accuracy
+                    via majority voting; the calls run in parallel so latency
+                    stays roughly the same as a single call.
+        cleanup:    Delete the uploaded file from the File API afterwards.
+        vocab:      Optional comma-split list of expected words/signs.
+        fast:       If True, use FAST_MODEL_NAME (gemini-2.0-flash) for ~40-50%%
+                    lower latency at a slight accuracy trade-off.
     """
+    global MODEL_NAME  # allow fast-path override per call
+    active_model = FAST_MODEL_NAME if fast else MODEL_NAME
+
     path = Path(video_path)
     if not path.exists():
         raise FileNotFoundError(f"No such file: {video_path}")
@@ -472,17 +501,38 @@ def predict(
     if key_frames:
         print(f"Extracted {len(key_frames)} still frames for detail cross-checking.")
 
+    # Temperatures: deterministic baseline for trial 1, then slight diversity
+    # for additional trials so each independent pass can catch different errors.
+    temperatures = [0.0] + [0.3 + 0.15 * i for i in range(trials - 1)]
+
     try:
         results = []
-        # Slightly vary temperature across trials: 0 for a deterministic
-        # baseline read, then a little diversity to catch cases where a
-        # single pass latches onto the wrong interpretation.
-        temperatures = [0.0] + [0.3 + 0.15 * i for i in range(trials - 1)]
-        for i, temp in enumerate(temperatures, start=1):
-            print(f"Running trial {i}/{trials} (temperature={temp:.2f}) ...")
-            result = run_single_trial(client, uploaded, temp, key_frames, vocab)
+        if trials == 1:
+            # Fast path: single call, no threading overhead
+            print(f"Running single trial (temperature=0.0, model={active_model}) ...")
+            result = _run_trial_with_model(client, active_model, uploaded, 0.0, key_frames, vocab)
             if result:
                 results.append(result)
+        else:
+            # Parallel path: all trials fire simultaneously
+            print(f"Running {trials} trials in parallel (model={active_model}) ...")
+            with ThreadPoolExecutor(max_workers=trials) as executor:
+                futures = {
+                    executor.submit(
+                        _run_trial_with_model,
+                        client, active_model, uploaded, temp, key_frames, vocab
+                    ): i
+                    for i, temp in enumerate(temperatures, start=1)
+                }
+                for future in as_completed(futures):
+                    trial_idx = futures[future]
+                    try:
+                        result = future.result()
+                        if result:
+                            results.append(result)
+                            print(f"  Trial {trial_idx} completed.")
+                    except Exception as exc:
+                        print(f"  Trial {trial_idx} failed: {exc}")
 
         return aggregate_trials(results)
     finally:

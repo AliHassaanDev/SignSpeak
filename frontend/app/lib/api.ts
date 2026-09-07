@@ -88,6 +88,7 @@ export class SignBridgeAPI {
     tokens?: any[];
     intent?: any;
     source?: string;
+    error?: string;
   }> {
     // First, verify the backend is actually running before attempting upload
     const isOnline = await this.checkHealth();

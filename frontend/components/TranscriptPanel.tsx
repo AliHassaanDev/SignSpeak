@@ -215,7 +215,7 @@ export default function TranscriptPanel({
   const hasContent = Boolean(intent?.urduSentence || displayPills.length > 0);
 
   return (
-    <div className="translation-canvas" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+    <div className="panel translation-canvas" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
       <div className="canvas-glow" />
 
       {/* ─── MAIN BLOCK: Translated User Intent ─── */}

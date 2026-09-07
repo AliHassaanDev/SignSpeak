@@ -39,3 +39,7 @@ Thumbs.db
 
 # VS Code
 .vscode/
+
+# Scratch & Temporary
+scratch/
+*.tmp

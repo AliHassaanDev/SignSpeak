@@ -1,0 +1,51 @@
+{
+  "words": {
+    "DOCTOR": {
+      "asset": "doctor.glb",
+      "type": "WORD_SIGN",
+      "source": "DynamicWordLevelPSL"
+    },
+    "GO": {
+      "asset": "go.glb",
+      "type": "WORD_SIGN",
+      "source": "DynamicWordLevelPSL"
+    },
+    "WANT": {
+      "asset": "want.glb",
+      "type": "WORD_SIGN",
+      "source": "DynamicWordLevelPSL"
+    },
+    "MEDICINE": {
+      "asset": "medicine.glb",
+      "type": "WORD_SIGN",
+      "source": "DynamicWordLevelPSL"
+    },
+    "HELP": {
+      "asset": "help.glb",
+      "type": "WORD_SIGN",
+      "source": "DynamicWordLevelPSL"
+    }
+  },
+  "alphabet": {
+    "I": {
+      "asset": "letter_i.glb",
+      "type": "FINGERSPELLING",
+      "source": "UAlpha40"
+    },
+    "A": {
+      "asset": "letter_a.glb",
+      "type": "FINGERSPELLING",
+      "source": "UAlpha40"
+    },
+    "L": {
+      "asset": "letter_l.glb",
+      "type": "FINGERSPELLING",
+      "source": "UAlpha40"
+    }
+  },
+  "metadata": {
+    "total_words": 5,
+    "total_alphabet": 3,
+    "version": "1.0.0"
+  }
+}

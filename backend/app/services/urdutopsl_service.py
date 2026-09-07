@@ -1,5 +1,7 @@
 import re
-from typing import List, Dict, Any
+import json
+import os
+from typing import List, Dict, Any, Optional
 from app.models.schemas import UrduToPSLRequest, UrduToPSLResponse, PSLTokenResponse
 
 # Canonical Urdu to PSL mappings aligning with PSL.org.pk and Dynamic Word-Level PSL dataset
@@ -114,7 +116,26 @@ class UrduToPSLService:
     def __init__(self, model_path: str = "models/urdutopsl.onnx"):
         self.model_name = "urdutopsl"
         self.model_path = model_path
+        self._video_registry: Dict[str, str] = {}
         self._load_model()
+        self._load_video_registry()
+
+    def _load_video_registry(self):
+        """Load the gloss video registry from the frontend public data."""
+        registry_path = os.path.join(
+            os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))),
+            "frontend", "public", "data", "gloss_video_registry.json"
+        )
+        try:
+            with open(registry_path, "r", encoding="utf-8") as f:
+                self._video_registry = json.load(f)
+            print(f"[urdutopsl Service] Loaded video registry: {len(self._video_registry)} tokens")
+        except FileNotFoundError:
+            print(f"[urdutopsl Service] Video registry not found at {registry_path}")
+
+    def resolve_token(self, gloss: str) -> Optional[str]:
+        """Resolve a gloss token to its video URL, or None if not cataloged."""
+        return self._video_registry.get(gloss)
 
     def _load_model(self):
         """Loads trained Kaggle urdutopsl model if present, otherwise uses verified hybrid resolver."""
@@ -155,7 +176,8 @@ class UrduToPSLService:
                 duration_ms=int(data["duration_ms"] / req.speed_factor),
                 confidence=0.98,
                 description=data["description"],
-                avatar_pose=data["avatar_pose"] if req.include_avatar_poses else None
+                avatar_pose=data["avatar_pose"] if req.include_avatar_poses else None,
+                video_url=self.resolve_token(data["gloss"])
             )
             tokens.append(tok)
             glosses.append(data["gloss"])
@@ -173,13 +195,15 @@ class UrduToPSLService:
                         duration_ms=int(data["duration_ms"] / req.speed_factor),
                         confidence=0.95,
                         description=data["description"],
-                        avatar_pose=data["avatar_pose"] if req.include_avatar_poses else None
+                        avatar_pose=data["avatar_pose"] if req.include_avatar_poses else None,
+                        video_url=self.resolve_token(data["gloss"])
                     )
                     tokens.append(tok)
                     glosses.append(data["gloss"])
                 else:
                     # Fingerspell characters for name or out-of-vocabulary word
                     for ch in word:
+                        letter_gloss = f"LETTER_{ch}"
                         tok = PSLTokenResponse(
                             id=f"char_{ch}",
                             urdu=ch,
@@ -189,7 +213,8 @@ class UrduToPSLService:
                             duration_ms=int(900 / req.speed_factor),
                             confidence=0.90,
                             description=f"Fingerspelling for character {ch}",
-                            avatar_pose={"left_arm": {"shoulder": 10, "elbow": 20, "shape": "open"}, "right_arm": {"shoulder": 40, "elbow": 80, "shape": "point"}, "motion": "forwardPush"} if req.include_avatar_poses else None
+                            avatar_pose={"left_arm": {"shoulder": 10, "elbow": 20, "shape": "open"}, "right_arm": {"shoulder": 40, "elbow": 80, "shape": "point"}, "motion": "forwardPush"} if req.include_avatar_poses else None,
+                            video_url=self.resolve_token(letter_gloss)
                         )
                         tokens.append(tok)
                         glosses.append(f"SPELL_{ch}")

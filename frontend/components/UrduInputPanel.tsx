@@ -1,83 +1,129 @@
 "use client";
 
 import React, { useState } from "react";
-import { Copy, Check, Mic, MicOff, Sparkles, Volume2, VolumeX } from "lucide-react";
-import { PSLSign, UrduToPSLInferenceResult } from "../app/lib/psl_types";
+import {
+  Mic,
+  MicOff,
+  Sparkles,
+  Volume2,
+  VolumeX,
+  Languages,
+  ArrowRightLeft,
+  X,
+} from "lucide-react";
+
+export type InputLanguage = "ur" | "en";
 
 export interface UrduInputPanelProps {
   text: string;
   setText: (v: string) => void;
+  inputLang: InputLanguage;
+  setInputLang: (lang: InputLanguage) => void;
   isListening: boolean;
   toggleVoiceInput: () => void;
   isSpeaking: boolean;
-  playUrduAudio: () => void;
-  handleTranslate: (t: string) => void;
-  inferenceResult: UrduToPSLInferenceResult | null;
-  isBackendOnline: boolean;
-  signs: PSLSign[];
-  setSigns: (signs: PSLSign[]) => void;
-  setInferenceResult: (res: UrduToPSLInferenceResult | null) => void;
-  setIsPlaying: (playing: boolean) => void;
+  playAudio: () => void;
+  handleTranslate: (text: string, lang?: InputLanguage) => void;
+  isTranslating?: boolean;
 }
 
 export default function UrduInputPanel({
   text,
   setText,
+  inputLang,
+  setInputLang,
   isListening,
   toggleVoiceInput,
   isSpeaking,
-  playUrduAudio,
+  playAudio,
   handleTranslate,
-  inferenceResult,
-  isBackendOnline,
-  signs,
-  setSigns,
-  setInferenceResult,
-  setIsPlaying,
+  isTranslating = false,
 }: UrduInputPanelProps) {
-  const [copied, setCopied] = useState(false);
   const [activeCategory, setActiveCategory] = useState<string>("all");
 
   const categories = [
-    { id: "all", label: "تمام اشارات (All)" },
-    { id: "greeting", label: "سلام و دعائیں (Greetings)" },
-    { id: "emergency", label: "ایمرجنسی و مدد (Emergency)" },
-    { id: "daily", label: "روزمرہ گفتگو (Daily)" },
+    { id: "all", labelUrdu: "تمام (All)", labelEn: "All" },
+    { id: "greeting", labelUrdu: "سلام و دعائیں (Greetings)", labelEn: "Greetings" },
+    { id: "emergency", labelUrdu: "ہیلپ و ایمرجنسی (Emergency)", labelEn: "Emergency" },
+    { id: "daily", labelUrdu: "روزمرہ گفتگو (Daily)", labelEn: "Daily" },
   ];
 
-  const categoryPresets: Record<string, string[]> = {
-    all: ["السلام علیکم", "آپ کیسے ہیں؟", "شکریہ", "براہ کرم مدد کریں", "پاکستان", "پانی", "ڈاکٹر", "میرا نام"],
-    greeting: ["السلام علیکم", "سلام", "شکریہ", "خوش آمدید"],
-    emergency: ["براہ کرم مدد کریں", "مدد", "ہسپتال", "ڈاکٹر"],
-    daily: ["پاکستان", "پانی", "کھانا", "ہاں", "نہیں", "میرا نام"],
+  const presetsUrdu: Record<string, string[]> = {
+    all: ["السلام علیکم", "آپ کیسے ہیں؟", "شکریہ", "ہسپتال کہاں ہے؟", "براہ کرم مدد کریں", "پاکستان", "پانی", "میرا نام امان ہے"],
+    greeting: ["السلام علیکم", "سلام", "آپ کیسے ہیں؟", "شکریہ", "خوش آمدید", "اللہ حافظ"],
+    emergency: ["ہسپتال کہاں ہے؟", "براہ کرم مدد کریں", "مدد", "ڈاکٹر"],
+    daily: ["مجھے پانی چاہیے", "کھانا", "میرا نام امان ہے", "پاکستان", "اسکول", "دوست", "ہاں", "نہیں"],
   };
 
-  const copyGlossSequence = () => {
-    if (signs.length === 0) return;
-    const glossStr = signs.map((s) => s.gloss).join(" ");
-    navigator.clipboard.writeText(glossStr);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+  const presetsEn: Record<string, string[]> = {
+    all: ["Where is the hospital?", "How are you?", "Thank you", "Please help", "I want water", "My name is Amaan", "Pakistan"],
+    greeting: ["Hello", "How are you?", "Thank you", "Welcome", "Goodbye"],
+    emergency: ["Where is the hospital?", "Please help", "I need a doctor", "Emergency"],
+    daily: ["I want water", "I want to eat food", "My name is Amaan", "School", "Friend", "Yes", "No"],
+  };
+
+  const activePresets = inputLang === "en"
+    ? presetsEn[activeCategory] || presetsEn.all
+    : presetsUrdu[activeCategory] || presetsUrdu.all;
+
+  const handleLanguageToggle = () => {
+    const nextLang: InputLanguage = inputLang === "ur" ? "en" : "ur";
+    setInputLang(nextLang);
+    if (text) {
+      handleTranslate(text, nextLang);
+    }
   };
 
   return (
     <div className="input-column">
-      <div className="panel input-panel">
+      <div className="panel input-panel modern-input-card">
+        {/* Header Row with Title & Top-Right Language Switcher */}
         <div className="panel-title-row">
-          <span className="panel-title">Enter Urdu Text (اردو متن درج کریں)</span>
-          <div className="input-actions">
+          <div className="panel-title-group">
+            <span className="panel-title">
+              {inputLang === "en" ? "Enter English Text" : "اردو متن درج کریں"}
+            </span>
+          </div>
+
+          <div className="input-header-actions">
+            {/* Top-Right Language Toggle Icon Button */}
             <button
+              type="button"
+              className={`lang-switch-btn ${inputLang === "en" ? "is-english" : "is-urdu"}`}
+              onClick={handleLanguageToggle}
+              title={`Switch input mode to ${inputLang === "en" ? "Urdu (اردو)" : "English (EN)"}`}
+            >
+              <Languages size={14} className="lang-icon" />
+              <div className="lang-pill-track">
+                <span className={`lang-pill-item ${inputLang === "ur" ? "active" : ""}`}>اردو</span>
+                <span className={`lang-pill-item ${inputLang === "en" ? "active" : ""}`}>EN</span>
+              </div>
+              <ArrowRightLeft size={12} className="switch-arrow-icon" />
+            </button>
+
+            {/* Voice Input Button */}
+            <button
+              type="button"
               className={`icon-circle-btn ${isListening ? "active pulse" : ""}`}
               onClick={toggleVoiceInput}
-              title="Voice Input (اردو بولیں) (FR-10)"
+              title={
+                isListening
+                  ? "Stop listening"
+                  : inputLang === "en"
+                    ? "Speak in English (Voice input)"
+                    : "اردو بولیں (Voice input)"
+              }
             >
               {isListening ? <MicOff size={15} color="#ef4444" /> : <Mic size={15} />}
             </button>
+
+            {/* TTS Pronunciation Button */}
             {text && (
               <button
+                type="button"
                 className={`icon-circle-btn ${isSpeaking ? "active" : ""}`}
-                onClick={playUrduAudio}
-                title="Audio Pronunciation (FR-09)"
+                onClick={playAudio}
+                title="Listen to pronunciation"
               >
                 {isSpeaking ? <VolumeX size={15} /> : <Volume2 size={15} />}
               </button>
@@ -85,95 +131,86 @@ export default function UrduInputPanel({
           </div>
         </div>
 
-        <textarea
-          dir="rtl"
-          placeholder="یہاں اردو لکھیں یا بولیں... (مثال: السلام علیکم، آپ کیسے ہیں؟)"
-          value={text}
-          onChange={(e) => {
-            setText(e.target.value);
-            handleTranslate(e.target.value);
-          }}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && !e.shiftKey) {
-              e.preventDefault();
-              handleTranslate(text);
+        {/* Textarea: Dynamic dir & placeholder */}
+        <div className="textarea-wrapper">
+          <textarea
+            dir={inputLang === "en" ? "ltr" : "rtl"}
+            placeholder={
+              inputLang === "en"
+                ? "Type or speak English here... (e.g., Where is the hospital? / My name is Amaan)"
+                : "یہاں اردو لکھیں یا بولیں... (مثال: ہسپتال کہاں ہے؟ / میرا نام امان ہے / السلام علیکم)"
             }
-          }}
-          maxLength={500}
-        />
+            value={text}
+            onChange={(e) => {
+              setText(e.target.value);
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                handleTranslate(text, inputLang);
+              }
+            }}
+            maxLength={500}
+            className={`modern-textarea ${inputLang === "en" ? "ltr-mode" : "rtl-mode"}`}
+          />
+        </div>
 
+        {/* Textarea Footer: Char count & Clear */}
         <div className="input-footer">
-          <span className="counter">{text.length} / 500 Characters</span>
+          <span className="counter">{text.length} / 500 characters</span>
           {text && (
             <button
+              type="button"
               className="clear-btn"
               onClick={() => {
                 setText("");
-                setSigns([]);
-                setInferenceResult(null);
-                setIsPlaying(false);
+                handleTranslate("", inputLang);
               }}
             >
-              Clear Text
+              <X size={13} /> Clear
             </button>
           )}
         </div>
 
-        {inferenceResult && (
-          <div className="model-telemetry-badge">
-            <span className="model-tag">
-              Model: <strong>{inferenceResult.modelName}</strong> ({inferenceResult.modelVersion})
-            </span>
-            <span className="conf-tag">
-              Confidence: {Math.round(inferenceResult.modelConfidence * 100)}%
-            </span>
-            <span className="token-tag">
-              {inferenceResult.signCount} Signs generated
-            </span>
-            <span style={{ fontSize: "10px", color: isBackendOnline ? "#34d399" : "#a78bfa" }}>
-              ● {isBackendOnline ? "FastAPI Connected" : "Local Engine"}
-            </span>
-          </div>
-        )}
-
+        {/* Translate Action Button */}
         <div className="translate-actions-row">
           <button
+            type="button"
             className="primary-btn violet translate-btn"
-            onClick={() => handleTranslate(text)}
+            onClick={() => handleTranslate(text, inputLang)}
+            disabled={!text.trim() || isTranslating}
           >
-            <Sparkles size={15} /> Translate & Sign
+            <Sparkles size={16} className={isTranslating ? "spin" : ""} />
+            <span>{isTranslating ? "Translating with Gemini..." : "Translate to PSL Signs"}</span>
           </button>
-          {signs.length > 0 && (
-            <button className="secondary-btn copy-gloss-btn" onClick={copyGlossSequence}>
-              {copied ? <Check size={14} color="#10b981" /> : <Copy size={14} />}
-              <span>{copied ? "Copied" : "Copy Gloss"}</span>
-            </button>
-          )}
         </div>
 
+        {/* Quick Presets Section */}
         <div className="quick-presets-box">
           <div className="category-filter-row">
             {categories.map((cat) => (
               <button
                 key={cat.id}
+                type="button"
                 className={`category-pill ${activeCategory === cat.id ? "active" : ""}`}
                 onClick={() => setActiveCategory(cat.id)}
               >
-                {cat.label}
+                {inputLang === "en" ? cat.labelEn : cat.labelUrdu}
               </button>
             ))}
           </div>
 
           <div className="quick-chips-grid">
-            {(categoryPresets[activeCategory] || categoryPresets.all).map((item) => (
+            {activePresets.map((item) => (
               <button
                 key={item}
+                type="button"
                 className={`quick-chip ${text.trim() === item ? "selected" : ""}`}
                 onClick={() => {
                   setText(item);
-                  handleTranslate(item);
+                  handleTranslate(item, inputLang);
                 }}
-                dir="rtl"
+                dir={inputLang === "en" ? "ltr" : "rtl"}
               >
                 {item}
               </button>

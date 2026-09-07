@@ -6,6 +6,17 @@ import { useGLTF, OrbitControls } from "@react-three/drei";
 import * as THREE from "three";
 import { PSLSign } from "../app/lib/psl-dictionary";
 
+// Suppress THREE.Clock deprecation warning emitted by @react-three/fiber's
+// internal renderer (the Canvas component).  R3F v9 uses THREE.Clock
+// internally; this is fixed in later versions but harmless.
+if (typeof window !== "undefined") {
+  const _origWarn = console.warn;
+  console.warn = (...args: unknown[]) => {
+    if (typeof args[0] === "string" && args[0].includes("THREE.Clock")) return;
+    _origWarn.apply(console, args);
+  };
+}
+
 // Define pose types to match existing model
 interface AvatarPose {
   leftArm: { shoulderAngle: number; elbowAngle: number; handShape: "open" | "closed" | "pointing" };
@@ -145,6 +156,20 @@ export default function Avatar3D({
       <Canvas
         camera={{ position: [0, 0.3, 1.7], fov: 40 }}
         style={{ background: "transparent", width: "100%", height: "100%" }}
+        gl={{
+          preserveDrawingBuffer: true,
+          powerPreference: "high-performance",
+          antialias: true,
+        }}
+        onCreated={({ gl }) => {
+          const canvas = gl.domElement;
+          const handleLost = (e: Event) => e.preventDefault();
+          const handleRestored = () => {
+            gl.setSize(canvas.clientWidth, canvas.clientHeight);
+          };
+          canvas.addEventListener("webglcontextlost", handleLost);
+          canvas.addEventListener("webglcontextrestored", handleRestored);
+        }}
       >
         <ambientLight intensity={1.0} />
         <directionalLight position={[3, 5, 4]} intensity={1.8} />

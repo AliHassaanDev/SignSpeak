@@ -51,6 +51,7 @@ export default function CameraPanel({
   const animFrameRef = useRef<number | null>(null);
 
   const [isTranslating, setIsTranslating] = useState(false);
+  const [translatingStage, setTranslatingStage] = useState<"uploading" | "analyzing">("uploading");
 
   const [isRecording, setIsRecording] = useState(false);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -295,6 +296,9 @@ export default function CameraPanel({
                     <button className="primary-btn teal small" disabled={isTranslating} style={{ height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={async () => {
                       if (!uploadedMedia.file) return;
                       setIsTranslating(true);
+                      setTranslatingStage("uploading");
+                      // After 3s, switch label to "Analyzing signs…"
+                      const stageTimer = setTimeout(() => setTranslatingStage("analyzing"), 3000);
                       try {
                         const result = await signBridgeAPI.translatePSLToUrdu(uploadedMedia.file) as any;
                         if (result && result.id && result.id !== "none") {
@@ -307,10 +311,12 @@ export default function CameraPanel({
                         console.error("Translation failed:", err);
                         alert("Translation encountered an error. Check console for details.");
                       } finally {
+                        clearTimeout(stageTimer);
                         setIsTranslating(false);
+                        setTranslatingStage("uploading");
                       }
                     }}>
-                      <Play size={13} /> {isTranslating ? "Translating..." : "Translate"}
+                      <Play size={13} /> {isTranslating ? (translatingStage === "uploading" ? "Uploading video…" : "Analyzing signs…") : "Translate"}
                     </button>
                   </div>
                 </div>

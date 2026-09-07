@@ -8,12 +8,40 @@
  */
 
 import { PSLSign, PSL_DICTIONARY, PSL_ALPHABET } from "./psl-dictionary";
+import { isRomanScript, convertRomanToUrdu } from "./roman-urdu";
+
+/**
+ * Urdu → Roman letter transliteration for the fingerspelling fallback.
+ * Mirrors the backend's URDU_CHAR_TO_ROMAN map so that out-of-vocabulary
+ * Urdu words produce clean ASCII LETTER_X tokens that exist as keyframes
+ * (LETTER_A..LETTER_Z) instead of raw Urdu characters that get dropped.
+ */
+const URDU_CHAR_TO_ROMAN: Record<string, string> = {
+  "آ": "A", "ا": "A", "ب": "B", "پ": "P", "ت": "T", "ٹ": "T", "ث": "S",
+  "ج": "J", "چ": "CH", "ح": "H", "خ": "KH", "د": "D", "ڈ": "D", "ذ": "Z",
+  "ر": "R", "ڑ": "R", "ز": "Z", "ژ": "ZH", "س": "S", "ش": "SH", "ص": "S",
+  "ض": "Z", "ط": "T", "ظ": "Z", "ع": "A", "غ": "GH", "ف": "F", "ق": "Q",
+  "ک": "K", "گ": "G", "ل": "L", "م": "M", "ن": "N", "ں": "N", "و": "W",
+  "ہ": "H", "ھ": "H", "ء": "A", "ی": "Y", "ے": "E",
+};
+
+/** Convert one character into a LETTER_X fingerspelling gloss token. */
+function charToLetterGloss(char: string): string {
+  const upper = char.toUpperCase();
+  if (/^[A-Z0-9]$/.test(upper)) return `LETTER_${upper}`;
+  const roman = URDU_CHAR_TO_ROMAN[char];
+  return roman ? `LETTER_${roman}` : `LETTER_${upper}`;
+}
 
 export interface UrduToPSLInferenceResult {
   modelName: "urdutopsl";
   modelVersion: "1.0.0-hybrid";
   inputUrdu: string;
   normalizedText: string;
+  /** True when the input was Roman/English and got converted to Urdu script. */
+  convertedFromRoman?: boolean;
+  /** The Urdu-script text produced by the conversion (when it happened). */
+  urduConversion?: string;
   tokens: PSLSign[];
   glossSequence: string[];
   totalDurationMs: number;
@@ -34,7 +62,22 @@ export class UrduToPSLModelEngine {
   public readonly modelArtifact = "urdutopsl.onnx";
   private isModelLoaded = false;
 
+  /**
+   * Punctuation-insensitive lookup index over PSL_DICTIONARY.
+   * Dictionary keys like "آپ کیسے ہیں؟" carry Urdu punctuation which
+   * normalizeUrdu() strips from input — without this index the stripped
+   * input ("آپ کیسے ہیں") would never match the key.
+   */
+  private readonly dictIndex: Record<string, PSLSign> = {};
+
   private constructor() {
+    for (const [key, sign] of Object.entries(PSL_DICTIONARY)) {
+      this.dictIndex[key] = sign;
+      const stripped = key.replace(/[،,۔.!؟?]/g, "").trim();
+      if (stripped && stripped !== key && !this.dictIndex[stripped]) {
+        this.dictIndex[stripped] = sign;
+      }
+    }
     this.initModel();
   }
 
@@ -72,16 +115,33 @@ export class UrduToPSLModelEngine {
   }
 
   /**
-   * Runs model inference on the input Urdu text using the `urdutopsl` pipeline.
+   * Runs model inference on the input text using the `urdutopsl` pipeline.
+   * Roman Urdu / English input ("khana", "water") is converted to Urdu
+   * script FIRST so it matches the Urdu-keyed dictionary, instead of
+   * falling through to letter-by-letter fingerspelling.
    */
   public async infer(rawText: string): Promise<UrduToPSLInferenceResult> {
-    const normalized = this.normalizeUrdu(rawText);
+    // ── Roman Urdu / English → Urdu script conversion ──
+    let workingText = rawText;
+    let convertedFromRoman = false;
+    if (isRomanScript(rawText)) {
+      const converted = convertRomanToUrdu(rawText);
+      if (converted !== rawText) {
+        convertedFromRoman = true;
+        workingText = converted;
+        console.log(`[urdutopsl] Roman Urdu → Urdu: "${rawText}" → "${converted}"`);
+      }
+    }
+
+    const normalized = this.normalizeUrdu(workingText);
     if (!normalized) {
       return {
         modelName: "urdutopsl",
         modelVersion: "1.0.0-hybrid",
         inputUrdu: rawText,
         normalizedText: "",
+        convertedFromRoman,
+        urduConversion: convertedFromRoman ? workingText : undefined,
         tokens: [],
         glossSequence: [],
         totalDurationMs: 0,
@@ -101,8 +161,8 @@ export class UrduToPSLModelEngine {
     let totalItemsScored = 0;
 
     // Direct multi-word phrase matching
-    if (PSL_DICTIONARY[normalized]) {
-      const sign = PSL_DICTIONARY[normalized];
+    if (this.dictIndex[normalized]) {
+      const sign = this.dictIndex[normalized];
       tokens.push(sign);
       breakdown.push({
         segment: normalized,
@@ -118,8 +178,8 @@ export class UrduToPSLModelEngine {
         // Check 2-word phrase window
         if (i < words.length - 1) {
           const twoWords = `${words[i]} ${words[i + 1]}`;
-          if (PSL_DICTIONARY[twoWords]) {
-            const sign = PSL_DICTIONARY[twoWords];
+          if (this.dictIndex[twoWords]) {
+            const sign = this.dictIndex[twoWords];
             tokens.push(sign);
             breakdown.push({
               segment: twoWords,
@@ -135,8 +195,8 @@ export class UrduToPSLModelEngine {
         }
 
         const currentWord = words[i];
-        if (PSL_DICTIONARY[currentWord]) {
-          const sign = PSL_DICTIONARY[currentWord];
+        if (this.dictIndex[currentWord]) {
+          const sign = this.dictIndex[currentWord];
           tokens.push(sign);
           breakdown.push({
             segment: currentWord,
@@ -162,12 +222,14 @@ export class UrduToPSLModelEngine {
               totalConfidenceScore += 0.92;
               totalItemsScored += 1;
             } else {
-              // Generic character spelling
+              // Generic character spelling — transliterated to a LETTER_X
+              // token so it resolves against the keyframe dictionary.
+              const letterGloss = charToLetterGloss(char);
               const genericSign: PSLSign = {
                 id: `char_${char}`,
                 urdu: char,
-                gloss: `SPELL_${char}`,
-                english: `Letter ${char}`,
+                gloss: letterGloss,
+                english: `Letter ${letterGloss.replace(/^LETTER_/, "")}`,
                 category: "alphabet",
                 duration: 900,
                 description: `Finger spelling for character ${char}`,
@@ -203,6 +265,8 @@ export class UrduToPSLModelEngine {
       modelVersion: "1.0.0-hybrid",
       inputUrdu: rawText,
       normalizedText: normalized,
+      convertedFromRoman,
+      urduConversion: convertedFromRoman ? workingText : undefined,
       tokens,
       glossSequence: tokens.map((t) => t.gloss),
       totalDurationMs: totalDuration,
