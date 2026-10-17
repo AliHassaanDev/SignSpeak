@@ -12,11 +12,14 @@ import {
   Hand,
   Languages,
   HelpCircle,
-  Zap,
-  Volume2,
-  Camera,
+  ShieldCheck,
+  HeartHandshake,
+  Cpu,
   RefreshCw,
+  Camera,
+  CheckCircle2,
 } from "lucide-react";
+import { signBridgeAPI } from "@/app/lib/api";
 
 /* ─────────────────────── Types ─────────────────────── */
 
@@ -25,10 +28,9 @@ interface Message {
   role: "bot" | "user";
   text: string;
   time: string;
+  source?: string;
   suggestions?: string[];
 }
-
-/* ─────────────────────── Knowledge Base ─────────────────────── */
 
 interface KBEntry {
   keywords: string[];
@@ -36,234 +38,381 @@ interface KBEntry {
   suggestions?: string[];
 }
 
+/* ─────────────────────── Comprehensive Knowledge Base ─────────────────────── */
+
 const KB: KBEntry[] = [
+  // ── Welcome & Greetings ──
   {
     keywords: ["hello", "hi", "hey", "salam", "السلام", "assalam", "start", "help"],
     answer:
-      "Hi! 👋 I'm **SignBot**, the SignSpeak assistant. I can help you understand how to use the app, learn about Pakistani Sign Language (PSL), or troubleshoot any issues.\n\nWhat would you like to know?",
+      "### 👋 Welcome to SignBot!\n\nI am your **SignSpeak Assistant**, specialized in **Ethical Sign Language**, **Deaf Community Etiquette**, and guiding you through **all features of our app**.\n\nHow can I help you today?",
+    suggestions: [
+      "What are the rules of Deaf etiquette?",
+      "What is ethical AI in sign language?",
+      "How does Urdu to PSL work?",
+      "How does PSL to Urdu work?",
+    ],
+  },
+
+  // ── Ethical Sign Language: Deaf Culture & Etiquette ──
+  {
+    keywords: [
+      "etiquette",
+      "rules",
+      "deaf etiquette",
+      "how to behave",
+      "grab hands",
+      "touch hands",
+      "attention",
+      "eye contact",
+      "polite",
+      "manners",
+    ],
+    answer:
+      "### 🤝 Essential Rules of Deaf Etiquette & Ethical Communication\n\nWhen communicating with Deaf individuals, observing cultural etiquette shows respect and builds trust:\n\n" +
+      "1. **Never Grab a Signer's Hands** 🚫\n" +
+      "   • Grabbing a Deaf person's hands while they sign is the physical equivalent of covering someone's mouth to silence them.\n\n" +
+      "2. **Maintain Direct Eye Contact** 👀\n" +
+      "   • Always look at the signer's eyes and face, NOT down at their hands. Looking away while they sign is viewed as abruptly walking away from a conversation.\n\n" +
+      "3. **Getting Attention Politely** 🙋\n" +
+      "   • Wave gently in their visual field, lightly tap on the upper arm or shoulder, or flicker the room lights in a group setting. Never kick chairs, slap, or throw objects.\n\n" +
+      "4. **Speak Directly to the Person, Not the App/Interpreter** 👥\n" +
+      "   • Look directly at the Deaf communicator. Avoid phrases like *'tell him'* or *'ask her'*.\n\n" +
+      "5. **Walking Through a Sign Conversation** 🚶\n" +
+      "   • If two people are signing in a corridor, do not stop and stare or duck dramatically. Walk through smoothly without drawing attention.",
+    suggestions: [
+      "What respectful terminology should I use?",
+      "What is ethical AI in sign language?",
+      "Is PSL a complete language?",
+    ],
+  },
+
+  // ── Ethical Sign Language: Respectful Terminology ──
+  {
+    keywords: [
+      "terminology",
+      "mute",
+      "dumb",
+      "gonge",
+      "behray",
+      "offensive",
+      "deaf mute",
+      "deaf and dumb",
+      "what word to use",
+      "how to call deaf",
+      "respectful words",
+    ],
+    answer:
+      "### 💬 Respectful Terminology in Sign Language\n\nLanguage carries deep cultural impact. Here is how to refer to the Deaf community with dignity:\n\n" +
+      "✅ **Respectful & Preferred Terms:**\n" +
+      "• **\"Deaf\"** (ڈیف / قوتِ سماعت سے محروم افراد)\n" +
+      "• **\"Hard of Hearing\"** (کم سننے والا فرد)\n" +
+      "• **\"Deaf Community\"** (ڈیف کمیونٹی / بہرے افراد کی برادری)\n\n" +
+      "❌ **Outdated & Offensive Terms to Strictly Avoid:**\n" +
+      "• **\"Deaf-Mute\"** or **\"Deaf and Dumb\"**\n" +
+      "• **\"گونگا بہرا\"** (Gonga Behra)\n\n" +
+      "💡 **Why?** Deaf people are NOT 'dumb' or 'mute'. Their vocal mechanisms are functional, and they express themselves fluently in their complete native language: **Pakistani Sign Language (PSL)**.",
+    suggestions: [
+      "What are the rules of Deaf etiquette?",
+      "Is PSL a complete language?",
+      "What is ethical AI in sign language?",
+    ],
+  },
+
+  // ── Ethical Sign Language: AI Ethics & Language Sovereignty ──
+  {
+    keywords: [
+      "ethical ai",
+      "ai ethics",
+      "hearing saviorism",
+      "saviorism",
+      "ownership",
+      "language sovereignty",
+      "replace interpreter",
+      "hospital",
+      "court",
+      "legal",
+    ],
+    answer:
+      "### 🛡️ Ethical AI Principles in SignSpeak\n\nSignSpeak is committed to responsible, community-centered technology:\n\n" +
+      "1. **Centering Deaf Community Ownership** 🤲\n" +
+      "   • Sign language belongs to the Deaf community. Technology must empower and bridge communication rather than appropriate or attempt to 'cure' Deaf identity ('Hearing Saviorism').\n\n" +
+      "2. **Assistive Bridge vs. Professional Interpreters** ⚖️\n" +
+      "   • SignSpeak is an assistive bridge for daily conversations, family connection, and educational learning.\n" +
+      "   • **Crucial Safety Note:** For critical medical diagnoses, legal hearings, courtroom testimony, or mental health consultations, **certified human sign language interpreters must always be used**.\n\n" +
+      "3. **Informed Consent & Privacy** 🔒\n" +
+      "   • Never film a Deaf person signing without their explicit, informed consent.\n" +
+      "   • SignSpeak does NOT harvest or resell biometric gesture data.",
+    suggestions: [
+      "How does SignSpeak protect privacy?",
+      "How does the 5-step recognition work?",
+      "What are the rules of Deaf etiquette?",
+    ],
+  },
+
+  // ── Ethical Sign Language: PSL as a Natural Language & Non-Manual Markers ──
+  {
+    keywords: [
+      "psl grammar",
+      "natural language",
+      "is psl a language",
+      "non manual",
+      "facial expressions",
+      "grammar",
+      "syntax",
+      "sov",
+      "dialects",
+      "regional",
+    ],
+    answer:
+      "### 🇵🇰 Pakistani Sign Language (PSL): Linguistic Status & Ethics\n\n• **A Complete Natural Language:** PSL is NOT mere pantomime or signed Urdu word-by-word. It possesses its own rich morphology, spatial grammar, and **Subject-Object-Verb (SOV)** syntax.\n\n" +
+      "• **Non-Manual Markers (NMMs) are Grammatical:** In PSL, facial expressions (raised eyebrows, tilted head, mouth shapes) are **grammatical necessities**, not emotional theatrics. For example, a raised eyebrow marks a yes/no question, while furrowed brows mark a question word (کہاں, کیوں).\n\n" +
+      "• **Respecting Regional Dialects:** PSL has authentic regional dialects across Pakistan (Karachi, Lahore, Rawalpindi/Islamabad, Peshawar, Quetta, Multan). Ethical communication honors these regional variations rather than imposing a single artificial standard.",
+    suggestions: [
+      "What signs are supported in the app?",
+      "How does Urdu to PSL work?",
+      "What is Deaf etiquette?",
+    ],
+  },
+
+  // ── About SignSpeak (App Overview) ──
+  {
+    keywords: ["what is signspeak", "about", "what is this app", "overview", "our app", "project", "signspeak"],
+    answer:
+      "### 🌟 About SignSpeak — Two-Way PSL Platform\n\n**SignSpeak** is an inclusive, browser-native two-way communication system designed for **1.5M+ deaf individuals** and hearing communities across Pakistan.\n\n" +
+      "• 🔤 **Urdu → PSL (3D Avatar):** Type Urdu or Roman Urdu (e.g. *شکریہ*, *salam*, *madad*) and an interactive 3D avatar signs the translation in real-time.\n" +
+      "• 📷 **PSL → Urdu (Video Recognition):** Use your camera or upload a video. Our unified 5-step pipeline detects gestures and translates them into natural, spoken Urdu sentences with Text-to-Speech (TTS).\n\n" +
+      "No installation or special sensory gloves needed — it runs directly in modern browsers!",
     suggestions: [
       "How does Urdu to PSL work?",
       "How does PSL to Urdu work?",
-      "What signs are supported?",
-      "How do I start?",
+      "What is the 5-step recognition pipeline?",
     ],
   },
+
+  // ── Teaching Signs: How to Sign Thank You ──
   {
-    keywords: ["what is signspeak", "about", "what is this app", "what does this do", "overview"],
+    keywords: ["thank you", "thanks", "shukriya", "شکریہ", "how to sign thank you", "how can i sign thank you"],
     answer:
-      "**SignSpeak** is a two-way Pakistani Sign Language (PSL) communication platform. 🤝\n\nIt bridges communication between **1.5M+ deaf individuals** and hearing communities in Pakistan through:\n\n• 🔤 **Urdu → PSL** — Type Urdu text and watch a 3D avatar perform the signs\n• 📷 **PSL → Urdu** — Use your camera to recognize sign language gestures and get Urdu text output\n\nNo installation needed — it runs entirely in your browser!",
+      "### 🙏 How to Sign \"Thank You\" (شکریہ) in PSL\n\n" +
+      "1. **Handshape:** Flatten your dominant hand with fingers straight together and thumb gently tucked.\n" +
+      "2. **Starting Position:** Touch the tips of your fingers lightly to your chin or lower cheek.\n" +
+      "3. **Movement:** Move your hand forward and slightly downward toward the person with your palm facing upward, as if offering sincere gratitude.\n" +
+      "4. **Non-Manual Marker (Facial Expression):** Smile warmly and give a slight head nod. In PSL, facial expressions are grammatical essentials that convey sincerity!\n\n" +
+      "💡 **Deaf Etiquette Reminder:** Maintain direct eye contact with the person's face/eyes while signing—never stare at their hands.\n\n" +
+      "👉 *Tip: Switch to the **Urdu to PSL** tab, type 'شکریہ' or 'thank you', and watch our 3D avatar demonstrate this sign in 3D!*",
     suggestions: [
-      "How does the 3D avatar work?",
-      "Which languages are supported?",
-      "Is this free to use?",
+      "How do I sign \"Assalam-o-Alaikum\" (سلام)?",
+      "What are the rules of Deaf etiquette?",
+      "How does Urdu to PSL work?",
     ],
   },
+
+  // ── Teaching Signs: How to Sign Salam / Greeting ──
+  {
+    keywords: ["salam", "assalam", "hello", "greeting", "ہیلو", "السلام علیکم", "how to sign salam", "how to sign hello"],
+    answer:
+      "### ✋ How to Sign \"Assalam-o-Alaikum\" (سلام / السلام علیکم) in PSL\n\n" +
+      "1. **Handshape:** Open, flat dominant hand with fingers held together and thumb aligned.\n" +
+      "2. **Starting Position:** Place fingertips gently near your right temple / forehead (resembling a polite, welcoming salute).\n" +
+      "3. **Movement:** Sweep your hand outward and slightly forward toward the recipient in a smooth, welcoming arc.\n" +
+      "4. **Non-Manual Marker:** Accompany with direct eye contact, a slight head bow, and a welcoming smile.\n\n" +
+      "💡 **Cultural Note:** Direct eye contact is a key sign of respect in Deaf culture. You can test this sign in the **Urdu to PSL** tab or test your webcam recognition in **PSL to Urdu**!",
+    suggestions: [
+      "How do I sign \"Thank You\" (شکریہ)?",
+      "What is the best way to get a Deaf person's attention?",
+      "How does the camera recognize signs?",
+    ],
+  },
+
+  // ── Teaching Signs: How to Sign Water ──
+  {
+    keywords: ["water", "pani", "پانی", "how to sign water"],
+    answer:
+      "### 💧 How to Sign \"Water\" (پانی) in PSL\n\n" +
+      "1. **Handshape:** Form a 'W' shape or extended three fingers (index, middle, ring), or a slightly cupped hand.\n" +
+      "2. **Position:** Bring your fingertips lightly to the corner of your mouth or chin.\n" +
+      "3. **Movement:** Tap lightly twice near your lower lip/chin, signifying water or drinking.\n" +
+      "4. **Facial Expression:** Natural engaged facial posture.\n\n" +
+      "👉 *Try it in SignSpeak: Record yourself signing in **PSL → Urdu** mode or view it on the 3D avatar in **Urdu → PSL**!*",
+    suggestions: [
+      "How do I sign \"Thank You\"?",
+      "What signs are supported by the camera?",
+      "How does Urdu to PSL work?",
+    ],
+  },
+
+  // ── App Feature: Urdu to PSL (Avatar & Input) ──
   {
     keywords: [
       "urdu to psl",
       "translate urdu",
       "type urdu",
       "text to sign",
-      "urdu sign",
+      "roman urdu",
       "how to translate",
-      "translate text",
     ],
     answer:
-      "**Urdu → PSL Translation** is simple! 📝\n\n1. Click the **\"Urdu to PSL\"** tab at the top of the workspace\n2. Type your Urdu text in the input box (e.g., *شکریہ* or *سلام*)\n3. You can also type **Roman Urdu** like *shukriya* or *salam* — it works too!\n4. Hit **Translate** and watch the 3D avatar perform the signs\n5. Use **Play / Pause** buttons to control the animation\n\n💡 *Tip: Enable Auto-Play to animate immediately on translation.*",
+      "### 🔤 How Urdu → PSL Translation Works in SignSpeak\n\n1. Select the **'Urdu to PSL'** tab in the main workspace.\n" +
+      "2. **Type your text:** You can type native **Urdu script** (e.g., *شکریہ*, *پانی*, *ڈاکٹر*) OR **Roman Urdu** (e.g., *salam*, *madad*, *shukriya*).\n" +
+      "3. Click **'Translate'**.\n" +
+      "4. The system executes our translation engine:\n" +
+      "   • **Rule-based & fuzzy matching** for instant offline response\n" +
+      "   • **Gemini NLU** for complex linguistic phrasing & PSL gloss sequence generation\n" +
+      "   • **Fingerspelling fallback** for novel words or proper names\n" +
+      "5. The 3D avatar smoothly animates the signs! Use playback buttons (Play, Pause, Replay, 0.5×–2× speed) to review.",
     suggestions: [
-      "Can I type Roman Urdu?",
-      "What signs are supported?",
-      "How do I control the avatar?",
+      "How does the 3D avatar work?",
+      "What is fingerspelling?",
+      "How does PSL to Urdu work?",
     ],
   },
+
+  // ── App Feature: 3D Avatar Engine ──
+  {
+    keywords: [
+      "3d avatar",
+      "avatar",
+      "xbot",
+      "animation",
+      "3d model",
+      "slerp",
+      "joints",
+      "playback",
+      "speed",
+      "expanded view",
+    ],
+    answer:
+      "### 🤖 The 3D Sign Avatar Engine\n\nBuilt with Three.js & React Three Fiber:\n\n" +
+      "• **Anatomical Accuracy:** Uses a rigged humanoid model with **35+ articulated joints**, including individual finger segments for authentic fingerspelling.\n" +
+      "• **Smooth Animation:** Interpolates bone positions and rotations using **quaternion spherical linear interpolation (Slerp)**.\n" +
+      "• **Interactive Controls:**\n" +
+      "  ▶️ Play / ⏸️ Pause / 🔄 Replay\n" +
+      "  ⚡ Variable speed: 0.5× (learning mode), 1.0×, 1.5×, 2.0×\n" +
+      "  🏷️ Interactive Sign Chips: Click any sign chip to jump directly to that gesture\n" +
+      "  🖥️ Expanded View: Enlarge the viewport or orbit/zoom the 3D camera with your mouse.",
+    suggestions: [
+      "What is fingerspelling?",
+      "Can I type Roman Urdu?",
+      "How does PSL to Urdu work?",
+    ],
+  },
+
+  // ── App Feature: PSL to Urdu (5-Step Pipeline) ──
   {
     keywords: [
       "psl to urdu",
-      "sign to urdu",
       "camera",
-      "webcam",
-      "recognize",
       "recognition",
       "detect",
-      "capture signs",
-      "sign recognition",
+      "pipeline",
+      "5-step",
+      "5 step",
+      "bilstm",
+      "mediapipe",
+      "opencv",
+      "fallback",
     ],
     answer:
-      "**PSL → Urdu Recognition** uses your webcam to detect signs! 📷\n\n1. Click the **\"PSL to Urdu\"** tab\n2. Click **\"Start Camera\"** and allow browser camera permissions\n3. Perform PSL signs in front of the camera\n4. Recognized signs appear as **Urdu text** in the output panel\n5. Click **🔊 Speak** to hear the Urdu translation read aloud\n\n💡 *Tip: Ensure good lighting and keep your hands within the camera frame for best results.*",
+      "### 📷 How PSL → Urdu Video Recognition Works (Unified 5-Step Pipeline)\n\nSignSpeak uses a state-of-the-art hybrid AI architecture:\n\n" +
+      "1. **Step 1: Video Preprocessing (OpenCV)**\n" +
+      "   • Standardizes video to 30 FPS, uniform 640×480 resolution, and temporal normalization.\n\n" +
+      "2. **Step 2: Landmark Extraction (MediaPipe)**\n" +
+      "   • Extracts upper-body pose & 21 hand landmarks per hand (462-dim combined spatial + velocity feature vector) normalized to body torso & wrists.\n\n" +
+      "3. **Step 3: Kinetic Temporal Segmentation**\n" +
+      "   • Analyzes motion energy and kinetic velocity profiles to segment continuous gestures into individual sign intervals.\n\n" +
+      "4. **Step 4: Sequence Classification (BiLSTM / Conv1D)**\n" +
+      "   • Classifies core in-distribution PSL vocabulary (e.g. *less*, *careful*, *noisy*, *dangerous*, *fantastic*).\n\n" +
+      "5. **Step 5: Gemini Multimodal Vision Fallback & Language Refinement**\n" +
+      "   • If gestures are open-vocabulary or out-of-distribution (e.g. *Assalam-o-Alaikum*, *Water*, *Hello*), Gemini Vision analyzes keyframes with PSL linguistic grounding and formulates natural Urdu SOV sentences.\n" +
+      "   • Click **🔊 Speak** to hear the Urdu translation spoken aloud!",
     suggestions: [
-      "What signs can be recognized?",
+      "What signs are supported?",
       "Camera not working?",
-      "Can I upload a video instead?",
+      "What is ethical AI in sign language?",
     ],
   },
+
+  // ── App Feature: Supported Signs & Vocabulary ──
   {
-    keywords: ["3d avatar", "avatar", "xbot", "animation", "3d model", "how does avatar"],
+    keywords: ["supported signs", "which words", "vocabulary", "sign list", "what signs", "classes"],
     answer:
-      "The **3D Sign Avatar** is powered by Three.js + React Three Fiber! 🤖\n\nHere's how it works:\n• A **Mixamo Xbot** humanoid model is loaded once\n• Each PSL sign gloss (like `HELLO`, `THANK_YOU`) maps to a set of **bone keyframes** stored in a JSON dictionary\n• The avatar smoothly interpolates between poses using **quaternion slerp animation**\n• All 35+ joints are animated — including **individual fingers** for authentic fingerspelling\n\nYou can:\n✅ Play / Pause / Replay\n✅ Adjust speed (0.5× to 2×)\n✅ Use fullscreen expanded view\n✅ Orbit the 3D model with your mouse",
+      "### 🖐️ Supported Vocabulary in SignSpeak\n\nSignSpeak supports a dual-tier vocabulary:\n\n" +
+      "1. **Core 31-Class Neural Dataset:**\n" +
+      "   • *Alert, Careful, Cheap, Crazy, Dangerous, Decent, Dumb, Excited, Extreme, Fantastic, Far, Fearful, Foreign, Funny, Good, Healthy, Heavy, Important, Intelligent, Interesting, Late, Less, New, No, Noisy, Peaceful, Quick, Ready, Secure, Smart, Yes*.\n\n" +
+      "2. **Open-Vocabulary Multimodal Recognition:**\n" +
+      "   • Cultural greetings (السلام علیکم / Assalam-o-Alaikum, ہیلو / Hello)\n" +
+      "   • Everyday needs (پانی / Water, کھانا / Food, مدد / Help, شکریہ / Thank You)\n\n" +
+      "3. **Fingerspelling Fallback:**\n" +
+      "   • Any name or unlisted word typed in Urdu or Roman Urdu is spelled letter-by-letter on the 3D avatar using the official PSL finger alphabet.",
     suggestions: [
-      "How do I control playback?",
-      "What is fingerspelling?",
-      "Why does the avatar not move?",
-    ],
-  },
-  {
-    keywords: [
-      "supported signs",
-      "supported words",
-      "what signs",
-      "which words",
-      "vocabulary",
-      "sign list",
-      "what can i translate",
-    ],
-    answer:
-      "SignSpeak currently supports these **PSL signs** natively:\n\n🖐️ **Greetings:** السلام علیکم, سلام, شکریہ, خوش آمدید, اللہ حافظ\n❓ **Questions:** آپ کیسے ہیں؟, کیسے ہیں\n🆘 **Emergency:** مدد, براہ کرم مدد کریں, ہسپتال, ڈاکٹر\n📅 **Daily:** پاکستان, پانی, کھانا, ہاں, نہیں, دوست, اسکول, میرا نام\n\n**Fingerspelling fallback:** Any word not in the dictionary is automatically spelled letter by letter using PSL finger alphabet.\n\n🤖 *AI-powered translation (Gemini) can handle many more phrases when configured.*",
-    suggestions: [
-      "What is fingerspelling?",
-      "How does AI translation work?",
-      "Can I add new signs?",
-    ],
-  },
-  {
-    keywords: ["roman urdu", "english", "roman", "latin", "shukriya", "salam"],
-    answer:
-      "Yes! SignSpeak accepts **Roman Urdu** and even some English words! 🎉\n\nExamples that work:\n• `salam` → سلام (Hello)\n• `shukriya` → شکریہ (Thank you)\n• `madad` → مدد (Help)\n• `paani` → پانی (Water)\n• `doctor` → ڈاکٹر\n• `pakistan` → پاکستان\n\nThe app converts Roman Urdu to Urdu script automatically before translating. If a word isn't in the dictionary, it falls back to letter-by-letter fingerspelling.",
-    suggestions: [
-      "What other words are supported?",
       "How does fingerspelling work?",
+      "How does the camera recognize signs?",
+      "What is Deaf etiquette?",
     ],
   },
+
+  // ── App Feature: Camera Troubleshooting ──
   {
-    keywords: ["fingerspell", "fingerspelling", "finger spell", "spelling", "letter by letter"],
+    keywords: ["camera not working", "camera error", "permission", "allow camera", "webcam not", "lighting"],
     answer:
-      "**Fingerspelling** is a fallback for words not in the PSL dictionary. ✋\n\nWhen you type a word that doesn't have a direct PSL sign (like a proper name or rare term), SignSpeak:\n\n1. Breaks the word into individual characters\n2. Maps each character to its PSL hand shape (e.g., `ا` → Letter A shape)\n3. Animates them one by one on the 3D avatar\n\nThis way, you can communicate **any word** even if a dedicated sign doesn't exist for it. Each letter gets its own `LETTER_X` animation keyframe.",
-    suggestions: [
-      "What signs have dedicated animations?",
-      "How do I see which type each word is?",
-    ],
-  },
-  {
-    keywords: [
-      "play",
-      "pause",
-      "replay",
-      "speed",
-      "playback",
-      "control",
-      "avatar control",
-      "animation control",
-    ],
-    answer:
-      "You have full **playback control** over the 3D avatar animation! 🎮\n\n▶️ **Play** — Start or resume the sign animation\n⏸️ **Pause** — Freeze the animation on the current sign\n🔄 **Replay** — Restart from the first sign in the sequence\n\n**Speed control:**\n• 0.5× — Slow motion for learning\n• 1× — Normal speed\n• 1.5× — Faster\n• 2× — Double speed\n\n**Sign chips** at the bottom show all signs in the current sequence — click any chip to jump directly to that sign.\n\n**Fullscreen / Expanded View** button lets you see the avatar in a larger view.",
-    suggestions: [
-      "What are sign chips?",
-      "How do I use fullscreen?",
-      "What is Auto-Play?",
-    ],
-  },
-  {
-    keywords: ["auto play", "autoplay", "automatically", "auto"],
-    answer:
-      "**Auto-Play** automatically starts the avatar animation as soon as you hit Translate — without needing to press Play manually.\n\nToggle it using the **Auto-Play on Translation** switch at the bottom of the avatar panel.\n\n✅ ON → Avatar plays immediately after translation\n❌ OFF → Translation runs but animation waits for you to press Play",
-    suggestions: ["How do I control playback speed?", "What is the replay button?"],
-  },
-  {
-    keywords: ["camera not working", "camera error", "permission", "allow camera", "camera denied", "webcam not"],
-    answer:
-      "If your camera isn't working, try these fixes: 🔧\n\n1. **Allow camera permission** — When prompted by the browser, click **Allow**\n2. **Check browser settings** — Go to browser Settings → Privacy → Camera and make sure SignSpeak is allowed\n3. **HTTPS required** — Camera access requires a secure connection (localhost works fine)\n4. **Try a different browser** — Chrome or Edge work best\n5. **Close other apps** — Ensure no other app (Zoom, Teams) is using the camera\n\nIf the issue persists, try the **Upload Video** option instead.",
+      "### 🔧 Camera & Video Troubleshooting Tips\n\nIf you experience issues with live recognition:\n\n" +
+      "1. **Allow Permissions:** Click **Allow** when the browser prompts for camera access.\n" +
+      "2. **Optimal Framing:** Keep your upper body (head, shoulders, and both hands) visible inside the camera frame.\n" +
+      "3. **Good Lighting:** Ensure your face and hands are clearly lit from the front, avoiding harsh backlighting.\n" +
+      "4. **Close Other Camera Apps:** Ensure Zoom, Teams, or Skype are closed so they do not lock the webcam.\n" +
+      "5. **Use Video Upload:** You can also click the **Upload** tab and select any pre-recorded `.mp4` or `.webm` sign video!",
     suggestions: [
       "Can I upload a video instead?",
-      "What browsers are supported?",
-    ],
-  },
-  {
-    keywords: ["upload video", "video upload", "upload", "file", "video file"],
-    answer:
-      "Yes! You can **upload a video** instead of using your live camera. 🎥\n\nIn the PSL → Urdu tab:\n1. Click the **Upload** mode tab\n2. Click **Upload Video** and select a `.mp4` or `.webm` file\n3. The app will process the video and attempt to recognize PSL signs\n\n*This is useful if you want to test with pre-recorded signing videos.*",
-    suggestions: ["What video formats are supported?", "How does live camera work?"],
-  },
-  {
-    keywords: ["speak", "audio", "voice", "tts", "text to speech", "speech", "sound", "read aloud"],
-    answer:
-      "SignSpeak can **speak the translated Urdu text** aloud using your browser's built-in Text-to-Speech! 🔊\n\nIn the PSL → Urdu panel, after signs are recognized:\n• Click the **🔊 Speak** button to hear the Urdu text read out loud\n• Click again to **stop** the audio\n\nThe speech uses your OS language settings. If Urdu voice isn't available, it may fall back to another language.",
-    suggestions: ["How do I recognize signs with the camera?", "Can I adjust speech speed?"],
-  },
-  {
-    keywords: ["ai", "gemini", "artificial intelligence", "how ai works", "machine learning", "model"],
-    answer:
-      "SignSpeak uses **Google Gemini 2.5 Flash** for advanced translation! 🤖✨\n\nThe translation pipeline works in priority order:\n1. 📚 **Offline rule match** — instant, no network needed\n2. 🔍 **Fuzzy phrase matching** — partial word overlap\n3. 🤖 **Gemini AI** — handles novel vocabulary, Roman Urdu, English and complex sentences\n4. 📖 **Word-level substitution** — known word glosses\n5. 🖐️ **Fingerspelling fallback** — any remaining characters\n\nGemini is optional — the app works fully offline without it. Set `GEMINI_API_KEY` in the `.env` file to enable it.",
-    suggestions: ["How do I enable Gemini?", "What is fingerspelling?"],
-  },
-  {
-    keywords: ["psl", "pakistani sign language", "what is psl", "about psl", "sign language pakistan"],
-    answer:
-      "**Pakistani Sign Language (PSL)** is the indigenous visual-spatial language used by the Deaf community across Pakistan. 🇵🇰\n\n• PSL is a **distinct language** with its own grammar, syntax, and vocabulary\n• It's used by an estimated **1.5 million+ deaf people** in Pakistan\n• PSL uses **spatial grammar** — body orientation, facial expressions, and hand movements together convey meaning\n• It differs significantly from English Sign Language (ASL) or British Sign Language (BSL)\n\nSignSpeak is designed specifically for PSL and Urdu — not for other sign languages.",
-    suggestions: [
-      "What signs are supported?",
-      "How does the translation work?",
-      "What is fingerspelling?",
-    ],
-  },
-  {
-    keywords: ["how to start", "getting started", "begin", "first time", "new user", "how to use"],
-    answer:
-      "Welcome! Here's how to get started with SignSpeak in 3 steps: 🚀\n\n**Step 1 — Translate Urdu to PSL:**\n→ Scroll to the workspace, select **Urdu to PSL** tab, type something like *شکریہ* and click Translate.\n\n**Step 2 — Watch the 3D Avatar:**\n→ The avatar will perform the PSL sign. Use Play/Pause/Replay to control it.\n\n**Step 3 — Try PSL to Urdu:**\n→ Switch to the **PSL to Urdu** tab, allow camera access, and try performing a sign.\n\n💡 *Scroll down from the hero section or click **Start Translating** to jump straight to the workspace.*",
-    suggestions: [
-      "What signs can I type?",
-      "How does the camera work?",
-      "Can I type Roman Urdu?",
-    ],
-  },
-  {
-    keywords: ["avatar not moving", "not animating", "animation not working", "avatar stuck", "no animation"],
-    answer:
-      "If the avatar isn't moving, here are some things to check: 🔧\n\n1. **Make sure you pressed Translate first** — The avatar needs a translation result\n2. **Press the Play button** — If Auto-Play is off, you need to manually press ▶️\n3. **Check the sign chips** — If they show your words, the translation worked; click a chip to jump to that sign\n4. **Unknown words** — If a word isn't in the dictionary, it may be fingerspelled (slower animation)\n5. **Reload the page** — A fresh load re-fetches the animation dictionary\n\nIf none of these work, try a simple known word like *سلام* first.",
-    suggestions: [
-      "What signs are supported?",
-      "How does fingerspelling work?",
-      "How do I use Auto-Play?",
-    ],
-  },
-  {
-    keywords: ["fullscreen", "expanded view", "bigger", "larger view", "maximize"],
-    answer:
-      "You can view the 3D avatar in a **larger expanded view**! 🖥️\n\nClick the **\"Expanded View\"** button at the bottom-right of the avatar panel. This gives you a bigger rendering area to see the sign animations more clearly.\n\nClick **\"Exit Fullscreen\"** or press **Escape** to return to normal view.\n\nYou can also **orbit the 3D model** with your mouse — click and drag to rotate, scroll to zoom in/out.",
-    suggestions: ["How do I control the avatar?", "How do I adjust playback speed?"],
-  },
-  {
-    keywords: ["thank", "thanks", "thx", "great", "awesome", "nice", "good"],
-    answer:
-      "You're welcome! 😊 Happy to help.\n\nRemember, SignSpeak is here to make communication more accessible for the deaf community. If you have more questions, I'm always here!\n\nIs there anything else I can help you with?",
-    suggestions: [
+      "How does the 5-step recognition work?",
       "How does Urdu to PSL work?",
-      "What signs are supported?",
-      "Tell me about PSL",
     ],
   },
+
+  // ── App Feature: Text to Speech (TTS) ──
   {
-    keywords: ["bye", "goodbye", "exit", "close", "done", "that's all"],
+    keywords: ["tts", "speak", "voice", "audio", "sound", "read aloud", "speaker"],
     answer:
-      "Goodbye! 👋 Feel free to come back anytime you need help with SignSpeak.\n\nRemember — every sign matters. Keep making communication more inclusive! 🤟",
-    suggestions: [],
+      "### 🔊 Text-to-Speech (TTS) Readout\n\nSignSpeak includes native Urdu speech synthesis:\n\n" +
+      "• Once a sign is recognized in the **PSL → Urdu** tab, click the **🔊 Speak** button.\n" +
+      "• SignSpeak reads the Urdu translation aloud in a natural voice, bridging the communication gap for hearing individuals who do not know sign language.\n" +
+      "• Click the button again at any time to pause speech playback.",
+    suggestions: [
+      "How does PSL to Urdu work?",
+      "What is ethical AI in sign language?",
+    ],
+  },
+
+  // ── Privacy & Security ──
+  {
+    keywords: ["privacy", "data", "safe", "secure", "record", "camera privacy"],
+    answer:
+      "### 🔒 Privacy & Data Protection\n\n• **Zero Facial Recognition:** SignSpeak extracts spatial joint coordinates (skeletal landmarks), NOT biometric identity or facial recognition data.\n" +
+      "• **No Video Storage:** Live webcam streams are processed in temporary browser memory or through secure inference endpoints. Your video is never saved, archived, or sold to third parties.\n" +
+      "• **Informed Consent:** We strongly advocate ethical signing standards: always inform signers before using camera-based assistive tools.",
+    suggestions: [
+      "What is ethical AI in sign language?",
+      "What are the rules of Deaf etiquette?",
+    ],
   },
 ];
 
 const DEFAULT_SUGGESTIONS = [
+  "What are the rules of Deaf etiquette?",
+  "What is ethical AI in sign language?",
   "How does Urdu to PSL work?",
-  "What signs are supported?",
-  "How does the camera work?",
-  "What is PSL?",
+  "How does PSL to Urdu work?",
 ];
 
 /* ─────────────────────── Quick Actions ─────────────────────── */
 
 const QUICK_ACTIONS = [
-  { icon: <Languages size={13} />, label: "Urdu → PSL", query: "How does Urdu to PSL work?" },
-  { icon: <Camera size={13} />, label: "PSL → Urdu", query: "How does PSL to Urdu work?" },
-  { icon: <Hand size={13} />, label: "Supported Signs", query: "What signs are supported?" },
-  { icon: <Sparkles size={13} />, label: "3D Avatar", query: "How does the 3D avatar work?" },
-  { icon: <Zap size={13} />, label: "Get Started", query: "How do I get started?" },
-  { icon: <HelpCircle size={13} />, label: "About PSL", query: "What is Pakistani Sign Language?" },
+  { icon: <Hand size={13} />, label: "Sign 'Thank You'", query: "How can I sign 'Thank You' (شکریہ) in Pakistani Sign Language?" },
+  { icon: <HeartHandshake size={13} />, label: "Deaf Etiquette", query: "What are the essential rules of Deaf etiquette when communicating in sign language?" },
+  { icon: <ShieldCheck size={13} />, label: "Ethical AI", query: "What is ethical AI in sign language and how does SignSpeak respect Deaf community ownership?" },
+  { icon: <Languages size={13} />, label: "Urdu → PSL", query: "How does Urdu to PSL translation work with the 3D avatar?" },
+  { icon: <Camera size={13} />, label: "PSL → Urdu", query: "How does the 5-step PSL to Urdu camera recognition pipeline work?" },
+  { icon: <HelpCircle size={13} />, label: "About PSL", query: "Is Pakistani Sign Language a complete natural language with its own grammar?" },
 ];
 
 /* ─────────────────────── Helpers ─────────────────────── */
@@ -284,7 +433,9 @@ function findAnswer(query: string): { answer: string; suggestions: string[] } {
   for (const entry of KB) {
     let score = 0;
     for (const kw of entry.keywords) {
-      if (q.includes(kw)) score += kw.split(" ").length; // longer phrase = higher score
+      if (q.includes(kw)) {
+        score += kw.split(" ").length * 2;
+      }
     }
     if (score > bestScore) {
       bestScore = score;
@@ -293,29 +444,83 @@ function findAnswer(query: string): { answer: string; suggestions: string[] } {
   }
 
   if (bestMatch && bestScore > 0) {
-    return { answer: bestMatch.answer, suggestions: bestMatch.suggestions ?? DEFAULT_SUGGESTIONS };
+    return {
+      answer: bestMatch.answer,
+      suggestions: bestMatch.suggestions ?? DEFAULT_SUGGESTIONS,
+    };
   }
 
   return {
     answer:
-      "I'm not sure about that specific question. 🤔\n\nHere are some things I can help you with — tap one of the suggestions below or try rephrasing your question!",
+      "### Welcome to SignBot! 🤟\n\n" +
+      "I can answer any questions about **Ethical Sign Language** (Deaf etiquette, cultural norms, respectful terminology, AI ethics) or **SignSpeak App Operations** (Urdu-to-PSL avatar, 5-step video recognition, and troubleshooting).\n\n" +
+      "Try asking one of the suggested topics below, or click any quick action chip!",
     suggestions: DEFAULT_SUGGESTIONS,
   };
 }
 
-/** Convert **bold** markdown to <strong> and \n to <br> */
+/** Rich Markdown Parser for SignBot: headers, bold, bullet points, numbers */
 function renderMarkdown(text: string) {
+  const lines = text.split("\n");
+  return lines.map((line, idx) => {
+    // Heading 3
+    if (line.startsWith("### ")) {
+      return (
+        <h4 key={idx} style={{ fontSize: "13.5px", fontWeight: "700", margin: "6px 0 3px", color: "inherit" }}>
+          {line.replace("### ", "")}
+        </h4>
+      );
+    }
+    // Heading 2
+    if (line.startsWith("## ")) {
+      return (
+        <h3 key={idx} style={{ fontSize: "14.5px", fontWeight: "700", margin: "8px 0 4px", color: "inherit" }}>
+          {line.replace("## ", "")}
+        </h3>
+      );
+    }
+    // Bullet item
+    if (line.trim().startsWith("• ") || line.trim().startsWith("- ") || line.trim().startsWith("* ")) {
+      const content = line.trim().replace(/^[•\-*]\s+/, "");
+      return (
+        <div key={idx} style={{ display: "flex", gap: "6px", margin: "2px 0", paddingLeft: "4px" }}>
+          <span style={{ opacity: 0.7 }}>•</span>
+          <span>{parseInlineMarkdown(content)}</span>
+        </div>
+      );
+    }
+    // Horizontal rule
+    if (line.trim() === "---") {
+      return <hr key={idx} style={{ border: "none", borderTop: "1px solid rgba(0,0,0,0.08)", margin: "8px 0" }} />;
+    }
+    // Empty line
+    if (!line.trim()) {
+      return <div key={idx} style={{ height: "4px" }} />;
+    }
+    // Regular paragraph
+    return (
+      <p key={idx} style={{ margin: "2px 0", lineHeight: "1.45" }}>
+        {parseInlineMarkdown(line)}
+      </p>
+    );
+  });
+}
+
+function parseInlineMarkdown(text: string) {
+  // Bold **text**
   const parts = text.split(/(\*\*[^*]+\*\*)/g);
   return parts.map((part, i) => {
     if (part.startsWith("**") && part.endsWith("**")) {
       return <strong key={i}>{part.slice(2, -2)}</strong>;
     }
-    return part.split("\n").map((line, j) => (
-      <span key={`${i}-${j}`}>
-        {line}
-        {j < part.split("\n").length - 1 && <br />}
-      </span>
-    ));
+    // Italic *text*
+    const subParts = part.split(/(\*[^*]+\*)/g);
+    return subParts.map((sub, j) => {
+      if (sub.startsWith("*") && sub.endsWith("*")) {
+        return <em key={`${i}-${j}`}>{sub.slice(1, -1)}</em>;
+      }
+      return sub;
+    });
   });
 }
 
@@ -327,8 +532,12 @@ export default function ChatBot() {
     {
       id: uid(),
       role: "bot",
-      text: "👋 Hi! I'm **SignBot**, your SignSpeak assistant.\n\nAsk me anything about how to use the app, Pakistani Sign Language, or the 3D avatar!",
+      text:
+        "### 👋 Hello! I'm SignBot\n\n" +
+        "I'm here to answer questions about **Ethical Sign Language** (Deaf culture & etiquette, respectful terminology, AI ethics) and **SignSpeak** (3D avatar translation, 5-step video recognition, and troubleshooting).\n\n" +
+        "How can I assist you today?",
       time: getTime(),
+      source: "knowledge_base",
       suggestions: DEFAULT_SUGGESTIONS,
     },
   ]);
@@ -355,7 +564,7 @@ export default function ChatBot() {
   }, [open, minimized]);
 
   const sendMessage = useCallback(
-    (text: string) => {
+    async (text: string) => {
       const q = text.trim();
       if (!q) return;
       setInput("");
@@ -364,7 +573,32 @@ export default function ChatBot() {
       setMessages((prev) => [...prev, userMsg]);
       setTyping(true);
 
-      // Simulate bot thinking delay
+      // Prepare conversation history for the AI backend
+      const history = messages.slice(-6).map((m) => ({ role: m.role, text: m.text }));
+
+      try {
+        // Attempt backend AI query with ethical grounding
+        const aiResponse = await signBridgeAPI.askSignBot(q, history);
+
+        if (aiResponse && aiResponse.answer) {
+          const botMsg: Message = {
+            id: uid(),
+            role: "bot",
+            text: aiResponse.answer,
+            time: getTime(),
+            source: aiResponse.source,
+            suggestions: aiResponse.suggestions || DEFAULT_SUGGESTIONS,
+          };
+          setMessages((prev) => [...prev, botMsg]);
+          setTyping(false);
+          if (!open) setUnread((n) => n + 1);
+          return;
+        }
+      } catch (err) {
+        console.warn("[SignBot] Backend chat failed, falling back to local KB:", err);
+      }
+
+      // Offline / Local KB Fallback
       setTimeout(() => {
         const { answer, suggestions } = findAnswer(q);
         const botMsg: Message = {
@@ -372,14 +606,15 @@ export default function ChatBot() {
           role: "bot",
           text: answer,
           time: getTime(),
+          source: "local_kb",
           suggestions,
         };
         setMessages((prev) => [...prev, botMsg]);
         setTyping(false);
         if (!open) setUnread((n) => n + 1);
-      }, 600 + Math.random() * 400);
+      }, 350);
     },
-    [open],
+    [messages, open]
   );
 
   const handleOpen = () => {
@@ -398,8 +633,11 @@ export default function ChatBot() {
       {
         id: uid(),
         role: "bot",
-        text: "👋 Hi! I'm **SignBot**, your SignSpeak assistant.\n\nAsk me anything about the app, PSL, or the 3D avatar!",
+        text:
+          "### 🔄 Conversation Reset\n\n" +
+          "Hi! I'm **SignBot**. Ask me anything about **Ethical Sign Language**, **Deaf Community Etiquette**, or how to use the **SignSpeak app**!",
         time: getTime(),
+        source: "knowledge_base",
         suggestions: DEFAULT_SUGGESTIONS,
       },
     ]);
@@ -416,10 +654,10 @@ export default function ChatBot() {
     <>
       {/* ── Floating Action Button ── */}
       {!open && (
-        <button className="chatbot-fab" onClick={handleOpen} aria-label="Open chat assistant">
+        <button className="chatbot-fab" onClick={handleOpen} aria-label="Open SignBot assistant">
           <MessageCircle size={22} />
           {unread > 0 && <span className="chatbot-fab-badge">{unread}</span>}
-          <span className="chatbot-fab-tooltip">Need help?</span>
+          <span className="chatbot-fab-tooltip">Ethical PSL & App Help</span>
         </button>
       )}
 
@@ -434,12 +672,26 @@ export default function ChatBot() {
                 <span className="chatbot-online-dot" />
               </div>
               <div className="chatbot-header-info">
-                <span className="chatbot-title">SignBot</span>
+                <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                  <span className="chatbot-title">SignBot</span>
+                  <span
+                    style={{
+                      background: "rgba(255,255,255,0.2)",
+                      fontSize: "9px",
+                      padding: "1px 6px",
+                      borderRadius: "10px",
+                      color: "#fff",
+                      fontWeight: 600,
+                    }}
+                  >
+                    Ethical PSL AI
+                  </span>
+                </div>
                 <span className="chatbot-subtitle">
                   {typing ? (
-                    <span className="chatbot-typing-label">typing…</span>
+                    <span className="chatbot-typing-label">SignBot is thinking…</span>
                   ) : (
-                    "SignSpeak Assistant · Online"
+                    "Ethical Sign Language & SignSpeak Assistant"
                   )}
                 </span>
               </div>
@@ -500,6 +752,22 @@ export default function ChatBot() {
                     <div className="chatbot-msg-col">
                       <div className={`chatbot-bubble ${msg.role}`}>
                         {renderMarkdown(msg.text)}
+                        {msg.role === "bot" && msg.source === "gemini_ai" && (
+                          <div
+                            style={{
+                              display: "inline-flex",
+                              alignItems: "center",
+                              gap: "4px",
+                              marginTop: "6px",
+                              fontSize: "9px",
+                              opacity: 0.65,
+                              fontWeight: 600,
+                            }}
+                          >
+                            <Sparkles size={10} />
+                            Verified Ethical AI
+                          </div>
+                        )}
                       </div>
                       <span className="chatbot-msg-time">{msg.time}</span>
                       {/* Suggestion chips */}
@@ -550,7 +818,7 @@ export default function ChatBot() {
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={handleKeyDown}
-                  placeholder="Ask me anything about SignSpeak…"
+                  placeholder="Ask about Deaf etiquette, PSL ethics, or app features…"
                   aria-label="Chat message input"
                   maxLength={300}
                 />

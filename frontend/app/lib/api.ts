@@ -79,7 +79,7 @@ export class SignBridgeAPI {
   /**
    * Translate PSL video to Urdu word using the backend GRU model
    */
-  public async translatePSLToUrdu(videoBlob: Blob): Promise<{
+  public async translatePSLToUrdu(videoBlob: Blob, forceGemini: boolean = false): Promise<{
     id: string;
     confidence: number;
     urdu?: string;
@@ -99,7 +99,11 @@ export class SignBridgeAPI {
         formData.append("video", videoBlob, "recording.webm");
         
         // Send the video to the FastAPI translation endpoint
-        const res = await fetch(`${BACKEND_URL}/api/translate/psl-to-urdu`, {
+        const endpoint = forceGemini
+          ? `${BACKEND_URL}/api/translate/psl-to-urdu?force_gemini=true`
+          : `${BACKEND_URL}/api/translate/psl-to-urdu`;
+
+        const res = await fetch(endpoint, {
           method: "POST",
           body: formData,
         });
@@ -178,6 +182,36 @@ export class SignBridgeAPI {
       modelConfidence: 0,
       signCount: 0
     };
+  }
+
+  /**
+   * Conversational query to SignBot AI assistant (Ethical PSL & App Help)
+   */
+  public async askSignBot(
+    message: string,
+    history: Array<{ role: string; text: string }> = []
+  ): Promise<{
+    answer: string;
+    suggestions: string[];
+    source: string;
+  } | null> {
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/signbot/chat`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ message, history }),
+        signal: AbortSignal.timeout(15000),
+      });
+
+      if (res.ok) {
+        return await res.json();
+      }
+    } catch (err) {
+      console.warn("[SignBridgeAPI] SignBot chat request failed:", err);
+    }
+    return null;
   }
 }
 

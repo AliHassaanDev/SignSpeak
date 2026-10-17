@@ -83,6 +83,9 @@ export default function UrduInputPanel({
             <span className="panel-title">
               {inputLang === "en" ? "Enter English Text" : "اردو متن درج کریں"}
             </span>
+            {/* <span className="panel-subtext">
+              {inputLang === "en" ? "(English to PSL Sign Language)" : "(Urdu to PSL Sign Language)"}
+            </span> */}
           </div>
 
           <div className="input-header-actions">

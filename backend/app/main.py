@@ -14,7 +14,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 
 # Import application routers
-from app.api import translation, speech, urdu_psl_router
+from app.api import translation, speech, urdu_psl_router, signbot_router
 
 # Initialize the main FastAPI application instance
 app = FastAPI(
@@ -44,6 +44,7 @@ app.add_middleware(
 app.include_router(translation.router)
 app.include_router(speech.router)
 app.include_router(urdu_psl_router.router)
+app.include_router(signbot_router.router)
 
 # Mount the videos directory as static files
 import os
@@ -62,9 +63,9 @@ def root():
         "status": "online",
         "models": {
             "psl_to_urdu": {
-                "name": "gemini-3.6-flash",
-                "mode": "gemini_multimodal_vision",
-                "status": "active (Gemini vision only; custom model terminated)"
+                "name": "Unified 5-Step PSL Pipeline",
+                "architecture": "OpenCV + MediaPipe + Kinetic Segmentation + Conv1D-BiLSTM + Gemini NLU Refinement",
+                "status": "active"
             },
             "urdu_to_psl": {
                 "name": "urdutopsl",

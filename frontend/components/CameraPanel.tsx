@@ -13,7 +13,8 @@ import {
   Maximize2,
   Minimize2,
   Trash2,
-  Play
+  Play,
+  Sparkles
 } from "lucide-react";
 import { signBridgeAPI } from "../app/lib/api";
 
@@ -42,6 +43,7 @@ export default function CameraPanel({
 }: CameraPanelProps) {
   const [cameraError, setCameraError] = useState<string | null>(null);
   const [uploadedMedia, setUploadedMedia] = useState<{ url: string; type: "video" | "image"; name: string; file?: Blob | File } | null>(null);
+  const [forceGeminiMode, setForceGeminiMode] = useState<boolean>(false);
 
 
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -293,6 +295,24 @@ export default function CameraPanel({
                     <button className="danger-btn small" style={{ height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={() => { setUploadedMedia(null); onReset?.(); }}>
                       <Trash2 size={13} />
                     </button>
+                    <button
+                      type="button"
+                      className="small-action-btn"
+                      style={{
+                        height: '32px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '5px',
+                        background: forceGeminiMode ? 'rgba(16, 185, 129, 0.2)' : undefined,
+                        borderColor: forceGeminiMode ? '#10b981' : undefined,
+                        color: forceGeminiMode ? '#10b981' : undefined,
+                      }}
+                      onClick={() => setForceGeminiMode(!forceGeminiMode)}
+                      title={forceGeminiMode ? "Active: Gemini Multimodal Vision (Open Vocabulary PSL)" : "Switch to Gemini Open-Vocabulary Vision (for Hello, Water, Thank You, etc.)"}
+                    >
+                      <Sparkles size={13} /> {forceGeminiMode ? "AI Vision (Gemini)" : "Smart Hybrid"}
+                    </button>
                     <button className="primary-btn teal small" disabled={isTranslating} style={{ height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={async () => {
                       if (!uploadedMedia.file) return;
                       setIsTranslating(true);
@@ -300,7 +320,7 @@ export default function CameraPanel({
                       // After 3s, switch label to "Analyzing signs…"
                       const stageTimer = setTimeout(() => setTranslatingStage("analyzing"), 3000);
                       try {
-                        const result = await signBridgeAPI.translatePSLToUrdu(uploadedMedia.file) as any;
+                        const result = await signBridgeAPI.translatePSLToUrdu(uploadedMedia.file, forceGeminiMode) as any;
                         if (result && result.id && result.id !== "none") {
                           onDetection(result);
                         } else {

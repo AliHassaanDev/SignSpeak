@@ -4,13 +4,43 @@ import { GoogleGenAI } from "@google/genai";
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 /* Models to try in order — fast flash models with broad free quota */
-const MODELS = ["gemini-2.0-flash", "gemini-2.5-flash", "gemini-1.5-flash", "gemini-3.6-flash"] as const;
+const MODELS = [
+  "gemini-3.5-flash-lite",
+  "gemini-3.1-flash-lite",
+  "gemini-3.7-flash",
+  "gemini-2.5-flash",
+  "gemini-2.0-flash",
+  "gemini-1.5-flash",
+] as const;
 
 /* ── System instruction for the PSL Tutor ── */
 
-function buildSystemInstruction(level: number): string {
-  return `You are PSL-Tutor, an encouraging, expert Pakistan Sign Language (PSL) AI instructor.
+function buildSystemInstruction(level: number, memory?: any): string {
+  let memoryBlock = "";
+  if (memory) {
+    const signs = (memory.learnedSigns || []).map((s: any) => s.gloss || s).join(", ");
+    const topics = (memory.discussedTopics || []).join("; ");
+    const stats = memory.quizStats || { totalQuestions: 0, correctAnswers: 0, currentStreak: 0 };
 
+    memoryBlock = `
+=== STUDENT PERSISTENT MEMORY & PAST DISCUSSIONS (CRITICAL) ===
+- Signs Mastered So Far: ${signs || "None yet (Brand new student)"}
+- Topics Discussed in Past Sessions: ${topics || "None yet"}
+- Quiz Record: ${stats.correctAnswers} correct out of ${stats.totalQuestions} questions (Current Streak: ${stats.currentStreak} 🔥)
+
+MEMORY INSTRUCTIONS:
+1. YOU HAVE A MEMORY: Always remember what was previously taught, discussed, and practiced with this student.
+2. RECOGNITION & CONTINUITY:
+   - If the student has already mastered signs (e.g. ${signs || "none"}), acknowledge them warmly and build upon them.
+   - Do NOT re-introduce an already mastered sign as if it is brand new, unless the student specifically asks to review or repeat it.
+   - If the student asks "what did we do?", "what did we learn?", "what did we discuss?", or asks for a review, accurately summarize the past signs and topics from your memory!
+3. MOTIVATION & STREAK: Celebrate their quiz streaks and progress. Be warm, supportive, and enthusiastic.
+================================================================
+`;
+  }
+
+  return `You are PSL-Tutor, an encouraging, expert Pakistan Sign Language (PSL) AI instructor.
+${memoryBlock}
 LESSON DELIVERY RULES:
 1. Teach concepts step-by-step based on the user's selected Level (${level} out of 4).
 2. CRITICAL: Teach ONLY ONE concept or sign per response. Never mix two different signs (e.g. do NOT teach both a letter AND a greeting in the same message). Focus on one thing, explain it, then wait for the user before moving on.
@@ -41,8 +71,11 @@ OUTPUT FORMAT — You MUST respond with valid JSON matching this exact schema:
   "gloss_tokens": ["ARRAY", "OF", "UPPERCASE_GLOSS_TOKENS"],
   "hand_description": "One sentence describing the physical hand movement for the sign",
   "current_level": ${level},
-  "quiz_options": ["optional", "quiz", "choices"]
-}`;
+  "quiz_options": ["optional", "quiz", "choices"],
+  "detected_topic": "Short label of the sign or topic taught/discussed (e.g., Greetings, Urdu Letter A, Emergency Signs)",
+  "is_quiz_correct": null
+}
+(Note: Set is_quiz_correct to true if the user just answered a quiz correctly, false if incorrect, or null if not answering a quiz.)`;
 }
 
 /* ── Call Gemini with retry + model fallback ── */
@@ -101,7 +134,7 @@ async function callGemini(
 
 export async function POST(req: NextRequest) {
   try {
-    const { message, level, history } = await req.json();
+    const { message, level, history, memory } = await req.json();
 
     if (!message || typeof message !== "string") {
       return NextResponse.json(
@@ -111,7 +144,7 @@ export async function POST(req: NextRequest) {
     }
 
     const currentLevel = level ?? 1;
-    const systemInstruction = buildSystemInstruction(currentLevel);
+    const systemInstruction = buildSystemInstruction(currentLevel, memory);
 
     /* Build conversation contents for Gemini */
     const contents: { role: "user" | "model"; parts: { text: string }[] }[] = [];
@@ -146,6 +179,8 @@ export async function POST(req: NextRequest) {
       hand_description: parsed.hand_description ?? "",
       current_level: parsed.current_level ?? currentLevel,
       quiz_options: Array.isArray(parsed.quiz_options) ? parsed.quiz_options : [],
+      detected_topic: typeof parsed.detected_topic === "string" ? parsed.detected_topic : undefined,
+      is_quiz_correct: typeof parsed.is_quiz_correct === "boolean" ? parsed.is_quiz_correct : null,
     };
 
     return NextResponse.json(safeResponse);

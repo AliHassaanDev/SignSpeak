@@ -6,10 +6,13 @@ __pycache__/
 # Virtual environments
 venv/
 .venv/
+backend/venv/
 
-# Environment files
-.env
-.env.*
+# Environment files (Never commit API keys)
+**/.env
+**/.env.*
+!**/.env.example
+!frontend/.env.local.example
 
 # Jupyter
 .ipynb_checkpoints/
@@ -18,28 +21,39 @@ venv/
 node_modules/
 .next/
 out/
+frontend/node_modules/
+frontend/.next/
+frontend/out/
 
 # Build
 dist/
 build/
 
-# Large data
+# Large data & datasets
 data/raw/
 data/processed/
+ml/data/raw/
+*.zip
+*.tar.gz
+*.mp4
+*.webm
 
-# Model files
+# Model files & checkpoints
 *.pt
 *.pth
 *.onnx
 *.onnx_data
 
-# OS
+# OS files
 .DS_Store
 Thumbs.db
 
-# VS Code
+# VS Code & Antigravity
 .vscode/
+.agents/
 
 # Scratch & Temporary
 scratch/
-*.tmp
+*.tmp
+*.log
+

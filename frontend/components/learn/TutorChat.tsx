@@ -1,58 +1,101 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
-import { Send, Loader2, GraduationCap, RotateCcw, Sparkles, User, Check, Copy } from "lucide-react";
+import {
+  Send,
+  Loader2,
+  GraduationCap,
+  RotateCcw,
+  Sparkles,
+  User,
+  Check,
+  Copy,
+  Flame,
+  Brain,
+  Trash2,
+  CheckCircle2,
+  HelpCircle,
+} from "lucide-react";
 import type {
   ChatMessage,
   TutorLevel,
   TutorChatResponse,
+  StudentMemory,
 } from "../../types/tutor";
+import {
+  loadLevelChatMessages,
+  saveLevelChatMessages,
+  recordLearnedSigns,
+  recordQuizAttempt,
+  recordDiscussedTopic,
+  resetAllTutorMemory,
+} from "../../app/lib/tutorMemory";
 
 interface TutorChatProps {
   level: TutorLevel;
+  memory: StudentMemory;
   onTokensReceived: (tokens: string[], description: string) => void;
+  onMemoryUpdated: (updatedMemory: StudentMemory) => void;
 }
 
 let msgCounter = 0;
 const uid = () => `msg-${++msgCounter}-${Date.now()}`;
 
-export default function TutorChat({ level, onTokensReceived }: TutorChatProps) {
+export default function TutorChat({
+  level,
+  memory,
+  onTokensReceived,
+  onMemoryUpdated,
+}: TutorChatProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [selectedQuizOpt, setSelectedQuizOpt] = useState<string | null>(null);
 
   const historyRef = useRef<{ role: "user" | "model"; parts: { text: string }[] }[]>([]);
   const scrollRef = useRef<HTMLDivElement>(null);
   const loadingRef = useRef(false);
-  const lastSeedLevel = useRef<TutorLevel | null>(null);
+  const currentLevelRef = useRef<TutorLevel>(level);
+  currentLevelRef.current = level;
 
-  /* Keep a stable reference to the latest callback */
+  /* Keep stable references to callbacks and memory */
   const onTokensReceivedRef = useRef(onTokensReceived);
   onTokensReceivedRef.current = onTokensReceived;
+
+  const onMemoryUpdatedRef = useRef(onMemoryUpdated);
+  onMemoryUpdatedRef.current = onMemoryUpdated;
+
+  const memoryRef = useRef(memory);
+  memoryRef.current = memory;
 
   /* Auto-scroll when new messages arrive */
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
-  }, [messages]);
+  }, [messages, loading]);
 
   /* ── Send a message to the Gemini tutor ── */
   const sendToGemini = useCallback(
-    async (text: string, isSeed: boolean) => {
-      /* Prevent concurrent requests */
+    async (text: string, isSeed: boolean, initialHistory?: typeof historyRef.current) => {
       if (loadingRef.current) return;
       loadingRef.current = true;
       setLoading(true);
 
+      const targetHistory = initialHistory ? [...initialHistory] : [...historyRef.current];
+
       /* Add user message to UI (skip for seed — no visible user bubble) */
       if (!isSeed) {
         const userMsg: ChatMessage = { id: uid(), role: "user", text, timestamp: Date.now() };
-        setMessages((prev) => [...prev, userMsg]);
+        setMessages((prev) => {
+          const updated = [...prev, userMsg];
+          saveLevelChatMessages(currentLevelRef.current, updated);
+          return updated;
+        });
       }
 
-      /* ALWAYS push user message to history so Gemini gets a valid conversation
-         (Gemini requires conversations to start with role "user") */
-      historyRef.current.push({ role: "user", parts: [{ text }] });
+      /* Push user message to history so Gemini gets conversation context */
+      targetHistory.push({ role: "user", parts: [{ text }] });
+      historyRef.current = targetHistory;
 
       try {
         const res = await fetch("/api/tutor", {
@@ -60,8 +103,9 @@ export default function TutorChat({ level, onTokensReceived }: TutorChatProps) {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             message: text,
-            level,
-            history: historyRef.current,
+            level: currentLevelRef.current,
+            history: targetHistory,
+            memory: memoryRef.current,
           }),
         });
 
@@ -81,60 +125,118 @@ export default function TutorChat({ level, onTokensReceived }: TutorChatProps) {
           quizOptions: data.quiz_options,
           timestamp: Date.now(),
         };
-        setMessages((prev) => [...prev, tutorMsg]);
+
+        setMessages((prev) => {
+          const updated = [...prev, tutorMsg];
+          saveLevelChatMessages(currentLevelRef.current, updated);
+          return updated;
+        });
+
         historyRef.current.push({ role: "model", parts: [{ text: data.tutor_reply }] });
 
+        /* Update tokens on spotlight */
         if (data.gloss_tokens?.length) {
           onTokensReceivedRef.current(data.gloss_tokens, data.hand_description);
+          // Record learned sign in student memory
+          let mem = recordLearnedSigns(data.gloss_tokens, currentLevelRef.current, memoryRef.current);
+          if (data.detected_topic) {
+            mem = recordDiscussedTopic(data.detected_topic, mem);
+          }
+          onMemoryUpdatedRef.current(mem);
+        } else if (data.detected_topic) {
+          const mem = recordDiscussedTopic(data.detected_topic, memoryRef.current);
+          onMemoryUpdatedRef.current(mem);
         }
+
+        /* Update quiz result in memory if detected */
+        if (typeof data.is_quiz_correct === "boolean") {
+          const mem = recordQuizAttempt(data.is_quiz_correct, memoryRef.current);
+          onMemoryUpdatedRef.current(mem);
+        }
+
+        setSelectedQuizOpt(null);
       } catch (err: unknown) {
         const errMsg = err instanceof Error ? err.message : "Unknown error";
         console.error("[TutorChat] Send error:", errMsg);
         const errMsg2: ChatMessage = {
           id: uid(),
           role: "tutor",
-          text: `Sorry, something went wrong: ${errMsg}. Please try again.`,
+          text: `⚠️ **Tutor Note:** ${errMsg}. Let's try again in a moment!`,
           timestamp: Date.now(),
         };
-        setMessages((prev) => [...prev, errMsg2]);
+        setMessages((prev) => {
+          const updated = [...prev, errMsg2];
+          saveLevelChatMessages(currentLevelRef.current, updated);
+          return updated;
+        });
       } finally {
         loadingRef.current = false;
         setLoading(false);
       }
     },
-    [level],
+    [],
   );
 
-  /* ── Seed welcome message when level changes ── */
+  /* ── Level Changed: Load Persisted History or Seed First Message ── */
   useEffect(() => {
-    if (lastSeedLevel.current === level) return;
-    lastSeedLevel.current = level;
+    const savedMessages = loadLevelChatMessages(level);
 
-    historyRef.current = [];
-    setMessages([]);
-    setInput("");
+    if (savedMessages && savedMessages.length > 0) {
+      // Restore persisted messages for this level!
+      setMessages(savedMessages);
 
-    sendToGemini(
-      `Start Level ${level} lesson. Greet me warmly and introduce the very first concept and sign for this level.`,
-      true,
-    );
-  }, [level]);
+      // Reconstruct conversation history for Gemini
+      const reconstructed: { role: "user" | "model"; parts: { text: string }[] }[] = [];
+      for (const m of savedMessages) {
+        reconstructed.push({
+          role: m.role === "tutor" ? "model" : "user",
+          parts: [{ text: m.text }],
+        });
+      }
+      historyRef.current = reconstructed;
 
-  useEffect(() => {
-    return () => {
-      lastSeedLevel.current = null;
-    };
-  }, [level]);
+      // Update spotlight with the most recent sign taught in this level
+      const lastWithSign = [...savedMessages].reverse().find((m) => m.glossTokens && m.glossTokens.length > 0);
+      if (lastWithSign && lastWithSign.glossTokens) {
+        onTokensReceivedRef.current(lastWithSign.glossTokens, lastWithSign.handDescription || "");
+      }
+    } else {
+      // First time visiting this level: seed initial welcome message with student memory
+      historyRef.current = [];
+      setMessages([]);
+      setInput("");
 
-  const restartLesson = () => {
+      const masteredList = (memoryRef.current.learnedSigns || []).map((s) => s.gloss).join(", ");
+      const seedPrompt = masteredList
+        ? `Start Level ${level} lesson. You remember me (I already mastered ${masteredList}). Greet me warmly, acknowledge my progress, and introduce the next sign or concept for Level ${level}.`
+        : `Start Level ${level} lesson. Greet me warmly and introduce the very first concept and sign for this level.`;
+
+      sendToGemini(seedPrompt, true, []);
+    }
+  }, [level, sendToGemini]);
+
+  /* ── Restart Current Level Lesson ── */
+  const restartLevelLesson = () => {
     if (loadingRef.current) return;
     historyRef.current = [];
     setMessages([]);
     setInput("");
-    sendToGemini(
-      `Start Level ${level} lesson. Greet me warmly and introduce the very first concept and sign for this level.`,
-      true,
-    );
+    saveLevelChatMessages(level, []);
+
+    const masteredList = (memoryRef.current.learnedSigns || []).map((s) => s.gloss).join(", ");
+    const seedPrompt = masteredList
+      ? `Restart Level ${level} lesson. You remember me (mastered signs: ${masteredList}). Introduce the first sign for Level ${level} step-by-step.`
+      : `Start Level ${level} lesson. Greet me warmly and introduce the very first concept and sign for this level.`;
+
+    sendToGemini(seedPrompt, true, []);
+  };
+
+  /* ── Full Reset of All Memory ── */
+  const handleFullReset = () => {
+    if (window.confirm("Are you sure you want to reset all tutor memory, chat histories, and mastered signs? This will start a fresh learning profile.")) {
+      resetAllTutorMemory();
+      window.location.reload();
+    }
   };
 
   const handleSend = () => {
@@ -146,6 +248,7 @@ export default function TutorChat({ level, onTokensReceived }: TutorChatProps) {
 
   const handleQuizOption = (option: string) => {
     if (loadingRef.current) return;
+    setSelectedQuizOpt(option);
     sendToGemini(option, false);
   };
 
@@ -166,10 +269,17 @@ export default function TutorChat({ level, onTokensReceived }: TutorChatProps) {
 
   const quickPrompts = [
     { label: "Quiz me 🎯", prompt: "Quiz me on what we just learned!" },
-    { label: "Repeat slowly 🔁", prompt: "Can you repeat the sign and explain the exact hand motion slowly?" },
+    { label: "Do you remember me? 🧠", prompt: "Do you remember what signs and topics we have already learned and discussed so far?" },
+    { label: "Review past signs 🔁", prompt: "Can we review the signs and topics we previously covered?" },
+    { label: "اردو میں سمجھائیں 🇵🇰", prompt: "براہ کرم مجھے یہ تصور اردو میں آسان انداز میں سمجھائیں۔" },
     { label: "Example sentence 💬", prompt: "Can you show me an example sentence using this sign?" },
-    { label: "Next topic ➡️", prompt: "I understand! Let's move to the next concept or sign." },
+    { label: "Next concept ➡️", prompt: "I understand! Let's move to the next concept or sign." },
   ];
+
+  const accuracy =
+    memory.quizStats.totalQuestions > 0
+      ? Math.round((memory.quizStats.correctAnswers / memory.quizStats.totalQuestions) * 100)
+      : 100;
 
   return (
     <div className="tutor-chat-container">
@@ -183,24 +293,76 @@ export default function TutorChat({ level, onTokensReceived }: TutorChatProps) {
             <div className="tutor-main-name">PSL AI Tutor (استاد)</div>
             <div className="tutor-status-row">
               <span className="tutor-status-dot" />
-              <span className="tutor-status-text">Interactive Lesson Active</span>
+              <span className="tutor-status-text">
+                Level {level} Active • {messages.length} messages saved
+              </span>
             </div>
           </div>
         </div>
 
         <div className="tutor-header-actions">
-          <span className="tutor-level-badge">Level {level}</span>
+          {/* Memory Active Indicator */}
+          <div
+            className="tutor-memory-indicator"
+            title={`Memory Active: Tutor remembers ${memory.learnedSigns.length} mastered signs, ${memory.discussedTopics.length} discussed topics, and your quiz streak.`}
+          >
+            <Brain size={12} className="brain-pulse" />
+            <span>Memory Active</span>
+          </div>
+
           <button
             type="button"
             className="tutor-restart-btn"
-            onClick={restartLesson}
+            onClick={restartLevelLesson}
             disabled={loading}
-            title="Restart this level's lesson"
+            title="Restart this level's lesson conversation"
           >
             <RotateCcw size={12} />
-            <span>Restart</span>
+            <span>Restart Level</span>
+          </button>
+
+          <button
+            type="button"
+            className="tutor-clear-btn"
+            onClick={handleFullReset}
+            title="Reset student memory and start fresh"
+          >
+            <Trash2 size={12} />
           </button>
         </div>
+      </div>
+
+      {/* Student Memory & Progress Ribbon */}
+      <div className="tutor-memory-ribbon">
+        <div className="ribbon-stat-item">
+          <span className="ribbon-icon">🎓</span>
+          <span className="ribbon-label">Mastered:</span>
+          <span className="ribbon-value">{memory.learnedSigns.length} signs</span>
+        </div>
+        <div className="ribbon-divider" />
+        <div className="ribbon-stat-item">
+          <Flame size={13} color="#f97316" className="flame-animate" />
+          <span className="ribbon-label">Streak:</span>
+          <span className="ribbon-value">{memory.quizStats.currentStreak} 🔥</span>
+        </div>
+        <div className="ribbon-divider" />
+        <div className="ribbon-stat-item">
+          <span className="ribbon-icon">🎯</span>
+          <span className="ribbon-label">Quiz Accuracy:</span>
+          <span className="ribbon-value">
+            {memory.quizStats.totalQuestions > 0 ? `${accuracy}% (${memory.quizStats.correctAnswers}/${memory.quizStats.totalQuestions})` : "Ready"}
+          </span>
+        </div>
+        {memory.learnedSigns.length > 0 && (
+          <div className="ribbon-recent-signs">
+            <span className="recent-signs-label">Recent:</span>
+            {memory.learnedSigns.slice(-3).map((s, idx) => (
+              <span key={idx} className="recent-sign-chip" title={`Learned in Level ${s.level}`}>
+                {s.label}
+              </span>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Messages Scroll Area */}
@@ -236,7 +398,7 @@ export default function TutorChat({ level, onTokensReceived }: TutorChatProps) {
 
               {msg.handDescription && (
                 <div className="msg-hand-desc">
-                  <span className="hand-icon-label">✋ How to sign:</span>
+                  <span className="hand-icon-label">✋ How to execute this sign:</span>
                   <span>{msg.handDescription}</span>
                 </div>
               )}
@@ -256,7 +418,7 @@ export default function TutorChat({ level, onTokensReceived }: TutorChatProps) {
                 <span className="typing-dot" />
                 <span className="typing-dot" />
                 <span className="typing-dot" />
-                <span className="typing-label">Tutor is typing...</span>
+                <span className="typing-label">Tutor is recalling memory and typing...</span>
               </div>
             </div>
           </div>
@@ -266,13 +428,16 @@ export default function TutorChat({ level, onTokensReceived }: TutorChatProps) {
       {/* Interactive Quiz Option Buttons (when active) */}
       {lastTutorMsg?.quizOptions && lastTutorMsg.quizOptions.length > 0 && !loading && (
         <div className="tutor-quiz-options-dock">
-          <div className="quiz-options-label">Select your answer:</div>
+          <div className="quiz-options-header">
+            <HelpCircle size={14} color="#7c3aed" />
+            <span className="quiz-options-label">Knowledge Check — Select Your Answer:</span>
+          </div>
           <div className="quiz-options-grid">
             {lastTutorMsg.quizOptions.map((opt, i) => (
               <button
                 key={i}
                 type="button"
-                className="quiz-option-btn"
+                className={`quiz-option-btn ${selectedQuizOpt === opt ? "selected" : ""}`}
                 onClick={() => handleQuizOption(opt)}
                 disabled={loading}
               >
@@ -303,7 +468,7 @@ export default function TutorChat({ level, onTokensReceived }: TutorChatProps) {
       <div className="tutor-input-bar">
         <textarea
           className="tutor-input"
-          placeholder="Ask in Urdu, Roman Urdu, or English (e.g., How do I sign 'Salam'? / اگلا لفظ سکھائیں)"
+          placeholder="Ask in Urdu, Roman Urdu, or English (e.g., 'How do I sign Salam?' or 'اگلا لفظ سکھائیں')"
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKeyDown}

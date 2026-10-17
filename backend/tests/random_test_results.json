@@ -1,0 +1,57 @@
+[
+  {
+    "test_num": 1,
+    "ground_truth": "less",
+    "video": "4.mp4",
+    "gloss": "LESS",
+    "urdu": "یہ کم ہے۔",
+    "english": "This is less.",
+    "confidence": 0.863,
+    "source": "unified_5step_local_pipeline",
+    "status": "PASS"
+  },
+  {
+    "test_num": 2,
+    "ground_truth": "dangerous",
+    "video": "4.mp4",
+    "gloss": "DANGEROUS",
+    "urdu": "یہ خطرناک ہے۔",
+    "english": "It is dangerous.",
+    "confidence": 0.98,
+    "source": "gemini_multimodal_vision (fallback)",
+    "status": "PASS"
+  },
+  {
+    "test_num": 3,
+    "ground_truth": "careful",
+    "video": "3.mp4",
+    "gloss": "CAREFUL",
+    "urdu": "محتاط رہیں۔",
+    "english": "Be careful.",
+    "confidence": 0.906,
+    "source": "unified_5step_local_pipeline",
+    "status": "PASS"
+  },
+  {
+    "test_num": 4,
+    "ground_truth": "noisy",
+    "video": "2.mp4",
+    "gloss": "NOISY",
+    "urdu": "شور ہے۔",
+    "english": "It is noisy.",
+    "confidence": 0.825,
+    "source": "unified_5step_local_pipeline",
+    "status": "PASS"
+  },
+  {
+    "test_num": 5,
+    "ground_truth": "fantastic",
+    "video": "2.mp4",
+    "gloss": "FANTASTIC",
+    "urdu": "لاجواب۔",
+    "english": "Fantastic.",
+    "confidence": 0.98,
+    "source": "gemini_multimodal_vision (fallback)",
+    "status": "PASS"
+  }
+]

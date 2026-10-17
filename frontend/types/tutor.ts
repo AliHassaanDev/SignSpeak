@@ -68,12 +68,37 @@ export interface ChatMessage {
   timestamp: number;
 }
 
+/* ── Student Memory & Progress ── */
+
+export interface LearnedSign {
+  gloss: string;
+  label: string;
+  level: TutorLevel;
+  masteredAt: number;
+}
+
+export interface QuizStats {
+  totalQuestions: number;
+  correctAnswers: number;
+  currentStreak: number;
+  bestStreak: number;
+}
+
+export interface StudentMemory {
+  learnedSigns: LearnedSign[];
+  discussedTopics: string[];
+  quizStats: QuizStats;
+  completedTopics: string[];
+  summary?: string;
+}
+
 /* ── API Types ── */
 
 export interface TutorChatRequest {
   message: string;
   level: TutorLevel;
   history: { role: "user" | "model"; parts: { text: string }[] }[];
+  memory?: StudentMemory;
 }
 
 export interface TutorChatResponse {
@@ -82,4 +107,6 @@ export interface TutorChatResponse {
   hand_description: string;
   current_level: TutorLevel;
   quiz_options?: string[];
+  detected_topic?: string;
+  is_quiz_correct?: boolean | null;
 }
