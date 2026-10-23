@@ -269,10 +269,13 @@ export default function LearnPage() {
             {/* Sign Image Preview Canvas */}
             <div className="spotlight-image-stage">
               {!imageError ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={`/videos/glosses/${activeToken}.png`}
-                  alt={`Pakistani Sign Language Gesture: ${activeToken}`}
+                <video
+                  key={activeToken}
+                  src={`/videos/glosses/${activeToken}.mp4`}
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
                   className="spotlight-sign-img"
                   onError={() => setImageError(true)}
                 />

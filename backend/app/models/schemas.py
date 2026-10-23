@@ -11,7 +11,8 @@ class PSLSignItem(BaseModel):
     urdu: Optional[str] = Field(None, description="Urdu translation/label of this token")
     english: Optional[str] = Field(None, description="English label of this token")
     image_url: Optional[str] = Field(None, description="Image asset path in public/videos/glosses")
-    duration_ms: int = Field(2000, description="Duration to display this sign image in milliseconds")
+    video_url: Optional[str] = Field(None, description="Video asset path in public/videos/glosses")
+    duration_ms: int = Field(2000, description="Duration to display this sign video/image in milliseconds")
 
 class TextToPSLResponse(BaseModel):
     input_text: str

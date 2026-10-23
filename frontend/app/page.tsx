@@ -8,6 +8,7 @@ import {
   AlertCircle,
   ArrowRight,
   ArrowUpRight,
+  Box,
   Camera,
   ChevronDown,
   Clock3,
@@ -15,7 +16,10 @@ import {
   Check,
   Eye,
   FileVideo,
+  Film,
+  Globe,
   Hand,
+  Image as ImageIcon,
   Info,
   Languages,
   Maximize2,
@@ -41,11 +45,12 @@ import {
 import { PSLSign, PSL_DICTIONARY } from "./lib/psl-dictionary";
 import { urduToPSLModel, UrduToPSLInferenceResult } from "./lib/urdutopsl-model";
 import UrduInputPanel, { InputLanguage } from "../components/UrduInputPanel";
-import PSLVideoPlayer from "../components/PSLVideoPlayer";
+import PSLVideoPlayer, { PSLDisplayMode } from "../components/PSLVideoPlayer";
 import { fetchTextToPSL, PSLResponse, AnimationItem } from "../services/pslService";
 import ChatBot from "../components/ChatBot";
 import CameraPanel from "../components/CameraPanel";
 import TranscriptPanel, { PredictionToken, SilentUserIntent } from "../components/TranscriptPanel";
+import { useLanguage } from "./context/LanguageContext";
 
 const recentActivity = [
   { title: "PSL to Urdu", meta: "Translated 2 mins ago", tone: "teal" },
@@ -63,7 +68,15 @@ function ModalPortal({ children }: { children: React.ReactNode }) {
 }
 
 function scrollTo(id: string) {
-  document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+  const el = document.getElementById(id);
+  if (!el) return;
+  const headerOffset = 84;
+  const elementPosition = el.getBoundingClientRect().top;
+  const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+  window.scrollTo({
+    top: offsetPosition,
+    behavior: "smooth"
+  });
 }
 
 /* ────────────────────────── main page ────────────────────────── */
@@ -74,9 +87,10 @@ export default function Page() {
   const [urduText, setUrduText] = useState("");
   const [autoPlay, setAutoPlay] = useState(true);
   const [isPlaying, setIsPlaying] = useState(false);
+  const { t, isUrdu } = useLanguage();
 
   return (
-    <main className="site-shell">
+    <main className={`site-shell ${isUrdu ? "app-lang-urdu" : ""}`}>
       {/* Global Sticky Navigation Header for All Sections */}
       <SiteHeader />
 
@@ -99,8 +113,8 @@ export default function Page() {
                 <Languages size={18} />
               </div>
               <div className="tab-text-group">
-                <span className="tab-title">Urdu to PSL</span>
-                <span className="tab-subtitle">اردو سے اشارات</span>
+                <span className="tab-title">{t.tabUrduToPSLTitle}</span>
+                <span className="tab-subtitle">{t.tabUrduToPSLSub}</span>
               </div>
             </button>
 
@@ -113,8 +127,8 @@ export default function Page() {
                 <Hand size={18} />
               </div>
               <div className="tab-text-group">
-                <span className="tab-title">PSL to Urdu</span>
-                <span className="tab-subtitle">اشارات سے اردو</span>
+                <span className="tab-title">{t.tabPSLToUrduTitle}</span>
+                <span className="tab-subtitle">{t.tabPSLToUrduSub}</span>
               </div>
             </button>
           </div>
@@ -188,6 +202,7 @@ function Logo() {
 function SiteHeader() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [openSection, setOpenSection] = useState<string | null>("about");
+  const { t, appLang, toggleAppLang, isUrdu } = useLanguage();
 
   const toggleSection = (sec: string) => {
     setOpenSection(openSection === sec ? null : sec);
@@ -202,21 +217,21 @@ function SiteHeader() {
         {/* 1. Project Overview */}
         <div className="nav-item-wrapper">
           <button className="nav-link-btn">
-            About SignSpeak <ChevronDown size={13} className="nav-chevron" />
+            {t.navAbout} <ChevronDown size={13} className="nav-chevron" />
           </button>
           <div className="nav-dropdown align-left">
             <div className="info-panel-content">
               <div className="info-badge-strip">
-                <span className="info-tag violet">PSL ↔ Urdu AI</span>
-                <span className="info-tag teal">Assistive Technology</span>
+                <span className="info-tag violet">{t.aboutTagPSL}</span>
+                <span className="info-tag teal">{t.aboutTagAssistive}</span>
               </div>
               <p className="info-lead">
-                <strong>SignSpeak</strong> is a bidirectional assistive communication platform that breaks communication barriers between <strong>1.5M+ deaf individuals</strong> and hearing communities in Pakistan through real-time sign language translation.
+                <strong>SignSpeak</strong> {t.aboutLead}
               </p>
               <div className="info-badge-strip">
-                <span className="info-tag blue">Two-Way Translation</span>
-                <span className="info-tag amber">Live Vision AI</span>
-                <span className="info-tag violet">3D Sign Avatar</span>
+                <span className="info-tag blue">{t.aboutTagTwoWay}</span>
+                <span className="info-tag amber">{t.aboutTagVision}</span>
+                <span className="info-tag violet">{t.aboutTagAvatar}</span>
               </div>
             </div>
           </div>
@@ -225,7 +240,7 @@ function SiteHeader() {
         {/* 2. How It Works */}
         <div className="nav-item-wrapper">
           <button className="nav-link-btn">
-            How It Works <ChevronDown size={13} className="nav-chevron" />
+            {t.navHowItWorks} <ChevronDown size={13} className="nav-chevron" />
           </button>
           <div className="nav-dropdown align-left">
             <div className="info-panel-content">
@@ -233,22 +248,22 @@ function SiteHeader() {
                 <div className="info-step-item">
                   <span className="info-step-num teal">1</span>
                   <div className="info-step-text">
-                    <strong>Live Landmark & Gesture Tracking</strong>
-                    <p>High-speed camera pipeline tracks 21 hand landmarks, finger articulation & sign motion dynamics.</p>
+                    <strong>{t.howStep1Title}</strong>
+                    <p>{t.howStep1Desc}</p>
                   </div>
                 </div>
                 <div className="info-step-item">
                   <span className="info-step-num">2</span>
                   <div className="info-step-text">
-                    <strong>Neural PSL-to-Urdu Translation</strong>
-                    <p>Deep learning architecture interprets spatial PSL grammar and constructs natural Urdu sentences.</p>
+                    <strong>{t.howStep2Title}</strong>
+                    <p>{t.howStep2Desc}</p>
                   </div>
                 </div>
                 <div className="info-step-item">
                   <span className="info-step-num blue">3</span>
                   <div className="info-step-text">
-                    <strong>Speech Synthesis & 3D Signer</strong>
-                    <p>Outputs natural Urdu voice audio for signs, or animates the real-time 3D avatar for typed Urdu text.</p>
+                    <strong>{t.howStep3Title}</strong>
+                    <p>{t.howStep3Desc}</p>
                   </div>
                 </div>
               </div>
@@ -259,7 +274,7 @@ function SiteHeader() {
         {/* 3. Core Features */}
         <div className="nav-item-wrapper">
           <button className="nav-link-btn">
-            Features <ChevronDown size={13} className="nav-chevron" />
+            {t.navFeatures} <ChevronDown size={13} className="nav-chevron" />
           </button>
           <div className="nav-dropdown align-right">
             <div className="info-panel-content">
@@ -267,22 +282,22 @@ function SiteHeader() {
                 <div className="info-step-item">
                   <span className="info-step-num teal">1</span>
                   <div className="info-step-text">
-                    <strong>Sign to Urdu Translation</strong>
-                    <p>Live camera and video recognition translating PSL signs into instant Urdu text and spoken audio.</p>
+                    <strong>{t.feat1Title}</strong>
+                    <p>{t.feat1Desc}</p>
                   </div>
                 </div>
                 <div className="info-step-item">
                   <span className="info-step-num">2</span>
                   <div className="info-step-text">
-                    <strong>Urdu to 3D Sign Avatar</strong>
-                    <p>Responsive 3D animated sign language avatar with replay, pause, and playback speed adjustments.</p>
+                    <strong>{t.feat2Title}</strong>
+                    <p>{t.feat2Desc}</p>
                   </div>
                 </div>
                 <div className="info-step-item">
                   <span className="info-step-num blue">3</span>
                   <div className="info-step-text">
-                    <strong>Bidirectional Live Sync</strong>
-                    <p>Enables natural, two-way conversational flow between deaf signers and hearing individuals.</p>
+                    <strong>{t.feat3Title}</strong>
+                    <p>{t.feat3Desc}</p>
                   </div>
                 </div>
               </div>
@@ -293,49 +308,78 @@ function SiteHeader() {
         {/* 4. Accessibility & Impact */}
         <div className="nav-item-wrapper">
           <button className="nav-link-btn">
-            Impact & Reach <ChevronDown size={13} className="nav-chevron" />
+            {t.navImpact} <ChevronDown size={13} className="nav-chevron" />
           </button>
           <div className="nav-dropdown align-right">
             <div className="info-panel-content">
               <div className="info-kv-list">
                 <div className="info-kv-item">
-                  <span className="label">Target Community</span>
-                  <span className="val">1.5M+ Deaf Citizens in Pakistan</span>
+                  <span className="label">{t.impactCommunityLabel}</span>
+                  <span className="val">{t.impactCommunityVal}</span>
                 </div>
                 <div className="info-kv-item">
-                  <span className="label">Supported Languages</span>
-                  <span className="val">Pakistani Sign Language (PSL) & Urdu</span>
+                  <span className="label">{t.impactLanguagesLabel}</span>
+                  <span className="val">{t.impactLanguagesVal}</span>
                 </div>
                 <div className="info-kv-item">
-                  <span className="label">Platform Access</span>
-                  <span className="val">Universal Web (No special hardware)</span>
+                  <span className="label">{t.impactAccessLabel}</span>
+                  <span className="val">{t.impactAccessVal}</span>
                 </div>
                 <div className="info-kv-item">
-                  <span className="label">Key Use Cases</span>
-                  <span className="val">Healthcare, Education & Daily Life</span>
+                  <span className="label">{t.impactUseCasesLabel}</span>
+                  <span className="val">{t.impactUseCasesVal}</span>
                 </div>
               </div>
               <p className="info-lead" style={{ fontSize: '9.5px', marginTop: '4px' }}>
-                Built on localized Pakistani Sign Language standards to deliver accessible, private assistive communication.
+                {t.impactFooterNote}
               </p>
             </div>
           </div>
         </div>
 
         <Link href="/learn" className="primary-btn compact learn-nav-btn">
-          Learn PSL
+          {t.navLearnPSL}
         </Link>
-        <button className="primary-btn compact" onClick={() => scrollTo("workspace")}>Get Started</button>
+        <button className="primary-btn compact" onClick={() => scrollTo("workspace")}>
+          {t.navGetStarted}
+        </button>
+
+        {/* Global App Interface Language Converter Switcher */}
+        <button
+          type="button"
+          className="lang-converter-badge-btn"
+          onClick={toggleAppLang}
+          title={appLang === "en" ? "اردو میں دیکھیں (Switch interface to Urdu)" : "Switch interface to English (انگریزی میں دیکھیں)"}
+          aria-label={t.langSwitchAria}
+        >
+          <Globe size={15} className="lang-converter-icon" />
+          <div className="lang-converter-track">
+            <span className={`lang-converter-pill ${appLang === "en" ? "active" : ""}`}>EN</span>
+            <span className={`lang-converter-pill ${appLang === "ur" ? "active" : ""}`}>اردو</span>
+          </div>
+          <span className="lang-converter-label">{t.langSwitchBtnLabel}</span>
+        </button>
       </nav>
 
       {/* Mobile Controls (visible on screens <= 900px) */}
       <div className="mobile-header-actions">
+        {/* Mobile App Language Converter Button */}
+        <button
+          type="button"
+          className="mobile-lang-btn"
+          onClick={toggleAppLang}
+          title={t.langSwitchAria}
+        >
+          <Globe size={13} color="#7c3aed" />
+          <span>{appLang === "en" ? "اردو" : "EN"}</span>
+        </button>
+
         <button
           className="primary-btn small"
           style={{ padding: '6px 12px', fontSize: '11px' }}
           onClick={() => scrollTo("workspace")}
         >
-          Get Started
+          {t.navGetStarted}
         </button>
         <button
           className={`mobile-menu-btn ${mobileMenuOpen ? 'active' : ''}`}
@@ -350,6 +394,25 @@ function SiteHeader() {
       {mobileMenuOpen && (
         <div className="mobile-nav-drawer" onClick={() => setMobileMenuOpen(false)}>
           <div className="mobile-nav-panel" onClick={(e) => e.stopPropagation()}>
+            {/* Quick Language Toggle in Mobile Drawer */}
+            <div style={{ padding: '10px 14px', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: '12px', fontWeight: 600, color: '#475569' }}>
+                {isUrdu ? "ایپ کی زبان:" : "App Language:"}
+              </span>
+              <button
+                type="button"
+                className="lang-converter-badge-btn"
+                style={{ padding: '4px 10px' }}
+                onClick={toggleAppLang}
+              >
+                <Globe size={14} className="lang-converter-icon" />
+                <div className="lang-converter-track">
+                  <span className={`lang-converter-pill ${appLang === "en" ? "active" : ""}`}>EN</span>
+                  <span className={`lang-converter-pill ${appLang === "ur" ? "active" : ""}`}>اردو</span>
+                </div>
+              </button>
+            </div>
+
             <div className="mobile-nav-accordion">
               {/* 1. About */}
               <div
@@ -357,17 +420,17 @@ function SiteHeader() {
                 onMouseEnter={() => setOpenSection("about")}
               >
                 <button className="mobile-acc-header" onClick={() => toggleSection("about")}>
-                  <span>About SignSpeak</span>
+                  <span>{t.navAbout}</span>
                   <ChevronDown size={14} className="mobile-acc-chevron" />
                 </button>
                 <div className="mobile-acc-collapse">
                   <div className="mobile-acc-inner">
                     <div className="info-badge-strip" style={{ marginBottom: '6px' }}>
-                      <span className="info-tag violet">PSL ↔ Urdu AI</span>
-                      <span className="info-tag teal">Assistive Technology</span>
+                      <span className="info-tag violet">{t.aboutTagPSL}</span>
+                      <span className="info-tag teal">{t.aboutTagAssistive}</span>
                     </div>
                     <p className="info-lead">
-                      <strong>SignSpeak</strong> is a bidirectional assistive communication platform that breaks communication barriers between <strong>1.5M+ deaf individuals</strong> and hearing communities in Pakistan through real-time sign language translation.
+                      <strong>SignSpeak</strong> {t.aboutLead}
                     </p>
                   </div>
                 </div>
@@ -379,7 +442,7 @@ function SiteHeader() {
                 onMouseEnter={() => setOpenSection("how")}
               >
                 <button className="mobile-acc-header" onClick={() => toggleSection("how")}>
-                  <span>How It Works</span>
+                  <span>{t.navHowItWorks}</span>
                   <ChevronDown size={14} className="mobile-acc-chevron" />
                 </button>
                 <div className="mobile-acc-collapse">
@@ -388,22 +451,22 @@ function SiteHeader() {
                       <div className="info-step-item">
                         <span className="info-step-num teal">1</span>
                         <div className="info-step-text">
-                          <strong>Live Tracking</strong>
-                          <p>Tracks 21 hand landmarks & motion dynamics.</p>
+                          <strong>{t.howStep1Title}</strong>
+                          <p>{t.howStep1Desc}</p>
                         </div>
                       </div>
                       <div className="info-step-item">
                         <span className="info-step-num">2</span>
                         <div className="info-step-text">
-                          <strong>Neural Translation</strong>
-                          <p>Interprets PSL grammar to natural Urdu.</p>
+                          <strong>{t.howStep2Title}</strong>
+                          <p>{t.howStep2Desc}</p>
                         </div>
                       </div>
                       <div className="info-step-item">
                         <span className="info-step-num blue">3</span>
                         <div className="info-step-text">
-                          <strong>Audio & 3D Signer</strong>
-                          <p>Outputs Urdu voice or animates 3D avatar.</p>
+                          <strong>{t.howStep3Title}</strong>
+                          <p>{t.howStep3Desc}</p>
                         </div>
                       </div>
                     </div>
@@ -417,7 +480,7 @@ function SiteHeader() {
                 onMouseEnter={() => setOpenSection("features")}
               >
                 <button className="mobile-acc-header" onClick={() => toggleSection("features")}>
-                  <span>Features</span>
+                  <span>{t.navFeatures}</span>
                   <ChevronDown size={14} className="mobile-acc-chevron" />
                 </button>
                 <div className="mobile-acc-collapse">
@@ -426,15 +489,15 @@ function SiteHeader() {
                       <div className="info-step-item">
                         <span className="info-step-num teal">1</span>
                         <div className="info-step-text">
-                          <strong>Sign to Urdu</strong>
-                          <p>Camera & video translating PSL signs into Urdu voice.</p>
+                          <strong>{t.feat1Title}</strong>
+                          <p>{t.feat1Desc}</p>
                         </div>
                       </div>
                       <div className="info-step-item">
                         <span className="info-step-num">2</span>
                         <div className="info-step-text">
-                          <strong>Urdu to 3D Signer</strong>
-                          <p>Responsive 3D animated sign language avatar.</p>
+                          <strong>{t.feat2Title}</strong>
+                          <p>{t.feat2Desc}</p>
                         </div>
                       </div>
                     </div>
@@ -448,23 +511,23 @@ function SiteHeader() {
                 onMouseEnter={() => setOpenSection("impact")}
               >
                 <button className="mobile-acc-header" onClick={() => toggleSection("impact")}>
-                  <span>Impact & Reach</span>
+                  <span>{t.navImpact}</span>
                   <ChevronDown size={14} className="mobile-acc-chevron" />
                 </button>
                 <div className="mobile-acc-collapse">
                   <div className="mobile-acc-inner">
                     <div className="info-kv-list">
                       <div className="info-kv-item">
-                        <span className="label">Target</span>
-                        <span className="val">1.5M+ Deaf Citizens in Pakistan</span>
+                        <span className="label">{t.impactCommunityLabel}</span>
+                        <span className="val">{t.impactCommunityVal}</span>
                       </div>
                       <div className="info-kv-item">
-                        <span className="label">Languages</span>
-                        <span className="val">PSL & Urdu</span>
+                        <span className="label">{t.impactLanguagesLabel}</span>
+                        <span className="val">{t.impactLanguagesVal}</span>
                       </div>
                       <div className="info-kv-item">
-                        <span className="label">Access</span>
-                        <span className="val">Universal Web Browser</span>
+                        <span className="label">{t.impactAccessLabel}</span>
+                        <span className="val">{t.impactAccessVal}</span>
                       </div>
                     </div>
                   </div>
@@ -482,22 +545,46 @@ function SiteHeader() {
 
 function Landing() {
   const [showLearnMore, setShowLearnMore] = useState(false);
+  const { t } = useLanguage();
 
   return (
     <div className="landing-page">
       <div className="landing-hero">
         <div className="hero-copy">
-          <h1><span className="italic">Speak Freely.</span><br />Understand Deeply.</h1>
-          <p>SignSpeak is a two-way sign language translator that bridges the gap between silence and speech. Because every conversation matters.</p>
+          <h1>
+            <span className="italic">{t.heroTitleLine1}</span>
+            <br />
+            {t.heroTitleLine2}
+          </h1>
+          <p>{t.heroSubtitle}</p>
           <div className="hero-actions">
-            <button className="primary-btn" onClick={() => scrollTo("workspace")}>Start Translating</button>
-            <Link href="/learn" className="primary-btn learn-hero-btn">Learn PSL</Link>
+            <button className="primary-btn" onClick={() => scrollTo("workspace")}>
+              {t.heroBtnTranslate}
+            </button>
+            <Link href="/learn" className="primary-btn learn-hero-btn">
+              {t.heroBtnLearn}
+            </Link>
           </div>
 
           <div className="feature-strip">
-            <Feature icon={<Hand size={22} />} title="Two-Way Translation" text="PSL to Urdu & Urdu to PSL" tone="violet" />
-            <Feature icon={<Sparkles size={21} />} title="AI Powered" text="Advanced AI for accurate and real-time translation" tone="teal" />
-            <Feature icon={<Languages size={21} />} title="Easy to Use" text="Simple, intuitive and accessible for everyone" tone="blue" />
+            <Feature
+              icon={<Hand size={22} />}
+              title={t.heroFeat1Title}
+              text={t.heroFeat1Desc}
+              tone="violet"
+            />
+            <Feature
+              icon={<Sparkles size={21} />}
+              title={t.heroFeat2Title}
+              text={t.heroFeat2Desc}
+              tone="teal"
+            />
+            <Feature
+              icon={<Languages size={21} />}
+              title={t.heroFeat3Title}
+              text={t.heroFeat3Desc}
+              tone="blue"
+            />
           </div>
         </div>
 
@@ -507,7 +594,6 @@ function Landing() {
             alt="Pakistani Sign Language Illustration"
             width={820}
             height={850}
-
             className="hero-illustration"
             priority
           />
@@ -548,7 +634,7 @@ function Landing() {
                     <circle cx="16" cy="16" r="2.4" fill="#67e8f9" />
                   </svg>
                 </div>
-                <h3>About SignSpeak</h3>
+                <h3>{t.modalAboutTitle}</h3>
               </div>
               <button className="modal-close-btn" onClick={() => setShowLearnMore(false)} aria-label="Close modal">
                 <X size={15} />
@@ -557,31 +643,31 @@ function Landing() {
 
             <div className="modal-body">
               <p className="modal-summary">
-                <strong>SignSpeak</strong> is a bidirectional assistive platform designed to enable natural, real-time communication between <strong>Pakistani Sign Language (PSL)</strong> signers and hearing individuals.
+                <strong>SignSpeak</strong> {t.modalAboutSummary}
               </p>
 
               <div className="modal-list">
                 <div className="modal-list-item">
                   <div className="modal-item-dot teal" />
                   <div>
-                    <strong>PSL to Urdu Vision Translation</strong>
-                    <p>Live camera and video recognition translating continuous hand gestures into instant Urdu text and spoken voice.</p>
+                    <strong>{t.modalAboutVisionTitle}</strong>
+                    <p>{t.modalAboutVisionDesc}</p>
                   </div>
                 </div>
 
                 <div className="modal-list-item">
                   <div className="modal-item-dot" />
                   <div>
-                    <strong>Urdu to 3D Sign Language Avatar</strong>
-                    <p>Text-to-sign conversion rendering anatomically accurate 3D Pakistani Sign Language animations with playback controls.</p>
+                    <strong>{t.modalAboutAvatarTitle}</strong>
+                    <p>{t.modalAboutAvatarDesc}</p>
                   </div>
                 </div>
 
                 <div className="modal-list-item">
                   <div className="modal-item-dot blue" />
                   <div>
-                    <strong>Universal Browser-First Access</strong>
-                    <p>Runs smoothly directly in web browsers with zero installation, designed for Pakistan's 1.5M+ deaf community.</p>
+                    <strong>{t.modalAboutAccessTitle}</strong>
+                    <p>{t.modalAboutAccessDesc}</p>
                   </div>
                 </div>
               </div>
@@ -593,7 +679,7 @@ function Landing() {
                 style={{ fontSize: '11px', padding: '8px 16px', borderRadius: '8px' }}
                 onClick={() => setShowLearnMore(false)}
               >
-                Close
+                {t.modalCloseBtn}
               </button>
             </div>
           </div>
@@ -655,6 +741,7 @@ function PSLToUrdu({
   const [showInfoModal, setShowInfoModal] = useState(false);
   const [isCameraFullscreen, setIsCameraFullscreen] = useState(false);
   const [metrics, setMetrics] = useState({ fps: 30, confidence: 95, latency: 280 });
+  const { t } = useLanguage();
 
   const [activeMode, setActiveMode] = useState<"camera" | "upload" | "demo">("camera");
   const [internalCameraOn, setInternalCameraOn] = useState(false);
@@ -732,11 +819,11 @@ function PSLToUrdu({
     <>
       <div className="page-header">
         <div>
-          <h2 className="teal-title">PSL to Urdu Translator</h2>
-          <p>Recognize Pakistani Sign Language gestures via live camera, demo testbed, or video upload into Urdu & English text and speech.</p>
+          <h2 className="teal-title">{t.pslToUrduTitle}</h2>
+          <p>{t.pslToUrduSubtitle}</p>
         </div>
         <button className="info-btn" onClick={() => setShowInfoModal(true)}>
-          <Info size={14} /> How It Works
+          <Info size={14} /> {t.howItWorksBtn}
         </button>
       </div>
 
@@ -757,8 +844,6 @@ function PSLToUrdu({
               setExternalIntent(null);
             }}
           />
-
-
         </div>
 
         {/* Right Column: Prediction & Accumulated Sentence Buffer */}
@@ -782,10 +867,10 @@ function PSLToUrdu({
 
       {/* Performance Tips */}
       <div className="tips-panel">
-        <strong>Recognition Performance Tips:</strong>
-        <span><Sparkles size={13} /> Good frontal lighting</span>
-        <span><Eye size={13} /> High hand contrast against torso</span>
-        <span><Hand size={13} /> Hold signs stably for ~300ms</span>
+        <strong>{t.tipsTitle}</strong>
+        <span><Sparkles size={13} /> {t.tip1}</span>
+        <span><Eye size={13} /> {t.tip2}</span>
+        <span><Hand size={13} /> {t.tip3}</span>
       </div>
 
       {/* Information Modal */}
@@ -794,12 +879,12 @@ function PSLToUrdu({
           <div className="modal-overlay" onClick={() => setShowInfoModal(false)}>
             <div className="modal-card" onClick={(e) => e.stopPropagation()}>
               <div className="modal-header">
-                <h3>Pakistani Sign Language (PSL) Recognition System</h3>
+                <h3>{t.pslInfoTitle}</h3>
                 <button className="close-btn" onClick={() => setShowInfoModal(false)}><X size={18} /></button>
               </div>
               <div className="modal-body">
                 <p>
-                  <strong>SignBridge PK</strong> utilizes client-side landmark extraction and temporal sequence recognition to identify dynamic PSL words and Urdu alphabet fingerspelling in real time.
+                  <strong>SignSpeak</strong> {t.pslInfoDesc}
                 </p>
               </div>
             </div>
@@ -818,6 +903,7 @@ function UrduToPSL({ text, setText, autoPlay, setAutoPlay, isPlaying, setIsPlayi
   isPlaying: boolean; setIsPlaying: (v: boolean) => void;
 }) {
   const [inputLang, setInputLang] = useState<InputLanguage>("ur");
+  const [displayMode, setDisplayMode] = useState<PSLDisplayMode>("video");
   const [pslResponse, setPslResponse] = useState<PSLResponse | null>(null);
   const [currentSignIndex, setCurrentSignIndex] = useState(0);
   const [speed, setSpeed] = useState<number>(1.0);
@@ -829,6 +915,7 @@ function UrduToPSL({ text, setText, autoPlay, setAutoPlay, isPlaying, setIsPlayi
   const [isFullscreen, setIsFullscreen] = useState(false);
   const avatarStageRef = useRef<HTMLDivElement>(null);
   const activeChipRef = useRef<HTMLButtonElement>(null);
+  const { t } = useLanguage();
 
   // Prevent background scroll and allow Escape key when expanded/fullscreen view is active
   useEffect(() => {
@@ -887,6 +974,7 @@ function UrduToPSL({ text, setText, autoPlay, setAutoPlay, isPlaying, setIsPlayi
         type: t.category === "alphabet" ? "LETTER" : "WORD",
         urdu: t.urdu,
         english: t.english,
+        video_url: `/videos/glosses/${t.gloss}.mp4`,
         image_url: `/videos/glosses/${t.gloss}.png`,
         duration_ms: 2000,
       }));
@@ -996,13 +1084,11 @@ function UrduToPSL({ text, setText, autoPlay, setAutoPlay, isPlaying, setIsPlayi
     <>
       <div className="page-header">
         <div>
-          <h2 className="violet-title">Urdu to PSL Translator</h2>
-          <p>
-            Convert Urdu or English sentences into real-time Pakistani Sign Language (PSL) sequential video signs powered by Gemini AI.
-          </p>
+          <h2 className="violet-title">{t.urduToPSLTitle}</h2>
+          <p>{t.urduToPSLSubtitle}</p>
         </div>
         <button className="info-btn" onClick={() => setShowInfoModal(true)}>
-          <Info size={14} /> How It Works
+          <Info size={14} /> {t.howItWorksBtn}
         </button>
       </div>
 
@@ -1026,7 +1112,7 @@ function UrduToPSL({ text, setText, autoPlay, setAutoPlay, isPlaying, setIsPlayi
           {inputLang === "en" && pslResponse?.urdu_translation && (
             <div className="urdu-translation-banner under-input-banner">
               <div className="banner-top">
-                <span className="banner-tag">Urdu Translation (اردو ترجمہ)</span>
+                <span className="banner-tag">{t.urduTranslationBannerTitle}</span>
                 <button
                   type="button"
                   className="banner-listen-btn"
@@ -1034,7 +1120,7 @@ function UrduToPSL({ text, setText, autoPlay, setAutoPlay, isPlaying, setIsPlayi
                   title="Listen to Urdu translation"
                 >
                   <Volume2 size={13} />
-                  <span>Listen</span>
+                  <span>{t.listenBtn}</span>
                 </button>
               </div>
               <div className="banner-urdu-text" dir="rtl">
@@ -1049,23 +1135,72 @@ function UrduToPSL({ text, setText, autoPlay, setAutoPlay, isPlaying, setIsPlayi
           <div className="panel avatar-panel modern-player-column">
             <div className="panel-title-row">
               <div className="avatar-header-info">
-                <span className="panel-title">PSL Sign Video Output</span>
-                {currentItem && (
+                <span className="panel-title">
+                  {displayMode === "model3d"
+                    ? t.modeTitle3D
+                    : displayMode === "image"
+                    ? t.modeTitleImages
+                    : t.modeTitleVideo}
+                </span>
+                {currentItem && displayMode !== "model3d" && (
                   <span className="active-sign-badge">
-                    Sign {currentSignIndex + 1}/{totalSteps}: <strong>{currentItem.token.replace(/_/g, " ")}</strong>
+                    {t.signCounter(currentSignIndex + 1, totalSteps)}: <strong>{currentItem.token.replace(/_/g, " ")}</strong>
                   </span>
                 )}
               </div>
+
+              {/* Mode Selection Options: Understand by Images vs Understand by Video vs 3D Model */}
+              <div className="sign-mode-selector-wrapper">
+                <div className="mode-toggle-segmented" role="radiogroup" aria-label="Sign presentation format">
+                  <button
+                    type="button"
+                    className={`mode-toggle-option ${displayMode === "image" ? "active image-active" : ""}`}
+                    onClick={() => setDisplayMode("image")}
+                    title="Understand by Images: Display clear, sequential sign illustration cards"
+                  >
+                    <ImageIcon size={14} />
+                    <span className="mode-label-text">
+                      <strong>{t.modeImages}</strong>
+                      <span className="mode-urdu-sub" dir="rtl">{t.modeImagesUrdu}</span>
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    className={`mode-toggle-option ${displayMode === "video" ? "active video-active" : ""}`}
+                    onClick={() => setDisplayMode("video")}
+                    title="Understand by Video: Display natural Pakistani Sign Language video clips"
+                  >
+                    <Film size={14} />
+                    <span className="mode-label-text">
+                      <strong>{t.modeVideo}</strong>
+                      <span className="mode-urdu-sub" dir="rtl">{t.modeVideoUrdu}</span>
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    className={`mode-toggle-option ${displayMode === "model3d" ? "active model-active" : ""}`}
+                    onClick={() => setDisplayMode("model3d")}
+                    title="3D Model: HoloSign 75 Benchmark Studio"
+                  >
+                    <Box size={14} />
+                    <span className="mode-label-text">
+                      <strong>{t.mode3DModel}</strong>
+                      <span className="mode-urdu-sub" dir="rtl">{t.mode3DModelUrdu}</span>
+                    </span>
+                  </button>
+                </div>
+              </div>
+
               <button
                 className="icon-circle-btn"
                 onClick={() => setIsFullscreen(true)}
-                title="Expanded Fullscreen View"
+                title={t.fullscreenView}
               >
                 <Maximize2 size={16} />
               </button>
             </div>
 
-            {/* Sequential 2-Second PSL Sign Video Player */}
+            {/* Sequential PSL Sign Player (Video or Image Slideshow or 3D Model) */}
             <div className="avatar-stage video-stage-container" ref={avatarStageRef}>
               <PSLVideoPlayer
                 items={pslResponse?.animation_queue}
@@ -1074,6 +1209,8 @@ function UrduToPSL({ text, setText, autoPlay, setAutoPlay, isPlaying, setIsPlayi
                 setIsPlaying={setIsPlaying}
                 speed={speed}
                 setSpeed={setSpeed}
+                mode={displayMode}
+                onModeChange={setDisplayMode}
                 onSequenceComplete={() => setIsPlaying(false)}
                 onIndexChange={(idx) => setCurrentSignIndex(idx)}
                 externalIndex={currentSignIndex}
@@ -1082,13 +1219,13 @@ function UrduToPSL({ text, setText, autoPlay, setAutoPlay, isPlaying, setIsPlayi
           </div>
 
           {/* Sign Sequence Timeline under video with Copy Gloss button */}
-          {queue.length > 0 && (
+          {queue.length > 0 && displayMode !== "model3d" && (
             <div className="sign-timeline-bar modern-timeline under-video-timeline">
               <div className="timeline-labels">
                 <div className="timeline-title-group">
-                  <span className="timeline-main-title">Sign Sequence Timeline</span>
+                  <span className="timeline-main-title">{t.timelineTitle}</span>
                   <span className="timeline-counter-badge">
-                    Sign {currentSignIndex + 1} of {totalSteps}
+                    {t.signCounter(currentSignIndex + 1, totalSteps)}
                   </span>
                 </div>
                 <div className="timeline-actions-group">
@@ -1097,10 +1234,10 @@ function UrduToPSL({ text, setText, autoPlay, setAutoPlay, isPlaying, setIsPlayi
                       type="button"
                       className="copy-mini-btn"
                       onClick={copyGlossSequence}
-                      title="Copy PSL Gloss sequence"
+                      title={t.copyGloss}
                     >
                       {copied ? <Check size={13} color="#10b981" /> : <Copy size={13} />}
-                      <span>{copied ? "Copied Gloss" : "Copy Gloss"}</span>
+                      <span>{copied ? t.copiedGloss : t.copyGloss}</span>
                     </button>
                   )}
                   <span className="timeline-percent-badge">{progressPercent}%</span>
@@ -1149,13 +1286,51 @@ function UrduToPSL({ text, setText, autoPlay, setAutoPlay, isPlaying, setIsPlayi
               <div className="theater-header">
                 <div className="theater-title-group">
                   <span className="theater-badge">Full Theater View</span>
-                  <h3 className="theater-title">PSL Sign Video Player</h3>
+                  <h3 className="theater-title">
+                    {displayMode === "model3d"
+                      ? t.modeTitle3D
+                      : displayMode === "image"
+                      ? t.modeTitleImages
+                      : t.modeTitleVideo}
+                  </h3>
                   {currentItem && (
                     <span className="active-sign-badge">
-                      Sign {currentSignIndex + 1}/{totalSteps}: <strong>{currentItem.token.replace(/_/g, " ")}</strong>
+                      {t.signCounter(currentSignIndex + 1, totalSteps)}: <strong>{currentItem.token.replace(/_/g, " ")}</strong>
                     </span>
                   )}
                 </div>
+
+                {/* Theater Mode Selector */}
+                <div className="mode-toggle-segmented theater-mode-toggle" role="radiogroup">
+                  <button
+                    type="button"
+                    className={`mode-toggle-option ${displayMode === "image" ? "active image-active" : ""}`}
+                    onClick={() => setDisplayMode("image")}
+                    title="Understand by Images: sequential sign cards"
+                  >
+                    <ImageIcon size={14} />
+                    <span>{t.modeImages} ({t.modeImagesUrdu})</span>
+                  </button>
+                  <button
+                    type="button"
+                    className={`mode-toggle-option ${displayMode === "video" ? "active video-active" : ""}`}
+                    onClick={() => setDisplayMode("video")}
+                    title="Understand by Video: natural PSL video clips"
+                  >
+                    <Film size={14} />
+                    <span>{t.modeVideo} ({t.modeVideoUrdu})</span>
+                  </button>
+                  <button
+                    type="button"
+                    className={`mode-toggle-option ${displayMode === "model3d" ? "active model-active" : ""}`}
+                    onClick={() => setDisplayMode("model3d")}
+                    title="3D Model: HoloSign 75 Benchmark Studio"
+                  >
+                    <Box size={14} />
+                    <span>{t.mode3DModel} ({t.mode3DModelUrdu})</span>
+                  </button>
+                </div>
+
                 <button
                   type="button"
                   className="theater-close-btn"
@@ -1163,7 +1338,7 @@ function UrduToPSL({ text, setText, autoPlay, setAutoPlay, isPlaying, setIsPlayi
                   title="Exit Fullscreen (Esc)"
                 >
                   <X size={16} />
-                  <span>Exit Fullscreen</span>
+                  <span>{t.exitFullscreen}</span>
                 </button>
               </div>
 
@@ -1176,6 +1351,8 @@ function UrduToPSL({ text, setText, autoPlay, setAutoPlay, isPlaying, setIsPlayi
                   setIsPlaying={setIsPlaying}
                   speed={speed}
                   setSpeed={setSpeed}
+                  mode={displayMode}
+                  onModeChange={setDisplayMode}
                   onSequenceComplete={() => setIsPlaying(false)}
                   onIndexChange={(idx) => setCurrentSignIndex(idx)}
                   externalIndex={currentSignIndex}
@@ -1183,7 +1360,7 @@ function UrduToPSL({ text, setText, autoPlay, setAutoPlay, isPlaying, setIsPlayi
               </div>
 
               {/* Theater Filmstrip if signs exist */}
-              {queue.length > 0 && (
+              {queue.length > 0 && displayMode !== "model3d" && (
                 <div className="theater-timeline-bar">
                   <div className="sequence-chips-row">
                     {queue.map((item, idx) => (
@@ -1217,14 +1394,14 @@ function UrduToPSL({ text, setText, autoPlay, setAutoPlay, isPlaying, setIsPlayi
           <div className="modal-overlay" onClick={() => setShowInfoModal(false)}>
             <div className="modal-card" onClick={(e) => e.stopPropagation()}>
               <div className="modal-header">
-                <h3>About Pakistani Sign Language (PSL) Translation</h3>
+                <h3>{t.urduInfoTitle}</h3>
                 <button className="close-btn" onClick={() => setShowInfoModal(false)}>
                   <X size={18} />
                 </button>
               </div>
               <div className="modal-body">
                 <p>
-                  <strong>Pakistani Sign Language (PSL)</strong> utilizes visual-spatial gestures to enable direct communication for Pakistan's deaf community.
+                  <strong>SignSpeak</strong> {t.urduInfoDesc}
                 </p>
                 <div className="info-feature-list">
                   <div className="info-feature-item">
@@ -1232,8 +1409,8 @@ function UrduToPSL({ text, setText, autoPlay, setAutoPlay, isPlaying, setIsPlayi
                       <Sparkles size={16} />
                     </div>
                     <div>
-                      <strong>Dual Language Translation</strong>
-                      <p>Supports English and Urdu text or voice input, translating sentences into PSL Subject-Object-Verb (SOV) grammatical sequence.</p>
+                      <strong>{t.urduInfoFeature1Title}</strong>
+                      <p>{t.urduInfoFeature1Desc}</p>
                     </div>
                   </div>
                   <div className="info-feature-item">
@@ -1241,8 +1418,8 @@ function UrduToPSL({ text, setText, autoPlay, setAutoPlay, isPlaying, setIsPlayi
                       <Hand size={16} />
                     </div>
                     <div>
-                      <strong>Video-Like Sequential Sign Display</strong>
-                      <p>Signs are displayed sequentially for ~2 seconds per sign with smooth crossfading, simulating high-definition sign language video clips.</p>
+                      <strong>{t.urduInfoFeature2Title}</strong>
+                      <p>{t.urduInfoFeature2Desc}</p>
                     </div>
                   </div>
                   <div className="info-feature-item">
@@ -1250,8 +1427,8 @@ function UrduToPSL({ text, setText, autoPlay, setAutoPlay, isPlaying, setIsPlayi
                       <Languages size={16} />
                     </div>
                     <div>
-                      <strong>Alphabet Fingerspelling Fallback</strong>
-                      <p>Proper nouns, names, and uncataloged words are automatically split into letters and fingerspelled using authentic PSL manual alphabet signs.</p>
+                      <strong>{t.urduInfoFeature3Title}</strong>
+                      <p>{t.urduInfoFeature3Desc}</p>
                     </div>
                   </div>
                 </div>

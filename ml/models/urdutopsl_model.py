@@ -98,39 +98,315 @@ class PSLAnimationPipeline:
     }
 
     # Word-level gloss map used for partial / fuzzy matching when
-    # no full-phrase rule matches.  Known words are replaced with their
+    # no full-phrase rule matches. Known words are replaced with their
     # gloss; unknown words fall through to uppercase fingerspelling.
     WORD_GLOSS_MAP: Dict[str, str] = {
-        "doctor": "DOCTOR",
-        "hospital": "HOSPITAL",
-        "pakistan": "PAKISTAN",
-        "khana": "EAT",
-        "pani": "WATER",
-        "paani": "WATER",
-        "madad": "PLEASE_HELP",
-        "salam": "HELLO",
-        "khushamdeed": "WELCOME",
-        "dost": "FRIEND",
-        "school": "SCHOOL",
-        "haan": "YES",
-        "nahin": "NO",
-        "nahee": "NO",
-        "haal": "HEALTH",
-        "kya": "WHAT",
-        "hai": "IS",
-        "jana": "GO",
-        "paas": "NEAR",
-        "ke": "OF",
-        "mujhe": "I",
-        "chahiye": "WANT",
-        "mera": "MY",
-        "naam": "NAME",
-        "shukriya": "THANK_YOU",
-        "aap": "YOU",
-        "kaise": "HOW",
-        "help": "HELP",
-        "go": "GO",
-        "want": "WANT",
+        # Medical & Health
+        "doctor": "DOCTOR", "ڈاکٹر": "DOCTOR",
+        "hospital": "HOSPITAL", "ہسپتال": "HOSPITAL",
+        "medicine": "MEDICINE", "dawa": "MEDICINE", "dawaii": "MEDICINE", "دوائی": "MEDICINE", "دوا": "MEDICINE",
+        "fever": "FEVER", "bukhar": "FEVER", "بخار": "FEVER",
+        "pain": "PAIN", "dard": "PAIN", "درد": "PAIN",
+        "sick": "SICK", "bimar": "SICK", "بیمار": "SICK",
+        "blood": "BLOOD", "khoon": "BLOOD", "خون": "BLOOD",
+        "ambulance": "AMBULANCE", "ایمبولینس": "AMBULANCE",
+        "nurse": "NURSE", "نرس": "NURSE",
+        "emergency": "EMERGENCY", "ایمرجنسی": "EMERGENCY",
+        "police": "POLICE", "پولیس": "POLICE",
+        # Food & Drink
+        "water": "WATER", "pani": "WATER", "paani": "WATER", "پانی": "WATER",
+        "mineral_water": "MINERAL_WATER",
+        "tea": "TEA", "chai": "TEA", "چائے": "TEA",
+        "green_tea": "GREEN_TEA", "قہوہ": "GREEN_TEA",
+        "milk": "MILK", "doodh": "MILK", "دودھ": "MILK",
+        "bread": "BREAD", "roti": "BREAD", "روٹی": "BREAD",
+        "food": "FOOD", "khana": "EAT", "eat": "EAT", "کھانا": "EAT", "کھائیں": "EAT",
+        "drink": "DRINK", "peena": "DRINK", "پینا": "DRINK",
+        "rice": "RICE", "chawal": "RICE", "چاول": "RICE",
+        "meat": "MEAT", "gosht": "MEAT", "گوشت": "MEAT",
+        "chicken": "CHICKEN", "murghi": "CHICKEN", "مرغی": "CHICKEN",
+        "fish": "FISH", "machli": "FISH", "مچھلی": "FISH",
+        "egg": "EGG", "anda": "EGG", "انڈہ": "EGG",
+        "sugar": "SUGAR", "cheeni": "SUGAR", "چینی": "SUGAR",
+        "salt": "SALT", "namak": "SALT", "نمک": "SALT",
+        "fruit": "FRUIT", "phal": "FRUIT", "پھل": "FRUIT",
+        "apple": "APPLE", "saib": "APPLE", "سیب": "APPLE",
+        "banana": "BANANA", "kela": "BANANA", "کیلا": "BANANA",
+        "breakfast": "BREAKFAST", "nashta": "BREAKFAST", "ناشتہ": "BREAKFAST",
+        "lunch": "LUNCH", "dopahar_ka_khana": "LUNCH",
+        "dinner": "DINNER", "raat_ka_khana": "DINNER",
+        # People & Family
+        "family": "FAMILY", "khandan": "FAMILY", "خاندان": "FAMILY",
+        "mother": "MOTHER", "ammi": "MOTHER", "maa": "MOTHER", "امی": "MOTHER", "ماں": "MOTHER",
+        "father": "FATHER", "abbu": "FATHER", "baap": "FATHER", "ابو": "FATHER", "باپ": "FATHER",
+        "brother": "BROTHER", "bhai": "BROTHER", "بھائی": "BROTHER",
+        "sister": "SISTER", "behn": "SISTER", "bahen": "SISTER", "بہن": "SISTER",
+        "son": "SON", "beta": "SON", "بیٹا": "SON",
+        "daughter": "DAUGHTER", "beti": "DAUGHTER", "بیٹی": "DAUGHTER",
+        "friend": "FRIEND", "dost": "FRIEND", "دوست": "FRIEND",
+        "baby": "BABY", "bacha": "CHILD", "child": "CHILD", "بچہ": "CHILD",
+        "boy": "BOY", "larka": "BOY", "لڑکا": "BOY",
+        "girl": "GIRL", "larki": "GIRL", "لڑکی": "GIRL",
+        "man": "MAN", "aadmi": "MAN", "آدمی": "MAN",
+        "woman": "WOMAN", "aurat": "WOMAN", "عورت": "WOMAN",
+        "teacher": "TEACHER", "ustad": "TEACHER", "استاد": "TEACHER",
+        "student": "STUDENT", "shagird": "STUDENT", "طالب_علم": "STUDENT",
+        "person": "PERSON", "shakhs": "PERSON", "شخص": "PERSON",
+        "name": "NAME", "naam": "NAME", "نام": "NAME",
+        # Time & Calendar
+        "time": "TIME", "waqt": "TIME", "وقت": "TIME",
+        "today": "TODAY", "aaj": "TODAY", "آج": "TODAY",
+        "tomorrow": "TOMORROW", "kal": "TOMORROW", "کل": "TOMORROW",
+        "yesterday": "YESTERDAY", "guzra_kal": "YESTERDAY",
+        "day": "DAY", "din": "DAY", "دن": "DAY",
+        "night": "NIGHT", "raat": "NIGHT", "رات": "NIGHT",
+        "morning": "MORNING", "subah": "MORNING", "صبح": "MORNING",
+        "evening": "EVENING", "shaam": "EVENING", "شام": "EVENING",
+        "afternoon": "AFTERNOON", "dopahar": "AFTERNOON", "دوپہر": "AFTERNOON",
+        "hour": "HOUR", "ghanta": "HOUR", "گھنٹہ": "HOUR",
+        "minute": "MINUTE", "منٹ": "MINUTE",
+        "week": "WEEK", "hafta": "WEEK", "ہفتہ": "WEEK",
+        "month": "MONTH", "mahina": "MONTH", "مہینہ": "MONTH",
+        "year": "YEAR", "saal": "YEAR", "سال": "YEAR",
+        "now": "NOW", "ab": "NOW", "اب": "NOW",
+        "later": "LATER", "baad_mein": "LATER", "بعد": "LATER",
+        "always": "ALWAYS", "hamesha": "ALWAYS", "ہمیشہ": "ALWAYS",
+        "never": "NEVER", "kabhi_nahin": "NEVER",
+        # Places & Transport
+        "pakistan": "PAKISTAN", "پاکستان": "PAKISTAN",
+        "school": "SCHOOL", "اسکول": "SCHOOL",
+        "house": "HOUSE", "home": "HOUSE", "ghar": "HOUSE", "گھر": "HOUSE",
+        "room": "ROOM", "kamra": "ROOM", "کمرہ": "ROOM",
+        "office": "OFFICE", "daftar": "OFFICE", "دفتر": "OFFICE",
+        "shop": "SHOP", "dukan": "SHOP", "دکان": "SHOP",
+        "market": "MARKET", "bazaar": "MARKET", "بازار": "MARKET",
+        "city": "CITY", "shehar": "CITY", "شہر": "CITY",
+        "village": "VILLAGE", "gaon": "VILLAGE", "گاؤں": "VILLAGE",
+        "road": "ROAD", "sadak": "ROAD", "sarak": "ROAD", "سڑک": "ROAD",
+        "street": "STREET", "gali": "STREET", "گلی": "STREET",
+        "car": "CAR", "gaari": "CAR", "gari": "CAR", "گاڑی": "CAR",
+        "bus": "BUS", "بس": "BUS",
+        "train": "TRAIN", "railgari": "TRAIN", "ٹرین": "TRAIN",
+        "airport": "AIRPORT", "ایئرپورٹ": "AIRPORT",
+        "mosque": "MOSQUE", "masjid": "MOSQUE", "مسجد": "MOSQUE",
+        # Verbs & Actions
+        "come": "COME", "aao": "COME", "aana": "COME", "آئیں": "COME", "آؤ": "COME", "آنا": "COME",
+        "go": "GO", "jao": "GO", "jana": "GO", "جاؤ": "GO", "جانا": "GO", "جائیں": "GO",
+        "want": "WANT", "chahiye": "WANT", "چاہیے": "WANT",
+        "need": "NEED", "zaroorat": "NEED", "ضرورت": "NEED",
+        "see": "SEE", "look": "LOOK", "dekhna": "SEE", "dekho": "SEE", "دیکھیں": "SEE", "دیکھنا": "SEE",
+        "listen": "LISTEN", "hear": "HEAR", "suno": "LISTEN", "sunna": "LISTEN", "سنیں": "LISTEN", "سننا": "LISTEN",
+        "speak": "SPEAK", "talk": "TALK", "bolo": "SPEAK", "bolna": "SPEAK", "بولیں": "SPEAK", "بولنا": "SPEAK",
+        "sit": "SIT", "baitho": "SIT", "baithna": "SIT", "بیٹھیں": "SIT", "بیٹھنا": "SIT",
+        "stand": "STAND", "khare_hona": "STAND", "کھڑے_ہونا": "STAND",
+        "sleep": "SLEEP", "so": "SLEEP", "sona": "SLEEP", "سوئیں": "SLEEP", "سونا": "SLEEP",
+        "wake": "WAKE", "jaagna": "WAKE", "جاگنا": "WAKE",
+        "work": "WORK", "kaam": "WORK", "کام": "WORK",
+        "play": "PLAY", "khel": "PLAY", "khelna": "PLAY", "کھیلنا": "PLAY",
+        "buy": "BUY", "khareedna": "BUY", "خریدنا": "BUY",
+        "give": "GIVE", "dena": "GIVE", "do": "GIVE", "دیں": "GIVE", "دینا": "GIVE",
+        "take": "TAKE", "lena": "TAKE", "lo": "TAKE", "لیں": "TAKE", "لینا": "TAKE",
+        "stop": "STOP", "ruko": "STOP", "rokna": "STOP", "رکیں": "STOP", "روکنا": "STOP",
+        "read": "READ", "parhna": "READ", "پڑھیں": "READ", "پڑھنا": "READ",
+        "write": "WRITE", "likhna": "WRITE", "لکھیں": "WRITE", "لکھنا": "WRITE",
+        "learn": "LEARN", "seekhna": "LEARN", "سیکھیں": "LEARN", "سیکھنا": "LEARN",
+        "teach": "TEACH", "parhana": "TEACH", "پڑھانا": "TEACH",
+        "understand": "UNDERSTAND", "samajhna": "UNDERSTAND", "سمجھنا": "UNDERSTAND",
+        "know": "KNOW", "jaanna": "KNOW", "جاننا": "KNOW",
+        "live": "LIVE", "rehna": "LIVE", "رہنا": "LIVE",
+        "love": "LOVE", "pyar": "LOVE", "mohabat": "LOVE", "پیار": "LOVE", "محبت": "LOVE",
+        "like": "LIKE", "pasand": "LIKE", "پسند": "LIKE",
+        "clean": "CLEAN", "saaf": "CLEAN", "saf": "CLEAN", "صاف": "CLEAN",
+        "wash": "WASH", "dhona": "WASH", "دھونا": "WASH",
+        "cook": "COOK", "pakana": "COOK", "پکانا": "COOK",
+        "walk": "WALK", "chalna": "WALK", "چلنا": "WALK",
+        "run": "RUN", "dorna": "RUN", "دوڑنا": "RUN",
+        "wait": "WAIT", "intezar": "WAIT", "انتظار": "WAIT",
+        "call": "CALL", "bulana": "CALL", "بلاؤ": "CALL", "بلانا": "CALL",
+        "send": "SEND", "bhejna": "SEND", "بھیجنا": "SEND",
+        "open": "OPEN", "kholna": "OPEN", "کھولنا": "OPEN",
+        "close": "CLOSE", "band_karna": "CLOSE", "بند": "CLOSE",
+        "help": "HELP", "madad": "HELP", "مدد": "HELP",
+        # Common Courtesy & Feelings
+        "thank_you": "THANK_YOU", "shukriya": "THANK_YOU", "شکریہ": "THANK_YOU",
+        "hello": "HELLO", "salam": "HELLO", "assalamu_alaikum": "HELLO", "سلام": "HELLO", "السلام_علیکم": "HELLO",
+        "welcome": "WELCOME", "khushamdeed": "WELCOME", "خوش_آمدید": "WELCOME",
+        "goodbye": "GOODBYE", "allah_hafiz": "GOODBYE", "اللہ_حافظ": "GOODBYE",
+        "sorry": "SORRY", "maaf_karna": "SORRY", "معاف_کرنا": "SORRY",
+        "excuse_me": "EXCUSE_ME", "sunye": "EXCUSE_ME",
+        "please": "PLEASE", "baraye_meharbani": "PLEASE", "براہ_کرم": "PLEASE",
+        "how_are_you": "HOW_ARE_YOU", "aap_kaise_hain": "HOW_ARE_YOU",
+        "fine": "FINE", "theek": "FINE", "ٹھیک": "FINE",
+        "yes": "YES", "haan": "YES", "جی_ہاں": "YES", "ہاں": "YES",
+        "no": "NO", "nahin": "NO", "nahee": "NO", "نہیں": "NO",
+        "good_morning": "GOOD_MORNING", "subah_bakhair": "GOOD_MORNING", "صبح_بخیر": "GOOD_MORNING",
+        "good_night": "GOOD_NIGHT", "shab_bakhair": "GOOD_NIGHT", "شب_بخیر": "GOOD_NIGHT",
+        "congratulations": "CONGRATULATIONS", "mubarak": "CONGRATULATIONS", "مبارک": "CONGRATULATIONS",
+        "happy": "HAPPY", "khush": "HAPPY", "خوش": "HAPPY",
+        "sad": "SAD", "udas": "SAD", "اداس": "SAD",
+        "tired": "TIRED", "thaka": "TIRED", "تھکا": "TIRED",
+        "good": "GOOD", "acha": "GOOD", "achha": "GOOD", "اچھا": "GOOD",
+        "bad": "BAD", "bura": "BAD", "برا": "BAD",
+        "big": "BIG", "bara": "BIG", "بڑا": "BIG",
+        "small": "SMALL", "chota": "SMALL", "چھوٹا": "SMALL",
+        "hot": "HOT", "garam": "HOT", "گرم": "HOT",
+        "cold": "COLD", "thanda": "COLD", "ٹھنڈا": "COLD",
+        "new": "NEW", "naya": "NEW", "نیا": "NEW",
+        "old": "OLD", "purana": "OLD", "پرانا": "OLD",
+        "fast": "FAST", "tez": "FAST", "تیز": "FAST",
+        "slow": "SLOW", "ahista": "SLOW", "آہستہ": "SLOW",
+        "easy": "EASY", "aasan": "EASY", "آسان": "EASY",
+        "difficult": "DIFFICULT", "mushkil": "DIFFICULT", "مشکل": "DIFFICULT",
+        "beautiful": "BEAUTIFUL", "khoobsurat": "BEAUTIFUL", "خوبصورت": "BEAUTIFUL",
+        "hungry": "HUNGRY", "bhook": "HUNGRY", "بھوک": "HUNGRY",
+        "thirsty": "THIRSTY", "pyaas": "THIRSTY", "پیاس": "THIRSTY",
+        "safe": "SAFE", "mahfooz": "SAFE", "محفوظ": "SAFE",
+        "true": "TRUE", "sach": "TRUE", "سچ": "TRUE",
+        "false": "FALSE", "jhoot": "FALSE", "جھوٹ": "FALSE",
+        # Pronouns & Questions
+        "i": "I", "mujhe": "I", "main": "I", "میں": "I",
+        "you": "YOU", "aap": "YOU", "tum": "YOU", "آپ": "YOU", "تم": "YOU",
+        "he": "HE", "she": "SHE", "woh": "HE", "وہ": "HE",
+        "we": "WE", "hum": "WE", "ہم": "WE",
+        "they": "THEY",
+        "my": "MY", "mera": "MY", "meri": "MY", "میرے": "MY", "میرا": "MY", "میری": "MY",
+        "your": "YOUR", "aapka": "YOUR", "tumhara": "YOUR", "آپکا": "YOUR", "تمہارا": "YOUR",
+        "our": "OUR", "hamara": "OUR", "ہمارا": "OUR",
+        "what": "WHAT", "kya": "WHAT", "کیا": "WHAT",
+        "where": "WHERE", "kahan": "WHERE", "کہاں": "WHERE",
+        "when": "WHEN", "kab": "WHEN", "کب": "WHEN",
+        "why": "WHY", "kyun": "WHY", "کیوں": "WHY",
+        "who": "WHO", "kaun": "WHO", "کون": "WHO",
+        "how": "HOW", "kaise": "HOW", "کیسے": "HOW",
+        "this": "THIS", "yeh": "THIS", "یہ": "THIS",
+        "that": "THAT",
+        "all": "ALL", "sab": "ALL", "سب": "ALL",
+        "some": "SOME", "kuch": "SOME", "کچھ": "SOME",
+        # Numbers
+        "one": "ONE", "ek": "ONE", "ایک": "ONE",
+        "two": "TWO", "do": "TWO", "دو": "TWO",
+        "three": "THREE", "teen": "THREE", "تین": "THREE",
+        "four": "FOUR", "chaar": "FOUR", "چار": "FOUR",
+        "five": "FIVE", "paanch": "FIVE", "پانچ": "FIVE",
+        "six": "SIX", "chhay": "SIX", "چھ": "SIX",
+        "seven": "SEVEN", "saat": "SEVEN", "سات": "SEVEN",
+        "eight": "EIGHT", "aath": "EIGHT", "آٹھ": "EIGHT",
+        "nine": "NINE", "nau": "NINE", "نو": "NINE",
+        "ten": "TEN", "das": "TEN", "دس": "TEN",
+        # Expanded Medical & Health
+        "clinic": "CLINIC", "کلینک": "CLINIC",
+        "pharmacy": "PHARMACY", "medical_store": "PHARMACY", "میڈیکل_سٹور": "PHARMACY", "فارمیسی": "PHARMACY",
+        "bandage": "BANDAGE", "patti": "BANDAGE", "پٹی": "BANDAGE",
+        "cough": "COUGH", "khansi": "COUGH", "کھانسی": "COUGH",
+        "headache": "HEADACHE", "sar_dard": "HEADACHE", "سر_درد": "HEADACHE",
+        "stomach": "STOMACH", "pait": "STOMACH", "پیٹ": "STOMACH",
+        "heart": "HEART", "dil": "HEART", "دل": "HEART",
+        "eye": "EYE", "aankh": "EYE", "آنکھ": "EYE",
+        "ear": "EAR", "kaan": "EAR", "کان": "EAR",
+        "patient": "PATIENT", "mareez": "PATIENT", "مریض": "PATIENT",
+        "operation": "OPERATION", "آپریشن": "OPERATION",
+        "disease": "DISEASE", "bimari": "DISEASE", "بیماری": "DISEASE",
+        "syrup": "SYRUP", "شربت": "SYRUP",
+        # Expanded Emergency & Safety
+        "fire": "FIRE", "aag": "FIRE", "آگ": "FIRE",
+        "rescue": "RESCUE", "bachao": "RESCUE", "بچاؤ": "RESCUE",
+        "careful": "CAREFUL", "ehtiat": "CAREFUL", "احتیاط": "CAREFUL",
+        "danger": "DANGER", "khatra": "DANGER", "خطرہ": "DANGER",
+        # Expanded Household & Items
+        "money": "MONEY", "paise": "MONEY", "پیسے": "MONEY", "رقم": "MONEY",
+        "book": "BOOK", "kitab": "BOOK", "کتاب": "BOOK",
+        "pen": "PEN", "qalam": "PEN", "قلم": "PEN",
+        "door": "DOOR", "darwaza": "DOOR", "دروازہ": "DOOR",
+        "bed": "BED", "bistar": "BED", "بستر": "BED", "پلنگ": "BED",
+        "fan": "FAN", "pankha": "FAN", "پنکھا": "FAN",
+        "light": "LIGHT", "batti": "LIGHT", "roshni": "LIGHT", "بتی": "LIGHT", "روشنی": "LIGHT",
+        "clothes": "CLOTHES", "kapray": "CLOTHES", "کپڑے": "CLOTHES",
+        "bathroom": "BATHROOM", "غسل_خانہ": "BATHROOM", "باتھ_روم": "BATHROOM",
+        # Expanded Places & Education
+        "college": "COLLEGE", "کالج": "COLLEGE",
+        "university": "UNIVERSITY", "jamia": "UNIVERSITY", "جامعہ": "UNIVERSITY", "یونیورسٹی": "UNIVERSITY",
+        "bank": "BANK", "بینک": "BANK",
+        "park": "PARK", "پارک": "PARK",
+        "hotel": "HOTEL", "ہوٹل": "HOTEL",
+        "station": "STATION", "اسٹیشن": "STATION",
+        # Expanded Transport
+        "bicycle": "BICYCLE", "cycle": "BICYCLE", "سائیکل": "BICYCLE",
+        "rickshaw": "RICKSHAW", "رکشہ": "RICKSHAW",
+        "motorcycle": "MOTORCYCLE", "bike": "MOTORCYCLE", "موٹر_سائیکل": "MOTORCYCLE",
+        "boat": "BOAT", "kashti": "BOAT", "کشتی": "BOAT",
+        # Expanded Food & Kitchen
+        "coffee": "COFFEE", "کافی": "COFFEE",
+        "roti": "ROTI", "روٹی": "ROTI",
+        "curry": "CURRY", "salan": "CURRY", "سالن": "CURRY",
+        "soup": "SOUP", "سوپ": "SOUP",
+        "mango": "MANGO", "aam": "MANGO", "آم": "MANGO",
+        "orange": "ORANGE", "malta": "ORANGE", "مالٹا": "ORANGE",
+        "grape": "GRAPE", "angoor": "GRAPE", "انگور": "GRAPE",
+        "potato": "POTATO", "aaloo": "POTATO", "آلو": "POTATO",
+        "onion": "ONION", "pyaz": "ONION", "پیاز": "ONION",
+        "tomato": "TOMATO", "tamatar": "TOMATO", "ٹماٹر": "TOMATO",
+        "beef": "BEEF", "bada_gosht": "BEEF", "بڑا_گوشت": "BEEF",
+        "mutton": "MUTTON", "chota_gosht": "MUTTON", "چھوٹا_گوشت": "MUTTON",
+        "butter": "BUTTER", "makhan": "BUTTER", "مکھن": "BUTTER",
+        "oil": "OIL", "teil": "OIL", "تیل": "OIL",
+        "kitchen": "KITCHEN", "bawarchi_khana": "KITCHEN", "باورچی_خانہ": "KITCHEN",
+        # Expanded Actions & Verbs
+        "talk": "TALK", "baat": "TALK", "بات": "TALK",
+        "say": "SAY", "kehna": "SAY", "کہنا": "SAY", "کہو": "SAY",
+        "think": "THINK", "sochna": "THINK", "soch": "THINK", "سوچنا": "THINK", "سوچ": "THINK",
+        "meet": "MEET", "milna": "MEET", "ملنا": "MEET", "ملیں": "MEET",
+        "laugh": "LAUGH", "hansna": "LAUGH", "ہنسنا": "LAUGH", "ہنسیں": "LAUGH",
+        "cry": "CRY", "rona": "CRY", "رونا": "CRY", "روئیں": "CRY",
+        "remember": "REMEMBER", "yaad": "REMEMBER", "یاد": "REMEMBER",
+        "forget": "FORGET", "bhoolna": "FORGET", "بھولنا": "FORGET",
+        "stay": "STAY", "thehrna": "STAY", "ٹھہرنا": "STAY",
+        "travel": "TRAVEL", "safar": "TRAVEL", "سفر": "TRAVEL",
+        "start": "START", "shuru": "START", "شروع": "START",
+        "finish": "FINISH", "khatam": "FINISH", "ختم": "FINISH",
+        "cut": "CUT", "katna": "CUT", "کاٹنا": "CUT",
+        "bring": "BRING", "laana": "BRING", "لانا": "BRING", "لاؤ": "BRING",
+        "find": "FIND", "dhoondna": "FIND", "ڈھونڈنا": "FIND",
+        "sell": "SELL", "bechna": "SELL", "بیچنا": "SELL",
+        # Weather & Seasons
+        "summer": "SUMMER", "garmi": "SUMMER", "گرمی": "SUMMER", "موسم_گرما": "SUMMER",
+        "winter": "WINTER", "sardi": "WINTER", "سردی": "WINTER", "موسم_سرما": "WINTER",
+        "rain": "RAIN", "barish": "RAIN", "بارش": "RAIN",
+        "sun": "SUN", "sooraj": "SUN", "سورج": "SUN",
+        # Days of the Week
+        "sunday": "SUNDAY", "itwar": "SUNDAY", "اتوار": "SUNDAY",
+        "monday": "MONDAY", "peer": "MONDAY", "پیر": "MONDAY",
+        "tuesday": "TUESDAY", "mangal": "TUESDAY", "منگل": "TUESDAY",
+        "wednesday": "WEDNESDAY", "budh": "WEDNESDAY", "بدھ": "WEDNESDAY",
+        "thursday": "THURSDAY", "jummarat": "THURSDAY", "جمعرات": "THURSDAY",
+        "friday": "FRIDAY", "jummah": "FRIDAY", "جمعہ": "FRIDAY",
+        "saturday": "SATURDAY", "hafta": "SATURDAY", "ہفتہ": "SATURDAY",
+        # Family & Relationships
+        "husband": "HUSBAND", "shohar": "HUSBAND", "شوہر": "HUSBAND",
+        "wife": "WIFE", "biwi": "WIFE", "بیوی": "WIFE",
+        "parents": "PARENTS", "waldein": "PARENTS", "والدین": "PARENTS",
+        "cousin": "COUSIN", "کزن": "COUSIN",
+        "worker": "WORKER", "mazdoor": "WORKER", "مزدور": "WORKER",
+        "boss": "BOSS", "afsar": "BOSS", "افسر": "BOSS",
+        "enemy": "ENEMY", "dushman": "ENEMY", "دشمن": "ENEMY",
+        "people": "PEOPLE", "log": "PEOPLE", "لوگ": "PEOPLE",
+        # Locations & Positions
+        "here": "HERE", "yahan": "HERE", "یہاں": "HERE",
+        "there": "THERE", "wahan": "THERE", "وہاں": "THERE",
+        "which": "WHICH", "kaunsa": "WHICH", "کونسا": "WHICH",
+        "whose": "WHOSE", "kiska": "WHOSE", "کس_کا": "WHOSE",
+        # Qualities & States
+        "strong": "STRONG", "taqatwar": "STRONG", "طاقتور": "STRONG",
+        "weak": "WEAK", "kamzor": "WEAK", "کمزور": "WEAK",
+        "heavy": "HEAVY", "bhaari": "HEAVY", "بھاری": "HEAVY",
+        "ugly": "UGLY", "badsoorat": "UGLY", "بدصورت": "UGLY",
+        "poor": "POOR", "ghareeb": "POOR", "غریب": "POOR",
+        "right": "RIGHT", "sahi": "RIGHT", "صحیح": "RIGHT",
+        "wrong": "WRONG", "galat": "WRONG", "غلط": "WRONG",
+        "ready": "READY", "taiyar": "READY", "تیار": "READY",
+        "busy": "BUSY", "masroof": "BUSY", "مصروف": "BUSY",
+        "free": "FREE", "faarigh": "FREE", "فارغ": "FREE",
+        "early": "EARLY", "jaldi": "EARLY", "جلدی": "EARLY",
+        "late": "LATE", "dair": "LATE", "دیر": "LATE",
     }
 
     # Punctuation to strip before rule matching (Urdu + Latin punctuation).
@@ -232,6 +508,18 @@ class PSLAnimationPipeline:
         "Y": "وائی", "Z": "زے"
     }
 
+    URDU_CHAR_TO_ROMAN: Dict[str, str] = {
+        "ا": "A", "آ": "A", "ع": "A", "ء": "A",
+        "ب": "B", "پ": "P", "ت": "T", "ٹ": "T", "ث": "S",
+        "ج": "J", "چ": "C", "ح": "H", "خ": "K",
+        "د": "D", "ڈ": "D", "ذ": "Z", "ر": "R", "ڑ": "R",
+        "ز": "Z", "ژ": "Z", "س": "S", "ش": "S", "ص": "S", "ض": "Z",
+        "ط": "T", "ظ": "Z", "غ": "G", "ف": "F", "ق": "Q", "ک": "K",
+        "گ": "G", "ل": "L", "م": "M", "ن": "N", "ں": "N",
+        "و": "W", "ہ": "H", "ھ": "H", "ی": "Y", "ے": "Y"
+    }
+    URDU_LETTER_MAP: Dict[str, str] = URDU_CHAR_TO_ROMAN
+
     # Synonym canonicalization applied to Gemini output only.  The frontend
     # keyframe dictionary (psl_glosses.json) keys animations by canonical
     # gloss names, so dynamic synonyms like FOOD must collapse to EAT or they
@@ -308,6 +596,7 @@ class PSLAnimationPipeline:
         self._structured_cache: Dict[str, Any] = {}
         # Timestamp of the last outbound Gemini call (throttle guard).
         self._last_gemini_call = 0.0
+        self._gemini_client = None
         api_key = os.getenv("GEMINI_API_KEY")
         if api_key and _GEMINI_SDK_AVAILABLE:
             try:
@@ -482,7 +771,12 @@ class PSLAnimationPipeline:
         for rule_key, gloss in self.URDU_TO_GLOSS_RULES.items():
             rule_words = set(rule_key.split())
             overlap = len(input_words & rule_words)
-            if overlap > best_overlap and overlap >= max(1, len(rule_words) * 0.5):
+            if (
+                overlap > best_overlap
+                and overlap >= max(1, len(rule_words) * 0.75)
+                and len(input_words) > 0
+                and (overlap / len(input_words)) >= 0.75
+            ):
                 best_overlap = overlap
                 best_gloss = gloss
         if best_gloss is not None:
@@ -534,8 +828,12 @@ class PSLAnimationPipeline:
                     )
 
         # --- 4. Word-level gloss substitution -------------------------
+        # --- 4. Word-level gloss substitution -------------------------
         result_tokens: List[str] = []
+        OMIT_PARTICLES = {"اور", "aur", "and", "کا", "کی", "کے", "ko", "کو", "mein", "میں", "se", "سے", "hai", "hain", "ہو", "ہوں", "ہے", "ہیں"}
         for word in cleaned.split():
+            if word in OMIT_PARTICLES:
+                continue
             if word in self.WORD_GLOSS_MAP:
                 result_tokens.append(self.WORD_GLOSS_MAP[word])
             elif not word.isascii():
@@ -611,6 +909,15 @@ class PSLAnimationPipeline:
         '\u06be': 'H', '\u0621': 'A', '\u06cc': 'Y', '\u06d2': 'E',
     }
 
+    ROMAN_TO_URDU_LETTER: Dict[str, str] = {
+        'A': 'الف', 'B': 'بے', 'C': 'سی', 'D': 'دال', 'E': 'ای',
+        'F': 'فے', 'G': 'گاف', 'H': 'ہے', 'I': 'آئی', 'J': 'جیم',
+        'K': 'کاف', 'L': 'لام', 'M': 'میم', 'N': 'نون', 'O': 'او',
+        'P': 'پے', 'Q': 'قاف', 'R': 'رے', 'S': 'سین', 'T': 'تے',
+        'U': 'یو', 'V': 'وی', 'W': 'ڈبلیو', 'X': 'ایکس', 'Y': 'وائی',
+        'Z': 'زے'
+    }
+
     # ------------------------------------------------------------------
     # Token -> animation asset resolution
     # ------------------------------------------------------------------
@@ -677,9 +984,94 @@ class PSLAnimationPipeline:
     # ------------------------------------------------------------------
     # Master translation & sequence generation
     # ------------------------------------------------------------------
-    def translate_and_sequence(self, text: str, lang: str) -> tuple:
+    def canonicalize_psl_words(self, raw_words: List[str]) -> List[str]:
+        """Canonicalize PSL grammar sequence:
+        1. Greedily merges compound sign concepts (e.g. MY + NAME -> MY_NAME, HOW + ARE + YOU -> HOW_ARE_YOU).
+        2. Eliminates redundant pronouns / overlaps when compound phrase signs are present
+           (e.g. removes redundant YOU/HOW before/after HOW_ARE_YOU, removes redundant I/IS with MY_NAME).
+        3. Collapses consecutive duplicate words, while preserving repeated fingerspelling letters in names.
         """
-        Translates input text (English or Urdu) into:
+        if not raw_words:
+            return []
+
+        tokens: List[str] = []
+        for w in raw_words:
+            tok = str(w).upper().replace(" ", "_").strip()
+            tok = re.sub(r'[^A-Z0-9_]', '', tok)
+            if tok:
+                tokens.append(tok)
+
+        # Multi-word combinations known to exist as single video signs
+        multiword_map = {
+            ("HOW", "ARE", "YOU"): "HOW_ARE_YOU",
+            ("HOW", "YOU"): "HOW_ARE_YOU",
+            ("YOU", "HOW"): "HOW_ARE_YOU",
+            ("THANK", "YOU"): "THANK_YOU",
+            ("PLEASE", "HELP"): "PLEASE_HELP",
+            ("PLEASE", "HELP", "ME"): "PLEASE_HELP",
+            ("MY", "NAME"): "MY_NAME",
+            ("MY", "NAME", "IS"): "MY_NAME",
+            ("GOOD", "MORNING"): "GOOD_MORNING",
+            ("GOOD", "NIGHT"): "GOOD_NIGHT",
+            ("GREEN", "TEA"): "GREEN_TEA",
+            ("MINERAL", "WATER"): "WATER",
+            ("EAT", "FOOD"): "EAT",
+            ("HELLO", "FRIEND"): "HELLO",
+        }
+
+        i = 0
+        merged: List[str] = []
+        while i < len(tokens):
+            matched = False
+            for window in (3, 2):
+                if i + window <= len(tokens):
+                    key = tuple(tokens[i:i + window])
+                    if key in multiword_map:
+                        merged.append(multiword_map[key])
+                        i += window
+                        matched = True
+                        break
+            if not matched:
+                merged.append(tokens[i])
+                i += 1
+
+        # Redundancy & Gesture Overlap Elimination
+        has_how_are_you = "HOW_ARE_YOU" in merged
+        has_my_name = "MY_NAME" in merged
+        has_please_help = "PLEASE_HELP" in merged
+        has_thank_you = "THANK_YOU" in merged
+
+        final_tokens: List[str] = []
+        for tok in merged:
+            # When HOW_ARE_YOU is signed, it incorporates the question and 2nd-person referent
+            if has_how_are_you and tok in ("YOU", "HOW", "AAP", "TUM", "ARE"):
+                continue
+            # When MY_NAME is signed, 1st-person pronoun I / ME / MY / NAME is already included.
+            # But NEVER remove 'I' if it is a single-letter fingerspelling in a name!
+            if has_my_name and tok in ("ME", "MY", "NAME", "HAI", "HAIN"):
+                continue
+            # When PLEASE_HELP is signed, separate PLEASE or HELP is redundant
+            if has_please_help and tok in ("PLEASE", "HELP", "MADAD"):
+                continue
+            # When THANK_YOU is alone with YOU, don't sign YOU again
+            if has_thank_you and len(merged) <= 3 and tok in ("YOU", "THANK", "SHUKRIYA"):
+                continue
+            # Remove copula / helper tokens ONLY if length > 1 so single-letter fingerspelling like 'A' or 'I' is NEVER deleted!
+            if len(tok) > 1 and tok in ("IS", "ARE", "AM", "HAI", "HAIN", "HOON", "THE"):
+                continue
+            final_tokens.append(tok)
+
+        # Collapse adjacent identical words (exclude single letter fingerspelling in names like AMAAN or AHMAD)
+        deduped: List[str] = []
+        for tok in final_tokens:
+            if deduped and deduped[-1] == tok and len(tok) > 1 and not tok.startswith("LETTER_"):
+                continue
+            deduped.append(tok)
+
+        return deduped
+
+    def translate_and_sequence(self, text: str, lang: str = "ur") -> Tuple[str, List[str]]:
+        """Dual pipeline translating English/Urdu text to:
         1. Natural Urdu translation.
         2. Ordered PSL grammar words/tokens (SOV, question words at end, omitted copula).
         """
@@ -705,6 +1097,9 @@ class PSLAnimationPipeline:
                 f"   - Sentence structure: Subject-Object-Verb (SOV) order.\n"
                 f"   - Wh-questions (WHAT, WHERE, HOW, etc.) MUST be placed at the very end.\n"
                 f"   - Omit copula/helper verbs (is, am, are, hai, hain, hoon).\n"
+                f"   - NEVER duplicate signs: For 'how are you' / 'آپ کیسے ہیں', output ONLY ['HOW_ARE_YOU'] (do NOT output 'YOU' and 'HOW_ARE_YOU' together).\n"
+                f"   - For 'my name' / 'میرا نام', output ['MY_NAME'] (do NOT output 'I' or split into 'MY' and 'NAME').\n"
+                f"   - For 'please help' / 'مدد', output ['PLEASE_HELP'].\n"
                 f"   - Match concepts to the Target Vocabulary tokens whenever possible (e.g. 'water' / 'پانی' -> 'WATER', 'where' / 'کہاں' -> 'WHERE', 'hospital' / 'ہسپتال' -> 'HOSPITAL', 'want' / 'چاہیے' -> 'WANT', 'I' / 'مجھے' / 'میں' -> 'I', 'food' / 'کھانا' -> 'EAT').\n"
                 f"   - For proper nouns, names, or words NOT in the Target Vocabulary (e.g. 'Amaan', 'Lahore'), output the word in uppercase English letters so it can be fingerspelled letter-by-letter.\n\n"
                 f"Output valid JSON matching this exact structure:\n"
@@ -727,11 +1122,7 @@ class PSLAnimationPipeline:
                     u_trans = parsed.get("urdu_translation", cleaned).strip()
                     words = parsed.get("psl_words", [])
                     if words and isinstance(words, list):
-                        clean_words = []
-                        for w in words:
-                            w_clean = str(w).upper().replace(" ", "_").strip()
-                            if w_clean:
-                                clean_words.append(w_clean)
+                        clean_words = self.canonicalize_psl_words(words)
                         if clean_words:
                             self._structured_cache[cache_key] = (u_trans, clean_words)
                             return u_trans, clean_words
@@ -762,16 +1153,16 @@ class PSLAnimationPipeline:
             }
             for k, (u, w) in rule_map.items():
                 if k in lower:
-                    return u, w
+                    return u, self.canonicalize_psl_words(w)
 
             # Fallback for generic English words
             words = re.findall(r'[a-zA-Z]+', cleaned.upper())
-            return cleaned, words if words else [cleaned.upper()]
+            return cleaned, self.canonicalize_psl_words(words if words else [cleaned.upper()])
         else:
             # Native Urdu offline translation using rule match
             gloss_str = self.translate_to_gloss(cleaned)
             tokens = gloss_str.split()
-            return cleaned, tokens
+            return cleaned, self.canonicalize_psl_words(tokens)
 
     def process(self, text: str, source_lang: str = "auto") -> Dict:
         """Full pipeline: English/Urdu text -> Urdu translation + PSL grammar -> 2-second sequential image sign queue.
@@ -806,50 +1197,75 @@ class PSLAnimationPipeline:
             if not tok:
                 continue
 
-            # 1. Check if the word sign is present in our image data registry
-            if tok in self.image_registry:
+            # Check if this token is a single letter or explicit LETTER_X
+            is_letter = tok.startswith("LETTER_") or (len(tok) == 1 and tok.isalpha())
+            if is_letter:
+                char = tok.replace("LETTER_", "")
+                letter_tok = f"LETTER_{char}"
+                urdu_letter = self.ROMAN_TO_URDU_LETTER.get(char, char)
+                video_asset = self.image_registry.get(letter_tok, f"/videos/glosses/{letter_tok}.mp4")
+                image_asset = video_asset.replace(".mp4", ".png")
+                queue.append({
+                    "token": letter_tok,
+                    "type": "LETTER",
+                    "urdu": urdu_letter,
+                    "english": char,
+                    "video_url": video_asset,
+                    "image_url": image_asset,
+                    "asset": video_asset,
+                    "duration_ms": 2000
+                })
+            elif tok in self.image_registry:
                 label_info = self.GLOSS_LABELS.get(tok, {})
+                video_asset = self.image_registry[tok]
+                image_asset = video_asset.replace(".mp4", ".png")
                 queue.append({
                     "token": tok,
                     "type": "WORD",
                     "urdu": label_info.get("urdu", tok),
                     "english": label_info.get("english", tok.replace("_", " ").title()),
-                    "image_url": self.image_registry[tok],
-                    "asset": self.image_registry[tok],
+                    "video_url": video_asset,
+                    "image_url": image_asset,
+                    "asset": video_asset,
                     "duration_ms": 2000
                 })
             else:
-                # 2. Word is not in our data: break into individual letters (fingerspelling)
+                # Word is not in our data: break into individual letters (fingerspelling)
                 clean_chars = re.findall(r'[A-Z0-9]', tok)
                 if not clean_chars and not tok.isascii():
                     # Urdu characters fallback
                     for ch in tok:
                         roman_letter = self.URDU_CHAR_TO_ROMAN.get(ch, "A")
                         letter_tok = f"LETTER_{roman_letter}"
-                        if letter_tok in self.image_registry:
-                            queue.append({
-                                "token": letter_tok,
-                                "type": "LETTER",
-                                "urdu": ch,
-                                "english": roman_letter,
-                                "image_url": self.image_registry[letter_tok],
-                                "asset": self.image_registry[letter_tok],
-                                "duration_ms": 2000
-                            })
+                        urdu_letter = self.ROMAN_TO_URDU_LETTER.get(roman_letter, ch)
+                        video_asset = self.image_registry.get(letter_tok, f"/videos/glosses/{letter_tok}.mp4")
+                        image_asset = video_asset.replace(".mp4", ".png")
+                        queue.append({
+                            "token": letter_tok,
+                            "type": "LETTER",
+                            "urdu": urdu_letter,
+                            "english": roman_letter,
+                            "video_url": video_asset,
+                            "image_url": image_asset,
+                            "asset": video_asset,
+                            "duration_ms": 2000
+                        })
                 else:
                     for char in clean_chars:
                         letter_tok = f"LETTER_{char}"
-                        if letter_tok in self.image_registry:
-                            urdu_letter = self.ROMAN_TO_URDU_LETTER.get(char, char)
-                            queue.append({
-                                "token": letter_tok,
-                                "type": "LETTER",
-                                "urdu": urdu_letter,
-                                "english": char,
-                                "image_url": self.image_registry[letter_tok],
-                                "asset": self.image_registry[letter_tok],
-                                "duration_ms": 2000
-                            })
+                        urdu_letter = self.ROMAN_TO_URDU_LETTER.get(char, char)
+                        video_asset = self.image_registry.get(letter_tok, f"/videos/glosses/{letter_tok}.mp4")
+                        image_asset = video_asset.replace(".mp4", ".png")
+                        queue.append({
+                            "token": letter_tok,
+                            "type": "LETTER",
+                            "urdu": urdu_letter,
+                            "english": char,
+                            "video_url": video_asset,
+                            "image_url": image_asset,
+                            "asset": video_asset,
+                            "duration_ms": 2000
+                        })
 
         gloss_sequence_str = " ".join(item["token"] for item in queue)
 
