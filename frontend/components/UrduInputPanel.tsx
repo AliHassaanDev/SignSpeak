@@ -11,6 +11,7 @@ import {
   ArrowRightLeft,
   X,
 } from "lucide-react";
+import { useLanguage } from "../app/context/LanguageContext";
 
 export type InputLanguage = "ur" | "en";
 
@@ -40,12 +41,13 @@ export default function UrduInputPanel({
   isTranslating = false,
 }: UrduInputPanelProps) {
   const [activeCategory, setActiveCategory] = useState<string>("all");
+  const { t, isUrdu } = useLanguage();
 
   const categories = [
-    { id: "all", labelUrdu: "تمام (All)", labelEn: "All" },
-    { id: "greeting", labelUrdu: "سلام و دعائیں (Greetings)", labelEn: "Greetings" },
-    { id: "emergency", labelUrdu: "ہیلپ و ایمرجنسی (Emergency)", labelEn: "Emergency" },
-    { id: "daily", labelUrdu: "روزمرہ گفتگو (Daily)", labelEn: "Daily" },
+    { id: "all", labelUrdu: isUrdu ? "تمام" : "تمام (All)", labelEn: isUrdu ? "تمام" : "All" },
+    { id: "greeting", labelUrdu: isUrdu ? "سلام و دعائیں" : "سلام و دعائیں (Greetings)", labelEn: isUrdu ? "سلام و دعائیں" : "Greetings" },
+    { id: "emergency", labelUrdu: isUrdu ? "ہیلپ و ایمرجنسی" : "ہیلپ و ایمرجنسی (Emergency)", labelEn: isUrdu ? "ہیلپ و ایمرجنسی" : "Emergency" },
+    { id: "daily", labelUrdu: isUrdu ? "روزمرہ گفتگو" : "روزمرہ گفتگو (Daily)", labelEn: isUrdu ? "روزمرہ گفتگو" : "Daily" },
   ];
 
   const presetsUrdu: Record<string, string[]> = {
@@ -81,11 +83,8 @@ export default function UrduInputPanel({
         <div className="panel-title-row">
           <div className="panel-title-group">
             <span className="panel-title">
-              {inputLang === "en" ? "Enter English Text" : "اردو متن درج کریں"}
+              {inputLang === "en" ? t.inputPanelTitleEn : t.inputPanelTitleUrdu}
             </span>
-            {/* <span className="panel-subtext">
-              {inputLang === "en" ? "(English to PSL Sign Language)" : "(Urdu to PSL Sign Language)"}
-            </span> */}
           </div>
 
           <div className="input-header-actions">
@@ -111,7 +110,7 @@ export default function UrduInputPanel({
               onClick={toggleVoiceInput}
               title={
                 isListening
-                  ? "Stop listening"
+                  ? t.listeningBtn
                   : inputLang === "en"
                     ? "Speak in English (Voice input)"
                     : "اردو بولیں (Voice input)"
@@ -126,7 +125,7 @@ export default function UrduInputPanel({
                 type="button"
                 className={`icon-circle-btn ${isSpeaking ? "active" : ""}`}
                 onClick={playAudio}
-                title="Listen to pronunciation"
+                title={t.audioPronounceBtn}
               >
                 {isSpeaking ? <VolumeX size={15} /> : <Volume2 size={15} />}
               </button>
@@ -140,8 +139,8 @@ export default function UrduInputPanel({
             dir={inputLang === "en" ? "ltr" : "rtl"}
             placeholder={
               inputLang === "en"
-                ? "Type or speak English here... (e.g., Where is the hospital? / My name is Amaan)"
-                : "یہاں اردو لکھیں یا بولیں... (مثال: ہسپتال کہاں ہے؟ / میرا نام امان ہے / السلام علیکم)"
+                ? t.inputPlaceholderEn
+                : t.inputPlaceholderUrdu
             }
             value={text}
             onChange={(e) => {
@@ -160,7 +159,7 @@ export default function UrduInputPanel({
 
         {/* Textarea Footer: Char count & Clear */}
         <div className="input-footer">
-          <span className="counter">{text.length} / 500 characters</span>
+          <span className="counter">{t.charCountLabel(text.length, 500)}</span>
           {text && (
             <button
               type="button"
@@ -170,7 +169,7 @@ export default function UrduInputPanel({
                 handleTranslate("", inputLang);
               }}
             >
-              <X size={13} /> Clear
+              <X size={13} /> {t.clearBtn}
             </button>
           )}
         </div>
@@ -184,7 +183,7 @@ export default function UrduInputPanel({
             disabled={!text.trim() || isTranslating}
           >
             <Sparkles size={16} className={isTranslating ? "spin" : ""} />
-            <span>{isTranslating ? "Translating with Gemini..." : "Translate to PSL Signs"}</span>
+            <span>{isTranslating ? t.translatingBtn : t.translateBtn}</span>
           </button>
         </div>
 

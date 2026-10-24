@@ -15,6 +15,7 @@ export interface AnimationItem {
   urdu?: string;
   english?: string;
   image_url?: string;
+  video_url?: string;
   asset?: string;
   duration_ms?: number;
 }

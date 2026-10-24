@@ -17,6 +17,7 @@ import {
   Sparkles
 } from "lucide-react";
 import { signBridgeAPI } from "../app/lib/api";
+import { useLanguage } from "../app/context/LanguageContext";
 
 export interface CameraPanelProps {
   cameraOn: boolean;
@@ -44,6 +45,7 @@ export default function CameraPanel({
   const [cameraError, setCameraError] = useState<string | null>(null);
   const [uploadedMedia, setUploadedMedia] = useState<{ url: string; type: "video" | "image"; name: string; file?: Blob | File } | null>(null);
   const [forceGeminiMode, setForceGeminiMode] = useState<boolean>(false);
+  const { t, isUrdu } = useLanguage();
 
 
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -193,7 +195,7 @@ export default function CameraPanel({
             onReset?.();
           }}
         >
-          <Camera size={15} /> Camera (کیمرا)
+          <Camera size={15} /> {t.cameraModeCamera}
         </button>
         <button
           className={`tab ${activeMode === "upload" ? "active" : ""}`}
@@ -204,7 +206,7 @@ export default function CameraPanel({
             if (cameraOn) stopCamera();
           }}
         >
-          <FileVideo size={15} /> Upload Media
+          <FileVideo size={15} /> {t.cameraModeUpload}
         </button>
         <button
           className="icon-circle-btn small-expand-btn"
@@ -237,8 +239,8 @@ export default function CameraPanel({
               <div className="camera-circle">
                 <Camera size={26} />
               </div>
-              <strong>Camera is off (کیمرا بند ہے)</strong>
-              <span>Click below to allow camera access for real-time sign recognition</span>
+              <strong>{t.cameraOffTitle}</strong>
+              <span>{t.cameraOffDesc}</span>
               {cameraError && (
                 <div className="camera-error-msg">
                   <AlertCircle size={14} /> {cameraError}
@@ -251,7 +253,7 @@ export default function CameraPanel({
                   startCamera();
                 }}
               >
-                <Video size={15} /> Start Real Camera
+                <Video size={15} /> {t.startCameraBtn}
               </button>
             </div>
           )
@@ -290,7 +292,7 @@ export default function CameraPanel({
                         }
                       }}
                     >
-                      <RefreshCw size={13} /> Change File
+                      <RefreshCw size={13} /> {t.uploadChangeFile}
                     </button>
                     <button className="danger-btn small" style={{ height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={() => { setUploadedMedia(null); onReset?.(); }}>
                       <Trash2 size={13} />
@@ -336,7 +338,7 @@ export default function CameraPanel({
                         setTranslatingStage("uploading");
                       }
                     }}>
-                      <Play size={13} /> {isTranslating ? (translatingStage === "uploading" ? "Uploading video…" : "Analyzing signs…") : "Translate"}
+                      <Play size={13} /> {isTranslating ? (translatingStage === "uploading" ? t.uploadTranslatingBtn : t.uploadAnalyzingBtn) : t.uploadTranslateBtn}
                     </button>
                   </div>
                 </div>
@@ -355,8 +357,8 @@ export default function CameraPanel({
                 <div className="upload-icon-circle">
                   <UploadCloud size={28} />
                 </div>
-                <strong>Select Video or Image to Analyze</strong>
-                <span>Supports MP4, WebM, MOV, JPG, PNG (Dynamic Word & Alphabet signs)</span>
+                <strong>{t.uploadDropzoneText}</strong>
+                <span>{t.uploadDropzoneHint}</span>
                 <button
                   className="primary-btn teal small"
                   onClick={(e) => {
@@ -368,7 +370,7 @@ export default function CameraPanel({
                     }
                   }}
                 >
-                  Browse File
+                  {isUrdu ? "فائل منتخب کریں" : "Browse File"}
                 </button>
               </div>
             )}
@@ -381,15 +383,15 @@ export default function CameraPanel({
         <div className="camera-controls-bar" style={{ display: 'flex', gap: '12px', width: '100%' }}>
           {isRecording ? (
             <button className="danger-btn" style={{ flex: 1, height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={stopRecording}>
-              <VideoOff size={16} /> Stop Recording
+              <VideoOff size={16} /> {isUrdu ? "ریکارڈنگ بند کریں" : "Stop Recording"}
             </button>
           ) : (
             <button className="primary-btn teal" style={{ flex: 1, height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={startRecording}>
-              <PlayCircle size={16} /> Record Video
+              <PlayCircle size={16} /> {isUrdu ? "ویڈیو ریکارڈ کریں" : "Record Video"}
             </button>
           )}
           <button className="secondary-btn" style={{ flex: 1, height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={stopCamera}>
-            <VideoOff size={16} /> Stop Camera
+            <VideoOff size={16} /> {isUrdu ? "کیمرا بند کریں" : "Stop Camera"}
           </button>
         </div>
       )}

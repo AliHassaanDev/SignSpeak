@@ -1,0 +1,807 @@
+{
+  "I": {
+    "id": 142,
+    "title": "i",
+    "urdu": "آئی"
+  },
+  "BEAUTIFUL": {
+    "id": 5456,
+    "title": "beautiful",
+    "urdu": "خوبصورت"
+  },
+  "DIFFICULT": {
+    "id": 5539,
+    "title": "difficult",
+    "urdu": "مشکل"
+  },
+  "DIRTY": {
+    "id": 5543,
+    "title": "dirty",
+    "urdu": "میلا"
+  },
+  "FALSE": {
+    "id": 5594,
+    "title": "false",
+    "urdu": "جَعلی"
+  },
+  "FAST": {
+    "id": 5600,
+    "title": "fast",
+    "urdu": "تَيز"
+  },
+  "HAPPY": {
+    "id": 5644,
+    "title": "happy",
+    "urdu": "خُوش"
+  },
+  "NEW": {
+    "id": 5751,
+    "title": "new",
+    "urdu": "نیا"
+  },
+  "SAD": {
+    "id": 5845,
+    "title": "sad",
+    "urdu": "اُداس"
+  },
+  "SAFE": {
+    "id": 5846,
+    "title": "safe",
+    "urdu": "محفُوظ"
+  },
+  "SLOW": {
+    "id": 5880,
+    "title": "slow",
+    "urdu": "آہِستہ"
+  },
+  "SORRY": {
+    "id": 5886,
+    "title": "sorry",
+    "urdu": "پشیمان"
+  },
+  "TIRED": {
+    "id": 5933,
+    "title": "tired",
+    "urdu": "تھکا ہوا"
+  },
+  "TRUE": {
+    "id": 5937,
+    "title": "true",
+    "urdu": "سچ"
+  },
+  "EASY": {
+    "id": 5558,
+    "title": "easy",
+    "urdu": "آسان"
+  },
+  "HUNGRY": {
+    "id": 5665,
+    "title": "hungry",
+    "urdu": "بھوکا"
+  },
+  "OLD": {
+    "id": 5760,
+    "title": "old",
+    "urdu": "پرانا"
+  },
+  "GOOD": {
+    "id": 8037,
+    "title": "good",
+    "urdu": "اچھا"
+  },
+  "BIG": {
+    "id": 8066,
+    "title": "big",
+    "urdu": "بڑا"
+  },
+  "NOW": {
+    "id": 248,
+    "title": "now",
+    "urdu": "ابھی"
+  },
+  "NEVER": {
+    "id": 8096,
+    "title": "never",
+    "urdu": "کبھی نہیں"
+  },
+  "HOUSE": {
+    "id": 8060,
+    "title": "house",
+    "urdu": "گھر"
+  },
+  "NAME": {
+    "id": 600,
+    "title": "name",
+    "urdu": "نام"
+  },
+  "CHICKEN": {
+    "id": 8023,
+    "title": "chicken",
+    "urdu": "چکن"
+  },
+  "BLOOD": {
+    "id": 781,
+    "title": "blood",
+    "urdu": "خُون"
+  },
+  "MARKET": {
+    "id": 1019,
+    "title": "market",
+    "urdu": "بازار"
+  },
+  "SHOP": {
+    "id": 1039,
+    "title": "shop",
+    "urdu": "دُکان"
+  },
+  "MINUTE": {
+    "id": 1173,
+    "title": "minute",
+    "urdu": "مِنٹ"
+  },
+  "MONTH": {
+    "id": 1175,
+    "title": "month",
+    "urdu": "مہینہ"
+  },
+  "LATER": {
+    "id": 1168,
+    "title": "later",
+    "urdu": "بعد میں"
+  },
+  "YEAR": {
+    "id": 1199,
+    "title": "year",
+    "urdu": "سال"
+  },
+  "DAY": {
+    "id": 1157,
+    "title": "day",
+    "urdu": "دن"
+  },
+  "EVENING": {
+    "id": 1160,
+    "title": "evening",
+    "urdu": "شام"
+  },
+  "HOUR": {
+    "id": 1164,
+    "title": "hour",
+    "urdu": "گھنٹہ"
+  },
+  "TOMORROW": {
+    "id": 8043,
+    "title": "tomorrow",
+    "urdu": "کل"
+  },
+  "WEEK": {
+    "id": 8041,
+    "title": "week",
+    "urdu": "ہفتہ"
+  },
+  "AFTERNOON": {
+    "id": 8045,
+    "title": "afternoon",
+    "urdu": "سہ پہر"
+  },
+  "YESTERDAY": {
+    "id": 1200,
+    "title": "yesterday",
+    "urdu": "کل (گزشتہ)"
+  },
+  "TODAY": {
+    "id": 1193,
+    "title": "today",
+    "urdu": "آج"
+  },
+  "NIGHT": {
+    "id": 1178,
+    "title": "night",
+    "urdu": "رات"
+  },
+  "MORNING": {
+    "id": 1176,
+    "title": "morning",
+    "urdu": "صُبح"
+  },
+  "ALWAYS": {
+    "id": 1151,
+    "title": "always",
+    "urdu": "ہَميشَہ"
+  },
+  "SCHOOL": {
+    "id": 1313,
+    "title": "school",
+    "urdu": "اسکول"
+  },
+  "MINERAL_WATER": {
+    "id": 1580,
+    "title": "mineral water",
+    "urdu": "منرل واٹر"
+  },
+  "GREEN_TEA": {
+    "id": 7458,
+    "title": "green tea",
+    "urdu": "سبز چائے"
+  },
+  "TEA": {
+    "id": 1588,
+    "title": "tea",
+    "urdu": "چائے"
+  },
+  "JUICE": {
+    "id": 1573,
+    "title": "juice",
+    "urdu": "رس"
+  },
+  "COLD_DRINK": {
+    "id": 1571,
+    "title": "cold drink",
+    "urdu": "ٹھنڈا شربت"
+  },
+  "MILK": {
+    "id": 1578,
+    "title": "milk",
+    "urdu": "دُودھ"
+  },
+  "WATER": {
+    "id": 7070,
+    "title": "water",
+    "urdu": "پانی"
+  },
+  "BABY": {
+    "id": 1601,
+    "title": "baby",
+    "urdu": "چھوٹا بچہ"
+  },
+  "BROTHER": {
+    "id": 1608,
+    "title": "brother",
+    "urdu": "بھائی"
+  },
+  "CHILD": {
+    "id": 1615,
+    "title": "child",
+    "urdu": "بچہ"
+  },
+  "DAUGHTER": {
+    "id": 1622,
+    "title": "daughter",
+    "urdu": "بیٹی"
+  },
+  "FATHER": {
+    "id": 1642,
+    "title": "father",
+    "urdu": "والد"
+  },
+  "GIRL": {
+    "id": 1650,
+    "title": "girl",
+    "urdu": "لڑکی"
+  },
+  "MOTHER": {
+    "id": 1696,
+    "title": "mother",
+    "urdu": "ماں  ۔ والدہ"
+  },
+  "SISTER": {
+    "id": 1728,
+    "title": "sister",
+    "urdu": "بہن"
+  },
+  "WOMAN": {
+    "id": 1746,
+    "title": "woman",
+    "urdu": "عورت"
+  },
+  "BOY": {
+    "id": 1606,
+    "title": "boy",
+    "urdu": "لڑکا"
+  },
+  "MAN": {
+    "id": 1684,
+    "title": "man",
+    "urdu": "آدمی"
+  },
+  "SON": {
+    "id": 1732,
+    "title": "son",
+    "urdu": "بیٹا"
+  },
+  "EGG": {
+    "id": 7376,
+    "title": "egg",
+    "urdu": "انڈا"
+  },
+  "BREAD": {
+    "id": 1923,
+    "title": "bread",
+    "urdu": "ڈبل روٹی"
+  },
+  "BREAKFAST": {
+    "id": 1924,
+    "title": "breakfast",
+    "urdu": "ناشتہ"
+  },
+  "DINNER": {
+    "id": 1936,
+    "title": "dinner",
+    "urdu": "رات کا کھانا"
+  },
+  "LUNCH": {
+    "id": 1947,
+    "title": "lunch",
+    "urdu": "دوپہَر کا کھانا"
+  },
+  "RICE": {
+    "id": 1956,
+    "title": "rice",
+    "urdu": "چاول"
+  },
+  "APPLE": {
+    "id": 2016,
+    "title": "apple",
+    "urdu": "سیب"
+  },
+  "BANANA": {
+    "id": 2018,
+    "title": "banana",
+    "urdu": "کیلا"
+  },
+  "FRUIT": {
+    "id": 2025,
+    "title": "fruit",
+    "urdu": "پھَل"
+  },
+  "CITY": {
+    "id": 2067,
+    "title": "city",
+    "urdu": "شہر"
+  },
+  "FEVER": {
+    "id": 2348,
+    "title": "fever",
+    "urdu": "بخار"
+  },
+  "HOSPITAL": {
+    "id": 2371,
+    "title": "hospital",
+    "urdu": "ہسپتال"
+  },
+  "SICK": {
+    "id": 2456,
+    "title": "sick",
+    "urdu": "بیمار"
+  },
+  "WHO": {
+    "id": 2498,
+    "title": "who",
+    "urdu": "عالمی ادارہ صحت"
+  },
+  "MEDICINE": {
+    "id": 8074,
+    "title": "medicine",
+    "urdu": "دوائی"
+  },
+  "MOSQUE": {
+    "id": 7975,
+    "title": "mosque",
+    "urdu": "مسجد"
+  },
+  "SUGAR": {
+    "id": 2732,
+    "title": "sugar",
+    "urdu": "چینی"
+  },
+  "COOK": {
+    "id": 2673,
+    "title": "cook",
+    "urdu": "پکانا"
+  },
+  "POLICE_OFFICER": {
+    "id": 2781,
+    "title": "police officer",
+    "urdu": "پولیس افسر"
+  },
+  "FINE": {
+    "id": 2761,
+    "title": "fine",
+    "urdu": "جرمانہ"
+  },
+  "FISH": {
+    "id": 2918,
+    "title": "fish",
+    "urdu": "مچھلی"
+  },
+  "EMERGENCY": {
+    "id": 3359,
+    "title": "emergency",
+    "urdu": "هنگامی حالت"
+  },
+  "ONE": {
+    "id": 6006,
+    "title": "one",
+    "urdu": "ایک"
+  },
+  "NINE": {
+    "id": 7598,
+    "title": "nine",
+    "urdu": "نو"
+  },
+  "SEVEN": {
+    "id": 7708,
+    "title": "seven",
+    "urdu": "سات"
+  },
+  "THREE": {
+    "id": 7761,
+    "title": "three",
+    "urdu": "تین"
+  },
+  "TWO": {
+    "id": 7775,
+    "title": "two",
+    "urdu": "دو"
+  },
+  "SIX": {
+    "id": 8033,
+    "title": "six",
+    "urdu": "چھ"
+  },
+  "FOUR": {
+    "id": 8032,
+    "title": "four",
+    "urdu": "چار"
+  },
+  "FIVE": {
+    "id": 7426,
+    "title": "five",
+    "urdu": "پانچ"
+  },
+  "EIGHT": {
+    "id": 7378,
+    "title": "eight",
+    "urdu": "آٹھ"
+  },
+  "OFFICE": {
+    "id": 3761,
+    "title": "office",
+    "urdu": "دفتر"
+  },
+  "PAKISTAN": {
+    "id": 3836,
+    "title": "pakistan",
+    "urdu": "پاکستان"
+  },
+  "NURSE": {
+    "id": 4020,
+    "title": "nurse",
+    "urdu": "نرس"
+  },
+  "STUDENT": {
+    "id": 4072,
+    "title": "student",
+    "urdu": "طالب علم"
+  },
+  "DOCTOR": {
+    "id": 3957,
+    "title": "doctor",
+    "urdu": "ڈاکٹر"
+  },
+  "TEACHER": {
+    "id": 4079,
+    "title": "teacher",
+    "urdu": "استاد"
+  },
+  "YOU": {
+    "id": 4124,
+    "title": "you",
+    "urdu": "تم / آپ"
+  },
+  "WE": {
+    "id": 4123,
+    "title": "we",
+    "urdu": "ہم"
+  },
+  "THIS": {
+    "id": 4121,
+    "title": "this",
+    "urdu": "یہ"
+  },
+  "OUR": {
+    "id": 4113,
+    "title": "our",
+    "urdu": "ہمارا"
+  },
+  "SOME": {
+    "id": 4116,
+    "title": "some",
+    "urdu": "کچھ"
+  },
+  "ALL": {
+    "id": 4092,
+    "title": "all",
+    "urdu": "سب"
+  },
+  "CONGRATULATIONS": {
+    "id": 4278,
+    "title": "congratulations!",
+    "urdu": "مبارک ہو"
+  },
+  "EXCUSE_ME": {
+    "id": 4299,
+    "title": "excuse me",
+    "urdu": "معاف کیجئے گا."
+  },
+  "GO_AWAY": {
+    "id": 4300,
+    "title": "go away!",
+    "urdu": "چلے جاؤ"
+  },
+  "GOOD_AFTERNOON": {
+    "id": 4301,
+    "title": "good afternoon",
+    "urdu": "دوپہر بخیر"
+  },
+  "GOOD_MORNING": {
+    "id": 4303,
+    "title": "good morning",
+    "urdu": "صبح بخیر"
+  },
+  "GOOD_NIGHT": {
+    "id": 4304,
+    "title": "good night",
+    "urdu": "شب بخیر"
+  },
+  "GOODBYE": {
+    "id": 4305,
+    "title": "goodbye",
+    "urdu": "خدا حافظ"
+  },
+  "HOW": {
+    "id": 4324,
+    "title": "how?",
+    "urdu": "کیسے؟"
+  },
+  "MY_NAME_IS": {
+    "id": 4359,
+    "title": "my name is..",
+    "urdu": "میرا نام ۔ ۔ ۔ ۔ ۔  ہے۔"
+  },
+  "PLEASE": {
+    "id": 4364,
+    "title": "please",
+    "urdu": "براہ مہربانی"
+  },
+  "THANK_YOU": {
+    "id": 4369,
+    "title": "thank you",
+    "urdu": "شکریہ"
+  },
+  "WELCOME": {
+    "id": 4380,
+    "title": "welcome",
+    "urdu": "خوش آمدید"
+  },
+  "WHAT": {
+    "id": 4386,
+    "title": "what?",
+    "urdu": "کیا؟"
+  },
+  "YES": {
+    "id": 4396,
+    "title": "yes",
+    "urdu": "جی ہاں"
+  },
+  "HELLO": {
+    "id": 4309,
+    "title": "hello",
+    "urdu": "ہیلو"
+  },
+  "HOW_ARE_YOU": {
+    "id": 4310,
+    "title": "how are you?",
+    "urdu": "آپ کیسے ہیں؟"
+  },
+  "WHEN": {
+    "id": 4387,
+    "title": "when?",
+    "urdu": "کب؟"
+  },
+  "WHERE": {
+    "id": 4389,
+    "title": "where?",
+    "urdu": "کہاں؟"
+  },
+  "WHY": {
+    "id": 4393,
+    "title": "why?",
+    "urdu": "کیوں؟"
+  },
+  "NO": {
+    "id": 8107,
+    "title": "no",
+    "urdu": "نہیں"
+  },
+  "SALT": {
+    "id": 4498,
+    "title": "salt",
+    "urdu": "نمک"
+  },
+  "BUS": {
+    "id": 4650,
+    "title": "bus",
+    "urdu": "بس"
+  },
+  "STREET": {
+    "id": 4722,
+    "title": "street",
+    "urdu": "سڑک"
+  },
+  "AMBULANCE": {
+    "id": 7188,
+    "title": "ambulance",
+    "urdu": "ایمبولینس"
+  },
+  "CAR": {
+    "id": 8057,
+    "title": "car",
+    "urdu": "کار"
+  },
+  "TRAIN": {
+    "id": 8059,
+    "title": "train",
+    "urdu": "ٹرین"
+  },
+  "BUY": {
+    "id": 4880,
+    "title": "buy",
+    "urdu": "خریدنا"
+  },
+  "CALL": {
+    "id": 4882,
+    "title": "call",
+    "urdu": "بلانا"
+  },
+  "COME": {
+    "id": 4909,
+    "title": "come",
+    "urdu": "آنا"
+  },
+  "DRINK": {
+    "id": 4990,
+    "title": "drink",
+    "urdu": "پینا"
+  },
+  "GO": {
+    "id": 5059,
+    "title": "go",
+    "urdu": "جانا"
+  },
+  "HELP": {
+    "id": 5071,
+    "title": "help",
+    "urdu": "مدد"
+  },
+  "KNOW": {
+    "id": 5106,
+    "title": "know",
+    "urdu": "جاننا"
+  },
+  "LEARN": {
+    "id": 5109,
+    "title": "learn",
+    "urdu": "سیکھنا"
+  },
+  "LIKE": {
+    "id": 5117,
+    "title": "like",
+    "urdu": "پَسَند کَرنا"
+  },
+  "LIVE": {
+    "id": 5119,
+    "title": "live",
+    "urdu": "رہنا"
+  },
+  "READ": {
+    "id": 5180,
+    "title": "read",
+    "urdu": "پڑھنا"
+  },
+  "RUN": {
+    "id": 5217,
+    "title": "run",
+    "urdu": "بھاگنا"
+  },
+  "SEND": {
+    "id": 5232,
+    "title": "send",
+    "urdu": "بھیجنا"
+  },
+  "SPEAK": {
+    "id": 5258,
+    "title": "speak",
+    "urdu": "بولنا"
+  },
+  "STAND": {
+    "id": 5261,
+    "title": "stand",
+    "urdu": "کھڑا ہونا"
+  },
+  "TAKE": {
+    "id": 5285,
+    "title": "take",
+    "urdu": "لینا"
+  },
+  "UNDERSTAND": {
+    "id": 5309,
+    "title": "understand",
+    "urdu": "سمجھنا"
+  },
+  "WAIT": {
+    "id": 5312,
+    "title": "wait",
+    "urdu": "انتظار کرنا"
+  },
+  "WANT": {
+    "id": 5315,
+    "title": "want",
+    "urdu": "چاہنا"
+  },
+  "WORK": {
+    "id": 5322,
+    "title": "work",
+    "urdu": "کام کرنا"
+  },
+  "WRITE": {
+    "id": 5324,
+    "title": "write",
+    "urdu": "لکھنا"
+  },
+  "GIVE": {
+    "id": 5058,
+    "title": "give",
+    "urdu": "دینا"
+  },
+  "LOVE": {
+    "id": 5122,
+    "title": "love",
+    "urdu": "پیار  کَرنا"
+  },
+  "NEED": {
+    "id": 5134,
+    "title": "need",
+    "urdu": "ضرورت هونا"
+  },
+  "SIT": {
+    "id": 5250,
+    "title": "sit",
+    "urdu": "بیٹھنا"
+  },
+  "WALK": {
+    "id": 5314,
+    "title": "walk",
+    "urdu": "پیدل چلنا"
+  },
+  "EAT": {
+    "id": 8070,
+    "title": "eat",
+    "urdu": "کهانا"
+  },
+  "SEE": {
+    "id": 8102,
+    "title": "see",
+    "urdu": "دیکهنا"
+  },
+  "SLEEP": {
+    "id": 8110,
+    "title": "sleep",
+    "urdu": "سونا"
+  },
+  "TREATMENT": {
+    "id": 7040,
+    "title": "treatment",
+    "urdu": "علاج"
+  }
+}

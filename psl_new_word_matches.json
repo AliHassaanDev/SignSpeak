@@ -1,0 +1,1437 @@
+{
+  "BATHROOM": {
+    "token": "BATHROOM",
+    "concept_id": 548,
+    "title": "Bathroom",
+    "urdu": "غسل خانہ",
+    "category": "Bathroom"
+  },
+  "I": {
+    "token": "I",
+    "concept_id": 142,
+    "title": "I",
+    "urdu": "آئی",
+    "category": "English Alphabet"
+  },
+  "NOW": {
+    "token": "NOW",
+    "concept_id": 248,
+    "title": "Now",
+    "urdu": "ابھی",
+    "category": "Adverbs"
+  },
+  "THERE": {
+    "token": "THERE",
+    "concept_id": 266,
+    "title": "There",
+    "urdu": "وہاں",
+    "category": "Adverbs"
+  },
+  "NEVER": {
+    "token": "NEVER",
+    "concept_id": 8096,
+    "title": "Never",
+    "urdu": "کبھی نہیں",
+    "category": "Adverbs"
+  },
+  "STRONG": {
+    "token": "STRONG",
+    "concept_id": 8055,
+    "title": "Strong",
+    "urdu": "مضبوط",
+    "category": "Adverbs"
+  },
+  "SAY": {
+    "token": "SAY",
+    "concept_id": 368,
+    "title": "Say",
+    "urdu": "ث",
+    "category": "Urdu Alphabet"
+  },
+  "FAN": {
+    "token": "FAN",
+    "concept_id": 415,
+    "title": "Fan",
+    "urdu": "پںکھا",
+    "category": "Around The House"
+  },
+  "DOOR": {
+    "token": "DOOR",
+    "concept_id": 412,
+    "title": "Door",
+    "urdu": "دروازہ",
+    "category": "Around The House"
+  },
+  "HOUSE": {
+    "token": "HOUSE",
+    "concept_id": 8060,
+    "title": "House",
+    "urdu": "گھر",
+    "category": "Around The House"
+  },
+  "BEAUTIFUL": {
+    "token": "BEAUTIFUL",
+    "concept_id": 5456,
+    "title": "beautiful",
+    "urdu": "خوبصورت",
+    "category": "Adjectives"
+  },
+  "BUSY": {
+    "token": "BUSY",
+    "concept_id": 5478,
+    "title": "busy",
+    "urdu": "مصروف",
+    "category": "Adjectives"
+  },
+  "CAREFUL": {
+    "token": "CAREFUL",
+    "concept_id": 5480,
+    "title": "careful",
+    "urdu": "محتاط",
+    "category": "Adjectives"
+  },
+  "DIFFICULT": {
+    "token": "DIFFICULT",
+    "concept_id": 5539,
+    "title": "difficult",
+    "urdu": "مشکل",
+    "category": "Adjectives"
+  },
+  "DIRTY": {
+    "token": "DIRTY",
+    "concept_id": 5543,
+    "title": "dirty",
+    "urdu": "میلا",
+    "category": "Adjectives"
+  },
+  "EARLY": {
+    "token": "EARLY",
+    "concept_id": 5557,
+    "title": "early",
+    "urdu": "جلدی",
+    "category": "Adjectives"
+  },
+  "FALSE": {
+    "token": "FALSE",
+    "concept_id": 5594,
+    "title": "FALSE",
+    "urdu": "جَعلی",
+    "category": "Adjectives"
+  },
+  "FAST": {
+    "token": "FAST",
+    "concept_id": 5600,
+    "title": "fast",
+    "urdu": "تَيز",
+    "category": "Adjectives"
+  },
+  "FREE": {
+    "token": "FREE",
+    "concept_id": 5618,
+    "title": "free",
+    "urdu": "مفت",
+    "category": "Adjectives"
+  },
+  "HAPPY": {
+    "token": "HAPPY",
+    "concept_id": 5644,
+    "title": "happy",
+    "urdu": "خُوش",
+    "category": "Adjectives"
+  },
+  "HEAVY": {
+    "token": "HEAVY",
+    "concept_id": 5652,
+    "title": "heavy",
+    "urdu": "بھاری",
+    "category": "Adjectives"
+  },
+  "LATE": {
+    "token": "LATE",
+    "concept_id": 5703,
+    "title": "late",
+    "urdu": "دیر",
+    "category": "Adjectives"
+  },
+  "MEDICAL": {
+    "token": "MEDICAL",
+    "concept_id": 5730,
+    "title": "medical",
+    "urdu": "طِبّی",
+    "category": "Adjectives"
+  },
+  "NEW": {
+    "token": "NEW",
+    "concept_id": 5751,
+    "title": "new",
+    "urdu": "نیا",
+    "category": "Adjectives"
+  },
+  "POOR": {
+    "token": "POOR",
+    "concept_id": 5792,
+    "title": "poor",
+    "urdu": "غریب",
+    "category": "Adjectives"
+  },
+  "SAD": {
+    "token": "SAD",
+    "concept_id": 5845,
+    "title": "sad",
+    "urdu": "اُداس",
+    "category": "Adjectives"
+  },
+  "SAFE": {
+    "token": "SAFE",
+    "concept_id": 5846,
+    "title": "safe",
+    "urdu": "محفُوظ",
+    "category": "Adjectives"
+  },
+  "SLOW": {
+    "token": "SLOW",
+    "concept_id": 5880,
+    "title": "slow",
+    "urdu": "آہِستہ",
+    "category": "Adjectives"
+  },
+  "TIRED": {
+    "token": "TIRED",
+    "concept_id": 5933,
+    "title": "tired",
+    "urdu": "تھکا ہوا",
+    "category": "Adjectives"
+  },
+  "TRUE": {
+    "token": "TRUE",
+    "concept_id": 5937,
+    "title": "TRUE",
+    "urdu": "سچ",
+    "category": "Adjectives"
+  },
+  "UGLY": {
+    "token": "UGLY",
+    "concept_id": 5940,
+    "title": "ugly",
+    "urdu": "بَدصُورَت",
+    "category": "Adjectives"
+  },
+  "WRONG": {
+    "token": "WRONG",
+    "concept_id": 5990,
+    "title": "wrong",
+    "urdu": "غَلَط",
+    "category": "Adjectives"
+  },
+  "EASY": {
+    "token": "EASY",
+    "concept_id": 5558,
+    "title": "easy",
+    "urdu": "آسان",
+    "category": "Adjectives"
+  },
+  "HUNGRY": {
+    "token": "HUNGRY",
+    "concept_id": 5665,
+    "title": "hungry",
+    "urdu": "بھوکا",
+    "category": "Adjectives"
+  },
+  "OLD": {
+    "token": "OLD",
+    "concept_id": 5760,
+    "title": "old",
+    "urdu": "پرانا",
+    "category": "Adjectives"
+  },
+  "PATIENT": {
+    "token": "PATIENT",
+    "concept_id": 5781,
+    "title": "patient",
+    "urdu": "صابر",
+    "category": "Adjectives"
+  },
+  "READY": {
+    "token": "READY",
+    "concept_id": 5814,
+    "title": "ready",
+    "urdu": "تیار",
+    "category": "Adjectives"
+  },
+  "WEAK": {
+    "token": "WEAK",
+    "concept_id": 5978,
+    "title": "weak",
+    "urdu": "کمزور",
+    "category": "Adjectives"
+  },
+  "GOOD": {
+    "token": "GOOD",
+    "concept_id": 8037,
+    "title": "Good",
+    "urdu": "اچھا",
+    "category": "Adjectives"
+  },
+  "BIG": {
+    "token": "BIG",
+    "concept_id": 8066,
+    "title": "Big",
+    "urdu": "بڑا",
+    "category": "Adjectives"
+  },
+  "RICH": {
+    "token": "RICH",
+    "concept_id": 8099,
+    "title": "Rich",
+    "urdu": "امیر",
+    "category": "Adjectives"
+  },
+  "STOMACH": {
+    "token": "STOMACH",
+    "concept_id": 840,
+    "title": "Stomach",
+    "urdu": "معدہ",
+    "category": "Body Anatomy"
+  },
+  "EYE": {
+    "token": "EYE",
+    "concept_id": 792,
+    "title": "Eye",
+    "urdu": "آنکھ",
+    "category": "Body Anatomy"
+  },
+  "EAR": {
+    "token": "EAR",
+    "concept_id": 790,
+    "title": "ear",
+    "urdu": "کان",
+    "category": "Body Anatomy"
+  },
+  "HEART": {
+    "token": "HEART",
+    "concept_id": 805,
+    "title": "Heart",
+    "urdu": "دِل",
+    "category": "Body Anatomy"
+  },
+  "TUESDAY": {
+    "token": "TUESDAY",
+    "concept_id": 1195,
+    "title": "tuesday",
+    "urdu": "منگل",
+    "category": "Calendar and Time"
+  },
+  "MINUTE": {
+    "token": "MINUTE",
+    "concept_id": 1173,
+    "title": "minute",
+    "urdu": "مِنٹ",
+    "category": "Calendar and Time"
+  },
+  "MONDAY": {
+    "token": "MONDAY",
+    "concept_id": 1174,
+    "title": "Monday",
+    "urdu": "پیر",
+    "category": "Calendar and Time"
+  },
+  "MONTH": {
+    "token": "MONTH",
+    "concept_id": 1175,
+    "title": "month",
+    "urdu": "مہینہ",
+    "category": "Calendar and Time"
+  },
+  "LATER": {
+    "token": "LATER",
+    "concept_id": 1168,
+    "title": "later",
+    "urdu": "بعد میں",
+    "category": "Calendar and Time"
+  },
+  "THURSDAY": {
+    "token": "THURSDAY",
+    "concept_id": 1191,
+    "title": "Thursday",
+    "urdu": "جمعرات",
+    "category": "Calendar and Time"
+  },
+  "YEAR": {
+    "token": "YEAR",
+    "concept_id": 1199,
+    "title": "year",
+    "urdu": "سال",
+    "category": "Calendar and Time"
+  },
+  "WEDNESDAY": {
+    "token": "WEDNESDAY",
+    "concept_id": 1196,
+    "title": "Wednesday",
+    "urdu": "بُدھ",
+    "category": "Calendar and Time"
+  },
+  "DAY": {
+    "token": "DAY",
+    "concept_id": 1157,
+    "title": "day",
+    "urdu": "دن",
+    "category": "Calendar and Time"
+  },
+  "EVENING": {
+    "token": "EVENING",
+    "concept_id": 1160,
+    "title": "evening",
+    "urdu": "شام",
+    "category": "Calendar and Time"
+  },
+  "FRIDAY": {
+    "token": "FRIDAY",
+    "concept_id": 1162,
+    "title": "Friday",
+    "urdu": "جمعہ",
+    "category": "Calendar and Time"
+  },
+  "HOUR": {
+    "token": "HOUR",
+    "concept_id": 1164,
+    "title": "hour",
+    "urdu": "گھنٹہ",
+    "category": "Calendar and Time"
+  },
+  "TOMORROW": {
+    "token": "TOMORROW",
+    "concept_id": 8043,
+    "title": "Tomorrow",
+    "urdu": "کل",
+    "category": "Calendar and Time"
+  },
+  "WEEK": {
+    "token": "WEEK",
+    "concept_id": 8041,
+    "title": "Week",
+    "urdu": "ہفتہ",
+    "category": "Calendar and Time"
+  },
+  "SATURDAY": {
+    "token": "SATURDAY",
+    "concept_id": 8042,
+    "title": "Saturday",
+    "urdu": "ہفتہ",
+    "category": "Calendar and Time"
+  },
+  "AFTERNOON": {
+    "token": "AFTERNOON",
+    "concept_id": 8045,
+    "title": "Afternoon",
+    "urdu": "سہ پہر",
+    "category": "Calendar and Time"
+  },
+  "YESTERDAY": {
+    "token": "YESTERDAY",
+    "concept_id": 1200,
+    "title": "yesterday",
+    "urdu": "کل (گزشتہ)",
+    "category": "Calendar and Time"
+  },
+  "TODAY": {
+    "token": "TODAY",
+    "concept_id": 1193,
+    "title": "today",
+    "urdu": "آج",
+    "category": "Calendar and Time"
+  },
+  "SUNDAY": {
+    "token": "SUNDAY",
+    "concept_id": 1190,
+    "title": "Sunday",
+    "urdu": "اتوار",
+    "category": "Calendar and Time"
+  },
+  "NIGHT": {
+    "token": "NIGHT",
+    "concept_id": 1178,
+    "title": "night",
+    "urdu": "رات",
+    "category": "Calendar and Time"
+  },
+  "MORNING": {
+    "token": "MORNING",
+    "concept_id": 1176,
+    "title": "morning",
+    "urdu": "صُبح",
+    "category": "Calendar and Time"
+  },
+  "ALWAYS": {
+    "token": "ALWAYS",
+    "concept_id": 1151,
+    "title": "always",
+    "urdu": "ہَميشَہ",
+    "category": "Calendar and Time"
+  },
+  "CHICKEN": {
+    "token": "CHICKEN",
+    "concept_id": 8023,
+    "title": "Chicken",
+    "urdu": "چکن",
+    "category": "Birds"
+  },
+  "ORANGE": {
+    "token": "ORANGE",
+    "concept_id": 1445,
+    "title": "orange",
+    "urdu": "نارنجی رنگ",
+    "category": "Colors"
+  },
+  "LIGHT": {
+    "token": "LIGHT",
+    "concept_id": 8040,
+    "title": "Light",
+    "urdu": "دهیما",
+    "category": "Colors"
+  },
+  "OIL": {
+    "token": "OIL",
+    "concept_id": 1241,
+    "title": "oil",
+    "urdu": "تیل",
+    "category": "Carpentry"
+  },
+  "BED": {
+    "token": "BED",
+    "concept_id": 717,
+    "title": "bed",
+    "urdu": "بِستَر",
+    "category": "Bedroom"
+  },
+  "CLOTHES": {
+    "token": "CLOTHES",
+    "concept_id": 1362,
+    "title": "clothes",
+    "urdu": "کپڑے",
+    "category": "Clothes and Accessories"
+  },
+  "PEN": {
+    "token": "PEN",
+    "concept_id": 1306,
+    "title": "pen",
+    "urdu": "قلم",
+    "category": "Classroom"
+  },
+  "SCHOOL": {
+    "token": "SCHOOL",
+    "concept_id": 1313,
+    "title": "school",
+    "urdu": "اسکول",
+    "category": "Classroom"
+  },
+  "BOOK": {
+    "token": "BOOK",
+    "concept_id": 1273,
+    "title": "book",
+    "urdu": "کتاب",
+    "category": "Classroom"
+  },
+  "BANK": {
+    "token": "BANK",
+    "concept_id": 963,
+    "title": "bank",
+    "urdu": "بینک",
+    "category": "Buildings and Places"
+  },
+  "COLLEGE": {
+    "token": "COLLEGE",
+    "concept_id": 983,
+    "title": "college",
+    "urdu": "کالج",
+    "category": "Buildings and Places"
+  },
+  "HOTEL": {
+    "token": "HOTEL",
+    "concept_id": 1011,
+    "title": "hotel",
+    "urdu": "ہوٹل",
+    "category": "Buildings and Places"
+  },
+  "MARKET": {
+    "token": "MARKET",
+    "concept_id": 1019,
+    "title": "market",
+    "urdu": "بازار",
+    "category": "Buildings and Places"
+  },
+  "PARK": {
+    "token": "PARK",
+    "concept_id": 1029,
+    "title": "park",
+    "urdu": "پارک",
+    "category": "Buildings and Places"
+  },
+  "SHOP": {
+    "token": "SHOP",
+    "concept_id": 1039,
+    "title": "shop",
+    "urdu": "دُکان",
+    "category": "Buildings and Places"
+  },
+  "UNIVERSITY": {
+    "token": "UNIVERSITY",
+    "concept_id": 1052,
+    "title": "university",
+    "urdu": "یونیورسٹی",
+    "category": "Buildings and Places"
+  },
+  "BABY": {
+    "token": "BABY",
+    "concept_id": 1601,
+    "title": "baby",
+    "urdu": "چھوٹا بچہ",
+    "category": "Family and Marriage"
+  },
+  "CHILD": {
+    "token": "CHILD",
+    "concept_id": 1615,
+    "title": "child",
+    "urdu": "بچہ",
+    "category": "Family and Marriage"
+  },
+  "COUSIN": {
+    "token": "COUSIN",
+    "concept_id": 1619,
+    "title": "cousin",
+    "urdu": "کزن",
+    "category": "Family and Marriage"
+  },
+  "GIRL": {
+    "token": "GIRL",
+    "concept_id": 1650,
+    "title": "girl",
+    "urdu": "لڑکی",
+    "category": "Family and Marriage"
+  },
+  "HUSBAND": {
+    "token": "HUSBAND",
+    "concept_id": 1670,
+    "title": "husband",
+    "urdu": "شوہر",
+    "category": "Family and Marriage"
+  },
+  "PARENTS": {
+    "token": "PARENTS",
+    "concept_id": 1712,
+    "title": "parents",
+    "urdu": "والدین",
+    "category": "Family and Marriage"
+  },
+  "PEOPLE": {
+    "token": "PEOPLE",
+    "concept_id": 1715,
+    "title": "people",
+    "urdu": "لوگ",
+    "category": "Family and Marriage"
+  },
+  "WOMAN": {
+    "token": "WOMAN",
+    "concept_id": 1746,
+    "title": "woman",
+    "urdu": "عورت",
+    "category": "Family and Marriage"
+  },
+  "BOY": {
+    "token": "BOY",
+    "concept_id": 1606,
+    "title": "boy",
+    "urdu": "لڑکا",
+    "category": "Family and Marriage"
+  },
+  "MAN": {
+    "token": "MAN",
+    "concept_id": 1684,
+    "title": "man",
+    "urdu": "آدمی",
+    "category": "Family and Marriage"
+  },
+  "WIFE": {
+    "token": "WIFE",
+    "concept_id": 1745,
+    "title": "wife",
+    "urdu": "بیویw",
+    "category": "Family and Marriage"
+  },
+  "TEA": {
+    "token": "TEA",
+    "concept_id": 1588,
+    "title": "tea",
+    "urdu": "چائے",
+    "category": "Drinks"
+  },
+  "JUICE": {
+    "token": "JUICE",
+    "concept_id": 1573,
+    "title": "juice",
+    "urdu": "رس",
+    "category": "Drinks"
+  },
+  "MILK": {
+    "token": "MILK",
+    "concept_id": 1578,
+    "title": "milk",
+    "urdu": "دُودھ",
+    "category": "Drinks"
+  },
+  "WATER": {
+    "token": "WATER",
+    "concept_id": 7070,
+    "title": "water",
+    "urdu": "پانی",
+    "category": "Drinks"
+  },
+  "SYRUP": {
+    "token": "SYRUP",
+    "concept_id": 1963,
+    "title": "syrup",
+    "urdu": "شربت / شیرہ",
+    "category": "Food - General"
+  },
+  "EGG": {
+    "token": "EGG",
+    "concept_id": 7376,
+    "title": "egg",
+    "urdu": "انڈا",
+    "category": "Food - General"
+  },
+  "BREAD": {
+    "token": "BREAD",
+    "concept_id": 1923,
+    "title": "bread",
+    "urdu": "ڈبل روٹی",
+    "category": "Food - General"
+  },
+  "BREAKFAST": {
+    "token": "BREAKFAST",
+    "concept_id": 1924,
+    "title": "breakfast",
+    "urdu": "ناشتہ",
+    "category": "Food - General"
+  },
+  "BUTTER": {
+    "token": "BUTTER",
+    "concept_id": 1925,
+    "title": "butter",
+    "urdu": "مَکھَن",
+    "category": "Food - General"
+  },
+  "DINNER": {
+    "token": "DINNER",
+    "concept_id": 1936,
+    "title": "dinner",
+    "urdu": "رات کا کھانا",
+    "category": "Food - General"
+  },
+  "LUNCH": {
+    "token": "LUNCH",
+    "concept_id": 1947,
+    "title": "lunch",
+    "urdu": "دوپہَر کا کھانا",
+    "category": "Food - General"
+  },
+  "MUTTON": {
+    "token": "MUTTON",
+    "concept_id": 1948,
+    "title": "mutton",
+    "urdu": "بھیڑ یا بکری کا گوشت",
+    "category": "Food - General"
+  },
+  "BEEF": {
+    "token": "BEEF",
+    "concept_id": 1922,
+    "title": "beef",
+    "urdu": "گائے کا گوشت",
+    "category": "Food - General"
+  },
+  "ROTI": {
+    "token": "ROTI",
+    "concept_id": 1958,
+    "title": "roti",
+    "urdu": "روٹی",
+    "category": "Food - General"
+  },
+  "RICE": {
+    "token": "RICE",
+    "concept_id": 1956,
+    "title": "rice",
+    "urdu": "چاول",
+    "category": "Food - General"
+  },
+  "SOUP": {
+    "token": "SOUP",
+    "concept_id": 2012,
+    "title": "soup",
+    "urdu": "سوپ",
+    "category": "Food Dishes"
+  },
+  "CURRY": {
+    "token": "CURRY",
+    "concept_id": 1975,
+    "title": "curry",
+    "urdu": "سالن",
+    "category": "Food Dishes"
+  },
+  "TOMATO": {
+    "token": "TOMATO",
+    "concept_id": 2045,
+    "title": "tomato",
+    "urdu": "ٹماٹر",
+    "category": "Fruits"
+  },
+  "APPLE": {
+    "token": "APPLE",
+    "concept_id": 2016,
+    "title": "apple",
+    "urdu": "سیب",
+    "category": "Fruits"
+  },
+  "BANANA": {
+    "token": "BANANA",
+    "concept_id": 2018,
+    "title": "banana",
+    "urdu": "کیلا",
+    "category": "Fruits"
+  },
+  "GRAPE": {
+    "token": "GRAPE",
+    "concept_id": 2026,
+    "title": "grape",
+    "urdu": "انگور",
+    "category": "Fruits"
+  },
+  "FRUIT": {
+    "token": "FRUIT",
+    "concept_id": 2025,
+    "title": "fruit",
+    "urdu": "پھَل",
+    "category": "Fruits"
+  },
+  "MANGO": {
+    "token": "MANGO",
+    "concept_id": 2033,
+    "title": "mango",
+    "urdu": "آم",
+    "category": "Fruits"
+  },
+  "CITY": {
+    "token": "CITY",
+    "concept_id": 2067,
+    "title": "city",
+    "urdu": "شہر",
+    "category": "Geography"
+  },
+  "HERE": {
+    "token": "HERE",
+    "concept_id": 7483,
+    "title": "here",
+    "urdu": "یہاں",
+    "category": "Grammar"
+  },
+  "KITCHEN": {
+    "token": "KITCHEN",
+    "concept_id": 2701,
+    "title": "Kitchen",
+    "urdu": "باورچی خانہ",
+    "category": "Kitchen"
+  },
+  "SUGAR": {
+    "token": "SUGAR",
+    "concept_id": 2732,
+    "title": "sugar",
+    "urdu": "چینی",
+    "category": "Kitchen"
+  },
+  "COOK": {
+    "token": "COOK",
+    "concept_id": 2673,
+    "title": "cook",
+    "urdu": "پکانا",
+    "category": "Kitchen"
+  },
+  "FIRE": {
+    "token": "FIRE",
+    "concept_id": 2685,
+    "title": "fire",
+    "urdu": "آگ لگانا",
+    "category": "Kitchen"
+  },
+  "MOSQUE": {
+    "token": "MOSQUE",
+    "concept_id": 7975,
+    "title": "Mosque",
+    "urdu": "مسجد",
+    "category": "Islamic Signs"
+  },
+  "BANDAGE": {
+    "token": "BANDAGE",
+    "concept_id": 2276,
+    "title": "bandage",
+    "urdu": "مَرہَم پَٹی",
+    "category": "Health and Medical Care"
+  },
+  "CLINIC": {
+    "token": "CLINIC",
+    "concept_id": 2302,
+    "title": "clinic",
+    "urdu": "کلینک",
+    "category": "Health and Medical Care"
+  },
+  "COUGH": {
+    "token": "COUGH",
+    "concept_id": 2309,
+    "title": "cough",
+    "urdu": "کھانسی",
+    "category": "Health and Medical Care"
+  },
+  "FEVER": {
+    "token": "FEVER",
+    "concept_id": 2348,
+    "title": "fever",
+    "urdu": "بخار",
+    "category": "Health and Medical Care"
+  },
+  "HEADACHE": {
+    "token": "HEADACHE",
+    "concept_id": 2362,
+    "title": "headache",
+    "urdu": "سر درد",
+    "category": "Health and Medical Care"
+  },
+  "WHO": {
+    "token": "WHO",
+    "concept_id": 2498,
+    "title": "WHO",
+    "urdu": "عالمی ادارہ صحت",
+    "category": "Health and Medical Care"
+  },
+  "PHARMACY": {
+    "token": "PHARMACY",
+    "concept_id": 6243,
+    "title": "Pharmacy",
+    "urdu": "دواخانہ",
+    "category": "Health and Medical Care"
+  },
+  "OPERATION": {
+    "token": "OPERATION",
+    "concept_id": 8071,
+    "title": "Operation",
+    "urdu": "آپریشن",
+    "category": "Health and Medical Care"
+  },
+  "FISH": {
+    "token": "FISH",
+    "concept_id": 2918,
+    "title": "fish",
+    "urdu": "مچھلی",
+    "category": "Marine Life"
+  },
+  "ENEMY": {
+    "token": "ENEMY",
+    "concept_id": 3097,
+    "title": "enemy",
+    "urdu": "دُشمن",
+    "category": "Military"
+  },
+  "BOSS": {
+    "token": "BOSS",
+    "concept_id": 3736,
+    "title": "boss",
+    "urdu": "باس",
+    "category": "Office"
+  },
+  "OFFICE": {
+    "token": "OFFICE",
+    "concept_id": 3761,
+    "title": "office",
+    "urdu": "دفتر",
+    "category": "Office"
+  },
+  "CUT": {
+    "token": "CUT",
+    "concept_id": 3036,
+    "title": "cut",
+    "urdu": "کٹ",
+    "category": "Media"
+  },
+  "DISEASE": {
+    "token": "DISEASE",
+    "concept_id": 3326,
+    "title": "disease",
+    "urdu": "بیماری ۔ مرض ۔ لاچاری ۔",
+    "category": "Nouns - General"
+  },
+  "EMERGENCY": {
+    "token": "EMERGENCY",
+    "concept_id": 3359,
+    "title": "emergency",
+    "urdu": "هنگامی حالت",
+    "category": "Nouns - General"
+  },
+  "MONEY": {
+    "token": "MONEY",
+    "concept_id": 3516,
+    "title": "money",
+    "urdu": "پیسہ",
+    "category": "Nouns - General"
+  },
+  "STATION": {
+    "token": "STATION",
+    "concept_id": 3668,
+    "title": "station",
+    "urdu": "اسٹیشن/مقام",
+    "category": "Nouns - General"
+  },
+  "STUDENT": {
+    "token": "STUDENT",
+    "concept_id": 4072,
+    "title": "student",
+    "urdu": "طالب علم",
+    "category": "Professions"
+  },
+  "TEACHER": {
+    "token": "TEACHER",
+    "concept_id": 4079,
+    "title": "teacher",
+    "urdu": "استاد",
+    "category": "Professions"
+  },
+  "WORKER": {
+    "token": "WORKER",
+    "concept_id": 4090,
+    "title": "worker",
+    "urdu": "کارکُن",
+    "category": "Professions"
+  },
+  "YOU": {
+    "token": "YOU",
+    "concept_id": 4124,
+    "title": "you",
+    "urdu": "تم / آپ",
+    "category": "Pronouns"
+  },
+  "WE": {
+    "token": "WE",
+    "concept_id": 4123,
+    "title": "we",
+    "urdu": "ہم",
+    "category": "Pronouns"
+  },
+  "THIS": {
+    "token": "THIS",
+    "concept_id": 4121,
+    "title": "this",
+    "urdu": "یہ",
+    "category": "Pronouns"
+  },
+  "SALT": {
+    "token": "SALT",
+    "concept_id": 4498,
+    "title": "salt",
+    "urdu": "نمک",
+    "category": "Spices"
+  },
+  "HOW": {
+    "token": "HOW",
+    "concept_id": 4324,
+    "title": "how?",
+    "urdu": "کیسے؟",
+    "category": "Sentences"
+  },
+  "WHAT": {
+    "token": "WHAT",
+    "concept_id": 4386,
+    "title": "what?",
+    "urdu": "کیا؟",
+    "category": "Sentences"
+  },
+  "WHOSE": {
+    "token": "WHOSE",
+    "concept_id": 4392,
+    "title": "whose?",
+    "urdu": "کس کا؟",
+    "category": "Sentences"
+  },
+  "WHEN": {
+    "token": "WHEN",
+    "concept_id": 4387,
+    "title": "when?",
+    "urdu": "کب؟",
+    "category": "Sentences"
+  },
+  "WHERE": {
+    "token": "WHERE",
+    "concept_id": 4389,
+    "title": "where?",
+    "urdu": "کہاں؟",
+    "category": "Sentences"
+  },
+  "WHICH": {
+    "token": "WHICH",
+    "concept_id": 4390,
+    "title": "which?",
+    "urdu": "کونسا؟",
+    "category": "Sentences"
+  },
+  "WHY": {
+    "token": "WHY",
+    "concept_id": 4393,
+    "title": "why?",
+    "urdu": "کیوں؟",
+    "category": "Sentences"
+  },
+  "BICYCLE": {
+    "token": "BICYCLE",
+    "concept_id": 4644,
+    "title": "bicycle",
+    "urdu": "بائیسکل",
+    "category": "Transport"
+  },
+  "BUS": {
+    "token": "BUS",
+    "concept_id": 4650,
+    "title": "bus",
+    "urdu": "بس",
+    "category": "Transport"
+  },
+  "MOTORCYCLE": {
+    "token": "MOTORCYCLE",
+    "concept_id": 4691,
+    "title": "motorcycle",
+    "urdu": "موٹر سائیکل",
+    "category": "Transport"
+  },
+  "RICKSHAW": {
+    "token": "RICKSHAW",
+    "concept_id": 4709,
+    "title": "rickshaw",
+    "urdu": "رکشا",
+    "category": "Transport"
+  },
+  "STREET": {
+    "token": "STREET",
+    "concept_id": 4722,
+    "title": "street",
+    "urdu": "سڑک",
+    "category": "Transport"
+  },
+  "RIGHT": {
+    "token": "RIGHT",
+    "concept_id": 4710,
+    "title": "right",
+    "urdu": "دائیں",
+    "category": "Transport"
+  },
+  "CAR": {
+    "token": "CAR",
+    "concept_id": 8057,
+    "title": "Car",
+    "urdu": "کار",
+    "category": "Transport"
+  },
+  "BOAT": {
+    "token": "BOAT",
+    "concept_id": 8058,
+    "title": "Boat",
+    "urdu": "کشتی",
+    "category": "Transport"
+  },
+  "TRAIN": {
+    "token": "TRAIN",
+    "concept_id": 8059,
+    "title": "Train",
+    "urdu": "ٹرین",
+    "category": "Transport"
+  },
+  "POTATO": {
+    "token": "POTATO",
+    "concept_id": 4767,
+    "title": "potato",
+    "urdu": "آلُو",
+    "category": "Vegetables"
+  },
+  "ONION": {
+    "token": "ONION",
+    "concept_id": 4765,
+    "title": "onion",
+    "urdu": "پیاز",
+    "category": "Vegetables"
+  },
+  "SUN": {
+    "token": "SUN",
+    "concept_id": 4468,
+    "title": "sun",
+    "urdu": "سورج",
+    "category": "Space"
+  },
+  "RAIN": {
+    "token": "RAIN",
+    "concept_id": 5376,
+    "title": "rain",
+    "urdu": "بارش",
+    "category": "Weather"
+  },
+  "WINTER": {
+    "token": "WINTER",
+    "concept_id": 5409,
+    "title": "winter",
+    "urdu": "سردی",
+    "category": "Weather"
+  },
+  "SUMMER": {
+    "token": "SUMMER",
+    "concept_id": 5388,
+    "title": "summer",
+    "urdu": "موسم گرما",
+    "category": "Weather"
+  },
+  "BRING": {
+    "token": "BRING",
+    "concept_id": 4871,
+    "title": "bring",
+    "urdu": "لانا",
+    "category": "Verbs"
+  },
+  "BUY": {
+    "token": "BUY",
+    "concept_id": 4880,
+    "title": "buy",
+    "urdu": "خریدنا",
+    "category": "Verbs"
+  },
+  "CALL": {
+    "token": "CALL",
+    "concept_id": 4882,
+    "title": "call",
+    "urdu": "بلانا",
+    "category": "Verbs"
+  },
+  "COME": {
+    "token": "COME",
+    "concept_id": 4909,
+    "title": "come",
+    "urdu": "آنا",
+    "category": "Verbs"
+  },
+  "CRY": {
+    "token": "CRY",
+    "concept_id": 4948,
+    "title": "cry",
+    "urdu": "رونا",
+    "category": "Verbs"
+  },
+  "DRINK": {
+    "token": "DRINK",
+    "concept_id": 4990,
+    "title": "drink",
+    "urdu": "پینا",
+    "category": "Verbs"
+  },
+  "GO": {
+    "token": "GO",
+    "concept_id": 5059,
+    "title": "go",
+    "urdu": "جانا",
+    "category": "Verbs"
+  },
+  "HELP": {
+    "token": "HELP",
+    "concept_id": 5071,
+    "title": "help",
+    "urdu": "مدد",
+    "category": "Verbs"
+  },
+  "LAUGH": {
+    "token": "LAUGH",
+    "concept_id": 5107,
+    "title": "laugh",
+    "urdu": "ہنسنا",
+    "category": "Verbs"
+  },
+  "LEARN": {
+    "token": "LEARN",
+    "concept_id": 5109,
+    "title": "learn",
+    "urdu": "سیکھنا",
+    "category": "Verbs"
+  },
+  "MEET": {
+    "token": "MEET",
+    "concept_id": 5128,
+    "title": "meet",
+    "urdu": "مِلنا",
+    "category": "Verbs"
+  },
+  "READ": {
+    "token": "READ",
+    "concept_id": 5180,
+    "title": "read",
+    "urdu": "پڑھنا",
+    "category": "Verbs"
+  },
+  "REMEMBER": {
+    "token": "REMEMBER",
+    "concept_id": 5191,
+    "title": "remember",
+    "urdu": "یاد کرنا",
+    "category": "Verbs"
+  },
+  "RESCUE": {
+    "token": "RESCUE",
+    "concept_id": 5200,
+    "title": "rescue",
+    "urdu": "بچاؤ-حفاظت کرنا",
+    "category": "Verbs"
+  },
+  "RUN": {
+    "token": "RUN",
+    "concept_id": 5217,
+    "title": "run",
+    "urdu": "بھاگنا",
+    "category": "Verbs"
+  },
+  "SEND": {
+    "token": "SEND",
+    "concept_id": 5232,
+    "title": "send",
+    "urdu": "بھیجنا",
+    "category": "Verbs"
+  },
+  "STAND": {
+    "token": "STAND",
+    "concept_id": 5261,
+    "title": "stand",
+    "urdu": "کھڑا ہونا",
+    "category": "Verbs"
+  },
+  "STAY": {
+    "token": "STAY",
+    "concept_id": 5265,
+    "title": "stay",
+    "urdu": "ٹھہرنا",
+    "category": "Verbs"
+  },
+  "TAKE": {
+    "token": "TAKE",
+    "concept_id": 5285,
+    "title": "take",
+    "urdu": "لینا",
+    "category": "Verbs"
+  },
+  "TALK": {
+    "token": "TALK",
+    "concept_id": 5286,
+    "title": "talk",
+    "urdu": "بات کرنا",
+    "category": "Verbs"
+  },
+  "THINK": {
+    "token": "THINK",
+    "concept_id": 5292,
+    "title": "think",
+    "urdu": "سوچنا",
+    "category": "Verbs"
+  },
+  "WAIT": {
+    "token": "WAIT",
+    "concept_id": 5312,
+    "title": "wait",
+    "urdu": "انتظار کرنا",
+    "category": "Verbs"
+  },
+  "WORK": {
+    "token": "WORK",
+    "concept_id": 5322,
+    "title": "work",
+    "urdu": "کام کرنا",
+    "category": "Verbs"
+  },
+  "WRITE": {
+    "token": "WRITE",
+    "concept_id": 5324,
+    "title": "write",
+    "urdu": "لکھنا",
+    "category": "Verbs"
+  },
+  "FIND": {
+    "token": "FIND",
+    "concept_id": 5041,
+    "title": "find",
+    "urdu": "ڈھونڈنا",
+    "category": "Verbs"
+  },
+  "FORGET": {
+    "token": "FORGET",
+    "concept_id": 5050,
+    "title": "forget",
+    "urdu": "بھولنا",
+    "category": "Verbs"
+  },
+  "GIVE": {
+    "token": "GIVE",
+    "concept_id": 5058,
+    "title": "give",
+    "urdu": "دینا",
+    "category": "Verbs"
+  },
+  "SELL": {
+    "token": "SELL",
+    "concept_id": 5231,
+    "title": "sell",
+    "urdu": "فروخت",
+    "category": "Verbs"
+  },
+  "SIT": {
+    "token": "SIT",
+    "concept_id": 5250,
+    "title": "sit",
+    "urdu": "بیٹھنا",
+    "category": "Verbs"
+  },
+  "TRAVEL": {
+    "token": "TRAVEL",
+    "concept_id": 5301,
+    "title": "travel",
+    "urdu": "سفر کرنا",
+    "category": "Verbs"
+  },
+  "WALK": {
+    "token": "WALK",
+    "concept_id": 5314,
+    "title": "walk",
+    "urdu": "پیدل چلنا",
+    "category": "Verbs"
+  },
+  "START": {
+    "token": "START",
+    "concept_id": 8046,
+    "title": "Start",
+    "urdu": "شروع",
+    "category": "Verbs"
+  },
+  "FINISH": {
+    "token": "FINISH",
+    "concept_id": 8047,
+    "title": "Finish",
+    "urdu": "ختم",
+    "category": "Verbs"
+  },
+  "EAT": {
+    "token": "EAT",
+    "concept_id": 8070,
+    "title": "Eat",
+    "urdu": "کهانا",
+    "category": "Verbs"
+  },
+  "SLEEP": {
+    "token": "SLEEP",
+    "concept_id": 8110,
+    "title": "Sleep",
+    "urdu": "سونا",
+    "category": "Verbs"
+  }
+}

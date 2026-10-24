@@ -1,0 +1,3172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HoloSign 75 — 3D Sign & Gesture Benchmark Studio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <!-- Three.js r128 + OrbitControls + TransformControls -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/TransformControls.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+            overflow: hidden;
+            user-select: none;
+        }
+        .mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+        /* Custom Smooth Light Scrollbars */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(241, 245, 249, 0.7);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(203, 213, 225, 0.85);
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(148, 163, 184, 1);
+        }
+        input[type=range] {
+            -webkit-appearance: none;
+            background: transparent;
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            height: 6px;
+            border-radius: 999px;
+            background: #e2e8f0;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 16px;
+            width: 16px;
+            border-radius: 50%;
+            background: #6366f1;
+            margin-top: -5px;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(99, 102, 241, 0.4);
+            transition: transform 0.12s ease;
+        }
+        input[type=range]::-webkit-slider-thumb:hover {
+            transform: scale(1.18);
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.94);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(226, 232, 240, 0.85);
+            box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.05), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
+        }
+        #leftSidebar, #rightSidebar {
+            transition: width 0.2s ease;
+        }
+    </style>
+</head>
+<body class="h-screen w-screen flex flex-col overflow-hidden bg-slate-50 text-slate-800">
+
+    <!-- LINE 1: Top Bar (Avatar selector, Node controls, IDs, JSON, Kinematics & Camera) -->
+    <header class="h-12 glass-panel border-b border-slate-200/80 px-3 flex items-center justify-between gap-2 z-20 shrink-0 text-xs overflow-x-auto">
+        <div class="flex items-center gap-2 shrink-0">
+            <!-- Avatar Style Select -->
+            <div class="flex items-center bg-slate-100/80 p-0.5 rounded-lg border border-slate-200 gap-1 text-xs">
+                <span class="text-[10px] mono uppercase text-slate-500 px-1 font-semibold">Avatar:</span>
+                <select id="avatarStyleSelect" onchange="setAvatarStyle(this.value)" class="bg-white text-xs font-semibold text-slate-800 rounded px-2 py-1 border border-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-xs">
+                    <option value="REALISTIC" selected>Skin</option>
+                    <option value="MANNEQUIN">Mannequin</option>
+                    <option value="XRAY">X-Ray</option>
+                    <option value="HIDDEN">Skeleton</option>
+                </select>
+            </div>
+
+            <!-- Layer & Node Controls (Off by default) -->
+            <div class="flex items-center gap-1.5 shrink-0">
+                <button id="toggleBonesBtn" onclick="toggleLayer('bones')" class="px-2.5 py-1 rounded-lg text-xs font-medium bg-slate-100 text-slate-600 border border-slate-200 hover:text-slate-900 transition flex items-center gap-1.5 shadow-xs">
+                    <span class="w-2 h-2 rounded-full bg-slate-400"></span> Bones
+                </button>
+                <button id="togglePointsBtn" onclick="toggleLayer('points')" class="px-2.5 py-1 rounded-lg text-xs font-medium bg-slate-100 text-slate-600 border border-slate-200 hover:text-slate-900 transition flex items-center gap-1.5 shadow-xs">
+                    <span class="w-2 h-2 rounded-full bg-slate-400"></span> Nodes
+                </button>
+                <div class="flex items-center gap-1.5 bg-slate-100/80 px-2 py-1 rounded-lg border border-slate-200" title="Adjust Node Sphere Scale">
+                    <span class="text-[10px] text-slate-500 font-medium">Size</span>
+                    <input id="nodeScaleSlider" type="range" min="0.3" max="1.6" step="0.05" value="0.75" oninput="setBenchmarkNodeScale(this.value)" class="w-14">
+                </div>
+            </div>
+
+            <!-- ID Toggle -->
+            <button id="toggleLabelsBtn" onclick="toggleLayer('labels')" class="px-2.5 py-1 rounded-lg text-xs font-medium bg-slate-100 text-slate-700 border border-slate-200 hover:bg-slate-200 hover:text-slate-900 transition shadow-xs shrink-0">
+                # IDs
+            </button>
+
+            <!-- JSON I/O Button -->
+            <button onclick="openJsonModal()" class="px-3 py-1 rounded-lg text-xs font-semibold bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:opacity-95 transition shadow-sm shadow-indigo-500/20 flex items-center gap-1.5 shrink-0">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                </svg>
+                JSON
+            </button>
+        </div>
+
+        <div class="flex items-center gap-2 shrink-0">
+            <!-- Kinematics Mode Toggle -->
+            <div class="flex items-center bg-slate-100/80 p-0.5 rounded-lg border border-slate-200 text-xs">
+                <button id="btnModeFK" onclick="setKinematicsMode(true)" class="px-2 py-0.5 rounded text-xs font-semibold transition-all bg-white text-indigo-700 shadow-xs">
+                    Chain
+                </button>
+                <button id="btnModeFree" onclick="setKinematicsMode(false)" class="px-2 py-0.5 rounded text-xs font-medium transition-all text-slate-600 hover:text-slate-900">
+                    Point
+                </button>
+            </div>
+
+            <!-- Compact Camera Views -->
+            <div class="hidden sm:flex items-center bg-slate-100/80 p-0.5 rounded-lg border border-slate-200 text-xs">
+                <button onclick="setCameraView('front')" class="px-2 py-0.5 rounded hover:bg-white text-slate-700">Full</button>
+                <button onclick="setCameraView('portrait')" class="px-2 py-0.5 rounded hover:bg-white text-indigo-600 font-semibold">Face</button>
+                <button onclick="setCameraView('FaceHands')" class="px-2 py-0.5 rounded hover:bg-white text-slate-700">Signer</button>
+                <button onclick="setCameraView('leftHand')" class="px-2 py-0.5 rounded hover:bg-white text-emerald-700">L-Hand</button>
+                <button onclick="setCameraView('rightHand')" class="px-2 py-0.5 rounded hover:bg-white text-amber-700">R-Hand</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- LINE 2: Two Buttons (Presets & Nodes, Inspector & Control) -->
+    <div class="h-10 bg-white/95 backdrop-blur-md border-b border-slate-200/80 px-4 flex items-center justify-center gap-3 z-20 shrink-0">
+        <button id="btnToggleLeft" onclick="toggleDrawer('left')" class="px-4 py-1.5 rounded-xl text-xs font-semibold bg-white border border-slate-200 text-slate-700 hover:text-indigo-600 hover:border-indigo-300 hover:bg-indigo-50/50 shadow-sm transition flex items-center gap-2">
+            <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"></path>
+            </svg>
+            <span>Presets & Nodes</span>
+        </button>
+        <button id="btnToggleRight" onclick="toggleDrawer('right')" class="px-4 py-1.5 rounded-xl text-xs font-semibold bg-white border border-slate-200 text-slate-700 hover:text-indigo-600 hover:border-indigo-300 hover:bg-indigo-50/50 shadow-sm transition flex items-center gap-2">
+            <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path>
+            </svg>
+            <span>Inspector & Controls</span>
+        </button>
+    </div>
+
+    <!-- LINE 3: Common Signs as in Preset (Horizontal Scrollable Quick Access) -->
+    <div class="h-11 bg-slate-50/95 border-b border-slate-200/80 px-3 flex items-center gap-1.5 overflow-x-auto z-20 shrink-0" id="commonSignsBar">
+        <!-- Rendered via JS from SIGN_PRESETS -->
+    </div>
+
+    <!-- CENTER WORKSPACE: Docked Left Sidebar + Center 3D Avatar Viewport + Docked Right Sidebar -->
+    <div class="flex-1 flex flex-row relative overflow-hidden min-h-0 w-full">
+
+        <!-- Left Docked Sidebar: 75 Benchmark Directory & Sign Presets -->
+        <aside id="leftSidebar" class="w-80 shrink-0 border-r border-slate-200/90 bg-white/95 backdrop-blur-md flex-col z-10 hidden">
+            <!-- Header with close button -->
+            <div class="p-3 border-b border-slate-100 flex items-center justify-between bg-slate-50/70 shrink-0">
+                <div class="flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-indigo-500"></span>
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-800">Presets & Nodes</span>
+                </div>
+                <button onclick="toggleDrawer('left')" class="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 transition" title="Close Panel">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+
+            <!-- Sign Language & Gesture Presets -->
+            <div class="p-3 border-b border-slate-100 shrink-0">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Sign Presets</span>
+                    <span id="activeSignBadge" class="text-[11px] mono text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded border border-indigo-200 font-semibold">Rest / Neutral</span>
+                </div>
+                <div class="grid grid-cols-2 gap-1.5" id="presetButtonsContainer">
+                    <!-- Populated via JS -->
+                </div>
+            </div>
+
+            <!-- Filter & Search 75 Benchmarks -->
+            <div class="p-3 border-b border-slate-100 space-y-2 shrink-0">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">75 Nodes</span>
+                    <div class="flex gap-1 text-[10px] mono">
+                        <span class="px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-700 border border-indigo-200">0-32 Pose</span>
+                        <span class="px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">33-53 L</span>
+                        <span class="px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200">54-74 R</span>
+                    </div>
+                </div>
+                <div class="relative">
+                    <input id="landmarkSearch" type="text" placeholder="Search (0-74) or joint name..." oninput="renderLandmarkList()"
+                        class="w-full bg-white border border-slate-200 rounded-lg pl-8 pr-3 py-1.5 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
+                    <svg class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                </div>
+                <!-- Category Filter Pills -->
+                <div class="grid grid-cols-4 gap-1 text-[11px]">
+                    <button onclick="setCategoryFilter('ALL')" id="cat_ALL" class="py-1 rounded-lg bg-indigo-600 text-white font-semibold shadow-xs">All (75)</button>
+                    <button onclick="setCategoryFilter('POSE')" id="cat_POSE" class="py-1 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200">Pose (33)</button>
+                    <button onclick="setCategoryFilter('LEFT_HAND')" id="cat_LEFT_HAND" class="py-1 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200">L-Hand (21)</button>
+                    <button onclick="setCategoryFilter('RIGHT_HAND')" id="cat_RIGHT_HAND" class="py-1 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200">R-Hand (21)</button>
+                </div>
+            </div>
+
+            <!-- Scrollable List of all 75 Landmarks -->
+            <div id="landmarkListContainer" class="flex-1 overflow-y-auto p-2 space-y-1">
+                <!-- Populated dynamically -->
+            </div>
+        </aside>
+
+        <!-- Center 3D Avatar Viewport -->
+        <main id="mainViewport" class="flex-1 relative flex flex-col min-w-0 h-full overflow-hidden" style="background: radial-gradient(circle at 50% 32%, #ffffff 0%, #f6f8fb 55%, #e8edf5 100%);">
+            <!-- 3D Canvas Container -->
+            <div id="canvasContainer" class="flex-1 relative w-full h-full cursor-grab active:cursor-grabbing">
+                <!-- Floating Toast Notification -->
+                <div id="toastBanner" class="hidden absolute top-4 right-4 z-30 glass-panel border-indigo-200 text-indigo-900 px-4 py-2 rounded-xl text-xs font-semibold shadow-xl"></div>
+
+                <!-- Renderer Backend Badge -->
+                <div id="rendererModeBadge" class="absolute bottom-3 right-3 z-10 pointer-events-none glass-panel px-2.5 py-1 rounded-lg text-[10px] mono text-slate-500 flex items-center gap-1.5 border border-slate-200/80">
+                    <span id="rendererDot" class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                    <span id="rendererModeText">3D Ready</span>
+                </div>
+
+                <!-- 2D Floating ID Labels Layer -->
+                <div id="labelsOverlay" class="absolute inset-0 pointer-events-none overflow-hidden hidden"></div>
+            </div>
+        </main>
+
+        <!-- Right Docked Sidebar: Selected Benchmark Inspector & Controls -->
+        <aside id="rightSidebar" class="w-80 shrink-0 border-l border-slate-200/90 bg-white/95 backdrop-blur-md flex-col z-10 overflow-y-auto hidden">
+            <!-- Header with close button -->
+            <div class="p-3 border-b border-slate-100 flex items-center justify-between bg-slate-50/70 shrink-0 sticky top-0 z-10 backdrop-blur-md">
+                <div class="flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-purple-500"></span>
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-800">Inspector & Controls</span>
+                </div>
+                <button onclick="toggleDrawer('right')" class="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 transition" title="Close Panel">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+
+            <!-- Selected Landmark Inspector -->
+            <div class="p-4 border-b border-slate-100 shrink-0">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Benchmark Inspector</span>
+                    <span id="inspectorGroupBadge" class="text-[10px] mono px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200 font-semibold">POSE</span>
+                </div>
+
+                <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 mb-3">
+                    <div class="flex items-baseline justify-between">
+                        <span class="text-xs text-slate-500">Benchmark ID</span>
+                        <span id="inspIndex" class="text-lg font-bold mono text-indigo-600">#16</span>
+                    </div>
+                    <div id="inspName" class="text-sm font-semibold text-slate-900 mt-0.5 truncate">RIGHT_WRIST</div>
+                    <div id="inspDesc" class="text-[11px] text-slate-500 mt-1">Primary right wrist anchor driving the 21 right-hand benchmarks.</div>
+                </div>
+
+                <!-- X, Y, Z Coordinate Sliders -->
+                <div class="space-y-3">
+                    <div>
+                        <div class="flex justify-between text-xs mb-1">
+                            <span class="text-rose-600 font-medium mono">X (Lateral)</span>
+                            <span id="valX" class="mono text-slate-700 font-semibold">0.000</span>
+                        </div>
+                        <input id="sliderX" type="range" min="-1.5" max="1.5" step="0.005" oninput="onCoordSliderChange('x', this.value)" class="w-full">
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-xs mb-1">
+                            <span class="text-emerald-600 font-medium mono">Y (Vertical)</span>
+                            <span id="valY" class="mono text-slate-700 font-semibold">0.000</span>
+                        </div>
+                        <input id="sliderY" type="range" min="-1.5" max="1.5" step="0.005" oninput="onCoordSliderChange('y', this.value)" class="w-full">
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-xs mb-1">
+                            <span class="text-indigo-600 font-medium mono">Z (Depth)</span>
+                            <span id="valZ" class="mono text-slate-700 font-semibold">0.000</span>
+                        </div>
+                        <input id="sliderZ" type="range" min="-1.5" max="1.5" step="0.005" oninput="onCoordSliderChange('z', this.value)" class="w-full">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hand Articulator: Finger Curl Sliders -->
+            <div class="p-4 border-b border-slate-100 shrink-0">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Hand Articulator</span>
+                    <div class="flex gap-1 text-xs">
+                        <button id="btnArticLeft" onclick="setActiveArticulatorHand('LEFT')" class="px-2.5 py-1 rounded-md text-xs font-medium text-slate-600 hover:text-slate-900 border border-slate-200">Left</button>
+                        <button id="btnArticRight" onclick="setActiveArticulatorHand('RIGHT')" class="px-2.5 py-1 rounded-md text-xs font-semibold bg-indigo-600 text-white shadow-xs">Right</button>
+                    </div>
+                </div>
+                <div class="space-y-3 text-xs">
+                    <div>
+                        <div class="flex justify-between text-xs mb-1">
+                            <span class="text-slate-700">Thumb Curl</span>
+                            <span id="thumbCurlVal" class="mono text-slate-500">0%</span>
+                        </div>
+                        <input id="thumbCurlSlider" type="range" min="0" max="100" value="0" oninput="applyFingerCurl(0, this.value)" class="w-full">
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-xs mb-1">
+                            <span class="text-slate-700">Index Curl</span>
+                            <span id="indexCurlVal" class="mono text-slate-500">0%</span>
+                        </div>
+                        <input id="indexCurlSlider" type="range" min="0" max="100" value="0" oninput="applyFingerCurl(1, this.value)" class="w-full">
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-xs mb-1">
+                            <span class="text-slate-700">Middle Curl</span>
+                            <span id="middleCurlVal" class="mono text-slate-500">0%</span>
+                        </div>
+                        <input id="middleCurlSlider" type="range" min="0" max="100" value="0" oninput="applyFingerCurl(2, this.value)" class="w-full">
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-xs mb-1">
+                            <span class="text-slate-700">Ring Curl</span>
+                            <span id="ringCurlVal" class="mono text-slate-500">0%</span>
+                        </div>
+                        <input id="ringCurlSlider" type="range" min="0" max="100" value="0" oninput="applyFingerCurl(3, this.value)" class="w-full">
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-xs mb-1">
+                            <span class="text-slate-700">Pinky Curl</span>
+                            <span id="pinkyCurlVal" class="mono text-slate-500">0%</span>
+                        </div>
+                        <input id="pinkyCurlSlider" type="range" min="0" max="100" value="0" oninput="applyFingerCurl(4, this.value)" class="w-full">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Head & Facial Macros -->
+            <div class="p-4 space-y-3 shrink-0">
+                <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Head & Facial Expression</span>
+                <div>
+                    <div class="flex justify-between text-xs mb-1">
+                        <span class="text-slate-700">Head Yaw (Turn)</span>
+                        <span id="headYawVal" class="mono text-slate-500">0°</span>
+                    </div>
+                    <input id="headYawSlider" type="range" min="-45" max="45" value="0" oninput="applyHeadTrunkMacro()" class="w-full">
+                </div>
+                <div>
+                    <div class="flex justify-between text-xs mb-1">
+                        <span class="text-slate-700">Head Pitch (Tilt)</span>
+                        <span id="headPitchVal" class="mono text-slate-500">0°</span>
+                    </div>
+                    <input id="headPitchSlider" type="range" min="-30" max="30" value="0" oninput="applyHeadTrunkMacro()" class="w-full">
+                </div>
+                <div>
+                    <div class="flex justify-between text-xs mb-1">
+                        <span class="text-slate-700">Jaw / Mouth Open (9–10)</span>
+                        <span id="mouthOpenVal" class="mono text-slate-500">12%</span>
+                    </div>
+                    <input id="mouthOpenSlider" type="range" min="0" max="100" value="12" oninput="applyHeadTrunkMacro()" class="w-full">
+                </div>
+                <div>
+                    <div class="flex justify-between text-xs mb-1">
+                        <span class="text-slate-700">Smile / Lip Corner (9–10)</span>
+                        <span id="smileVal" class="mono text-slate-500">25%</span>
+                    </div>
+                    <input id="smileSlider" type="range" min="-50" max="100" value="25" oninput="applyHeadTrunkMacro()" class="w-full">
+                </div>
+                <div>
+                    <div class="flex justify-between text-xs mb-1">
+                        <span class="text-slate-700">Eyebrow Arch (1–6)</span>
+                        <span id="browRaiseVal" class="mono text-slate-500">15%</span>
+                    </div>
+                    <input id="browRaiseSlider" type="range" min="-40" max="100" value="15" oninput="applyHeadTrunkMacro()" class="w-full">
+                </div>
+            </div>
+        </aside>
+
+    </div>
+
+    <!-- LAST LINE: Bottom Timeline & Keyframe Animation Player as it is -->
+    <div class="h-16 sm:h-20 glass-panel border-t border-slate-200/80 px-3 sm:px-4 flex items-center gap-2 sm:gap-4 z-20 shrink-0">
+        <div class="flex items-center gap-2 shrink-0">
+            <button id="playPauseBtn" onclick="togglePlayAnimation()" class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white flex items-center justify-center shadow-md shadow-indigo-500/25 transition">
+                <svg id="playIcon" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"></path>
+                </svg>
+                <svg id="pauseIcon" class="w-5 h-5 hidden" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                </svg>
+            </button>
+            <button onclick="resetToNeutralPose()" title="Reset All 75 Benchmarks to T-Pose" class="px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-xs text-slate-700 border border-slate-200 transition font-medium">
+                Reset Pose
+            </button>
+        </div>
+
+        <!-- Scrubber Bar -->
+        <div class="flex-1 flex flex-col gap-0.5 min-w-0">
+            <div class="flex justify-between items-center text-[11px]">
+                <span class="text-slate-500 truncate">Sign Sequence Timeline (<span id="timelineSignName" class="text-indigo-600 font-semibold">Hello / Salute</span>)</span>
+                <span class="mono text-slate-600 font-medium shrink-0"><span id="timelineProgressText">0%</span> | Frame <span id="frameCounterText">0 / 60</span></span>
+            </div>
+            <input id="timelineSlider" type="range" min="0" max="100" value="0" step="0.5" oninput="scrubTimeline(this.value)" class="w-full">
+        </div>
+
+        <!-- Playback Speed & Keyframe Capture -->
+        <div class="flex items-center gap-2 shrink-0">
+            <div class="flex flex-col">
+                <label class="text-[9px] text-slate-400 uppercase mono">Speed</label>
+                <select id="speedSelect" onchange="setPlaybackSpeed(this.value)" class="bg-white border border-slate-200 rounded-lg px-2 py-1 text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                    <option value="0.5">0.5x</option>
+                    <option value="1" selected>1.0x</option>
+                    <option value="1.5">1.5x</option>
+                    <option value="2">2.0x</option>
+                    <option value="3">3.0x</option>
+                    <option value="4">4.0x</option>
+                </select>
+            </div>
+            <button onclick="captureCustomKeyframe()" class="hidden sm:block px-2.5 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-300 text-xs font-semibold transition">
+                + Keyframe (<span id="customKfCount">0</span>)
+            </button>
+        </div>
+    </div>
+
+    <!-- JSON Importer / Exporter Modal -->
+    <div id="jsonModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+        <div class="bg-white border border-slate-200 rounded-2xl w-full max-w-3xl flex flex-col max-h-[85vh] shadow-2xl">
+            <div class="p-4 border-b border-slate-200 flex items-center justify-between">
+                <div>
+                    <h2 class="text-base font-bold text-slate-900">75-Benchmark Holistic JSON Data I/O</h2>
+                    <p class="text-xs text-slate-500">Compatible with MediaPipe Holistic 75-Landmark arrays (Indices 0–32 Pose, 33–53 Left Hand, 54–74 Right Hand)</p>
+                </div>
+                <button onclick="closeJsonModal()" class="text-slate-400 hover:text-slate-700 p-1 font-bold">✕</button>
+            </div>
+            <div class="p-4 flex-1 overflow-hidden flex flex-col gap-3">
+                <div class="flex items-center justify-between">
+                    <div class="flex gap-2">
+                        <button onclick="exportCurrentPoseJSON()" class="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-xs text-indigo-700 font-semibold border border-slate-200">
+                            Load Current 75 Points
+                        </button>
+                        <button onclick="copyJsonToClipboard()" class="px-3 py-1.5 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-xs text-indigo-700 font-semibold border border-indigo-200">
+                            Copy JSON to Clipboard
+                        </button>
+                    </div>
+                    <span id="jsonStatusMsg" class="text-xs mono text-emerald-600 font-semibold"></span>
+                </div>
+                <textarea id="jsonTextarea" spellcheck="false" class="w-full flex-1 min-h-[320px] bg-slate-50 border border-slate-200 rounded-xl p-3 mono text-xs text-slate-800 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"></textarea>
+            </div>
+            <div class="p-4 border-t border-slate-200 flex justify-end gap-2">
+                <button onclick="closeJsonModal()" class="px-4 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-xs text-slate-700 font-medium">Cancel</button>
+                <button onclick="importPoseFromJSON()" class="px-4 py-2 rounded-lg bg-gradient-to-r from-indigo-600 to-purple-600 text-xs font-semibold text-white shadow-md shadow-indigo-500/20">
+                    Apply 75 Benchmarks to 3D Model
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /***********************************************************************
+         * 1. DEFINITION OF EXACTLY 75 BENCHMARKS (MEDIAPIPE HOLISTIC TOPOLOGY)
+         *    - 0 to 32: Pose / Face / Trunk (33 landmarks)
+         *    - 33 to 53: Left Hand (21 landmarks)
+         *    - 54 to 74: Right Hand (21 landmarks)
+         ***********************************************************************/
+        const POSE_NAMES = [
+            "NOSE", "LEFT_EYE_INNER", "LEFT_EYE", "LEFT_EYE_OUTER",
+            "RIGHT_EYE_INNER", "RIGHT_EYE", "RIGHT_EYE_OUTER",
+            "LEFT_EAR", "RIGHT_EAR", "MOUTH_LEFT", "MOUTH_RIGHT",
+            "LEFT_SHOULDER", "RIGHT_SHOULDER", "LEFT_ELBOW", "RIGHT_ELBOW",
+            "LEFT_WRIST", "RIGHT_WRIST", "LEFT_PINKY_POSE", "RIGHT_PINKY_POSE",
+            "LEFT_INDEX_POSE", "RIGHT_INDEX_POSE", "LEFT_THUMB_POSE", "RIGHT_THUMB_POSE",
+            "LEFT_HIP", "RIGHT_HIP", "LEFT_KNEE", "RIGHT_KNEE",
+            "LEFT_ANKLE", "RIGHT_ANKLE", "LEFT_HEEL", "RIGHT_HEEL",
+            "LEFT_FOOT_INDEX", "RIGHT_FOOT_INDEX"
+        ];
+
+        const HAND_JOINT_SUFFIXES = [
+            "WRIST",
+            "THUMB_CMC", "THUMB_MCP", "THUMB_IP", "THUMB_TIP",
+            "INDEX_FINGER_MCP", "INDEX_FINGER_PIP", "INDEX_FINGER_DIP", "INDEX_FINGER_TIP",
+            "MIDDLE_FINGER_MCP", "MIDDLE_FINGER_PIP", "MIDDLE_FINGER_DIP", "MIDDLE_FINGER_TIP",
+            "RING_FINGER_MCP", "RING_FINGER_PIP", "RING_FINGER_DIP", "RING_FINGER_TIP",
+            "PINKY_MCP", "PINKY_PIP", "PINKY_DIP", "PINKY_TIP"
+        ];
+
+        const BENCHMARK_METADATA = [];
+        for (let i = 0; i < 75; i++) {
+            if (i < 33) {
+                BENCHMARK_METADATA.push({
+                    index: i,
+                    name: POSE_NAMES[i],
+                    group: "POSE",
+                    colorHex: 0x4f46e5,
+                    badgeClass: "text-indigo-700 bg-indigo-50 border-indigo-200",
+                    radius: (i >= 11 && i <= 16) || (i >= 23 && i <= 24) ? 0.025 : 0.016
+                });
+            } else if (i < 54) {
+                const hIdx = i - 33;
+                BENCHMARK_METADATA.push({
+                    index: i,
+                    name: `LEFT_${HAND_JOINT_SUFFIXES[hIdx]}`,
+                    group: "LEFT_HAND",
+                    colorHex: 0x10b981,
+                    badgeClass: "text-emerald-700 bg-emerald-50 border-emerald-200",
+                    radius: hIdx === 0 ? 0.020 : 0.013
+                });
+            } else {
+                const hIdx = i - 54;
+                BENCHMARK_METADATA.push({
+                    index: i,
+                    name: `RIGHT_${HAND_JOINT_SUFFIXES[hIdx]}`,
+                    group: "RIGHT_HAND",
+                    colorHex: 0x8b5cf6,
+                    badgeClass: "text-purple-700 bg-purple-50 border-purple-200",
+                    radius: hIdx === 0 ? 0.020 : 0.013
+                });
+            }
+        }
+
+        /***********************************************************************
+         * 2. SKELETAL BONE CONNECTIONS FOR ALL 75 BENCHMARKS
+         ***********************************************************************/
+        const BONE_CONNECTIONS = [
+            // Face contour & features
+            [0, 1], [1, 2], [2, 3], [3, 7],
+            [0, 4], [4, 5], [5, 6], [6, 8],
+            [9, 10],
+            // Upper Trunk / Torso Box
+            [11, 12], [11, 23], [12, 24], [23, 24],
+            // Arms (Shoulders to Elbows to Pose Wrists)
+            [11, 13], [13, 15],
+            [12, 14], [14, 16],
+            // Pose palm anchors
+            [15, 17], [15, 19], [15, 21], [17, 19],
+            [16, 18], [16, 20], [16, 22], [18, 20],
+            // Lower Body Roots (Hips to Knees/Ankles for full 33-point completeness)
+            [23, 25], [25, 27], [27, 29], [29, 31], [27, 31],
+            [24, 26], [26, 28], [28, 30], [30, 32], [28, 32],
+            // Bridge Pose Wrists (15, 16) to Hand Wrists (33, 54)
+            [15, 33], [16, 54]
+        ];
+
+        // Add 21-point Hand Topology for Left Hand (offset 33) and Right Hand (offset 54)
+        function addHandConnections(offset) {
+            const palm = [[0,1], [0,5], [0,17], [5,9], [9,13], [13,17]];
+            const fingers = [
+                [1,2], [2,3], [3,4],       // Thumb
+                [5,6], [6,7], [7,8],       // Index
+                [9,10], [10,11], [11,12],  // Middle
+                [13,14], [14,15], [15,16], // Ring
+                [17,18], [18,19], [19,20]  // Pinky
+            ];
+            [...palm, ...fingers].forEach(([a, b]) => {
+                BONE_CONNECTIONS.push([a + offset, b + offset]);
+            });
+        }
+        addHandConnections(33);
+        addHandConnections(54);
+
+        /***********************************************************************
+         * 3. HIERARCHICAL PARENT-CHILD MAP (FOR NATURAL FORWARD KINEMATICS)
+         *    When moving a parent benchmark (e.g., Elbow 14 or Wrist 16/54),
+         *    all downstream child benchmarks translate smoothly with it.
+         ***********************************************************************/
+        function getChildIndices(idx) {
+            const children = [];
+            if (idx === 0) {
+                // Nose moves whole head (1..10)
+                return [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+            }
+            if (idx === 11) {
+                // Left Shoulder moves left arm + all 21 left hand joints
+                return [13, 15, 17, 19, 21, ...Array.from({length: 21}, (_, k) => 33 + k)];
+            }
+            if (idx === 13) {
+                // Left Elbow moves left wrist + left hand
+                return [15, 17, 19, 21, ...Array.from({length: 21}, (_, k) => 33 + k)];
+            }
+            if (idx === 15 || idx === 33) {
+                // Left Wrist moves all left hand joints
+                const list = [17, 19, 21, ...Array.from({length: 21}, (_, k) => 33 + k)];
+                return list.filter(x => x !== idx);
+            }
+            if (idx === 12) {
+                // Right Shoulder moves right arm + all 21 right hand joints
+                return [14, 16, 18, 20, 22, ...Array.from({length: 21}, (_, k) => 54 + k)];
+            }
+            if (idx === 14) {
+                // Right Elbow moves right wrist + right hand
+                return [16, 18, 20, 22, ...Array.from({length: 21}, (_, k) => 54 + k)];
+            }
+            if (idx === 16 || idx === 54) {
+                // Right Wrist moves all right hand joints
+                const list = [18, 20, 22, ...Array.from({length: 21}, (_, k) => 54 + k)];
+                return list.filter(x => x !== idx);
+            }
+            // Individual finger chains in Left Hand (33..53) or Right Hand (54..74)
+            if (idx >= 34 && idx <= 74) {
+                const handBase = idx < 54 ? 33 : 54;
+                const local = idx - handBase;
+                if (local >= 1 && local <= 20) {
+                    const fingerStart = Math.floor((local - 1) / 4) * 4 + 1;
+                    const fingerEnd = fingerStart + 3;
+                    for (let c = local + 1; c <= fingerEnd; c++) {
+                        children.push(handBase + c);
+                    }
+                }
+            }
+            return children;
+        }
+
+        /***********************************************************************
+         * 4. GENERATE BASE ANATOMICAL 75-POINT RIG & GESTURE PRESET GENERATOR
+         ***********************************************************************/
+        function buildNeutral75Landmarks() {
+            const pts = new Array(75).fill(0).map(() => ({ x: 0, y: 0, z: 0 }));
+
+            // --- Face & Head (Indices 0 - 10) ---
+            pts[0]  = { x: 0.000, y: 0.630, z: 0.130 };  // 0: NOSE
+            pts[1]  = { x: 0.022, y: 0.665, z: 0.110 };  // 1: LEFT_EYE_INNER
+            pts[2]  = { x: 0.042, y: 0.667, z: 0.106 };  // 2: LEFT_EYE
+            pts[3]  = { x: 0.062, y: 0.665, z: 0.098 };  // 3: LEFT_EYE_OUTER
+            pts[4]  = { x: -0.022, y: 0.665, z: 0.110 }; // 4: RIGHT_EYE_INNER
+            pts[5]  = { x: -0.042, y: 0.667, z: 0.106 }; // 5: RIGHT_EYE
+            pts[6]  = { x: -0.062, y: 0.665, z: 0.098 }; // 6: RIGHT_EYE_OUTER
+            pts[7]  = { x: 0.098, y: 0.645, z: 0.020 };  // 7: LEFT_EAR
+            pts[8]  = { x: -0.098, y: 0.645, z: 0.020 }; // 8: RIGHT_EAR
+            pts[9]  = { x: 0.032, y: 0.585, z: 0.108 };  // 9: MOUTH_LEFT
+            pts[10] = { x: -0.032, y: 0.585, z: 0.108 }; // 10: MOUTH_RIGHT
+
+            // --- Trunk / Torso & Arms (Indices 11 - 24) ---
+            // Note: Subject faces camera (+Z), so Subject's Left is +X, Subject's Right is -X
+            pts[11] = { x: 0.220, y: 0.400, z: 0.000 };  // 11: LEFT_SHOULDER
+            pts[12] = { x: -0.220, y: 0.400, z: 0.000 }; // 12: RIGHT_SHOULDER
+            pts[13] = { x: 0.360, y: 0.130, z: 0.050 };  // 13: LEFT_ELBOW
+            pts[14] = { x: -0.360, y: 0.130, z: 0.050 }; // 14: RIGHT_ELBOW
+            pts[15] = { x: 0.320, y: 0.180, z: 0.250 };  // 15: LEFT_WRIST
+            pts[16] = { x: -0.320, y: 0.180, z: 0.250 }; // 16: RIGHT_WRIST
+
+            // Pose Hand Auxiliary Points (17 - 22)
+            pts[17] = { x: 0.345, y: 0.230, z: 0.275 };  // 17: LEFT_PINKY_POSE
+            pts[18] = { x: -0.345, y: 0.230, z: 0.275 }; // 18: RIGHT_PINKY_POSE
+            pts[19] = { x: 0.305, y: 0.245, z: 0.285 };  // 19: LEFT_INDEX_POSE
+            pts[20] = { x: -0.305, y: 0.245, z: 0.285 }; // 20: RIGHT_INDEX_POSE
+            pts[21] = { x: 0.285, y: 0.215, z: 0.280 };  // 21: LEFT_THUMB_POSE
+            pts[22] = { x: -0.285, y: 0.215, z: 0.280 }; // 22: RIGHT_THUMB_POSE
+
+            // Hips & Lower Anchors (23 - 32)
+            pts[23] = { x: 0.145, y: -0.150, z: 0.000 }; // 23: LEFT_HIP
+            pts[24] = { x: -0.145, y: -0.150, z: 0.000 };// 24: RIGHT_HIP
+            pts[25] = { x: 0.150, y: -0.520, z: 0.010 }; // 25: LEFT_KNEE
+            pts[26] = { x: -0.150, y: -0.520, z: 0.010 };// 26: RIGHT_KNEE
+            pts[27] = { x: 0.150, y: -0.860, z: -0.010 };// 27: LEFT_ANKLE
+            pts[28] = { x: -0.150, y: -0.860, z: -0.010 };// 28: RIGHT_ANKLE
+            pts[29] = { x: 0.150, y: -0.910, z: -0.040 };// 29: LEFT_HEEL
+            pts[30] = { x: -0.150, y: -0.910, z: -0.040 };// 30: RIGHT_HEEL
+            pts[31] = { x: 0.155, y: -0.910, z: 0.075 }; // 31: LEFT_FOOT_INDEX
+            pts[32] = { x: -0.155, y: -0.910, z: 0.075 };// 32: RIGHT_FOOT_INDEX
+
+            // Build Detailed 21-Landmark Hands for Left (33..53) and Right (54..74)
+            populateHand21(pts, "LEFT", pts[15], [0, 0, 0, 0, 0], { pitch: 0, yaw: 0, roll: 0, spread: 1 });
+            populateHand21(pts, "RIGHT", pts[16], [0, 0, 0, 0, 0], { pitch: 0, yaw: 0, roll: 0, spread: 1 });
+
+            return pts;
+        }
+
+        /**
+         * Procedurally computes the 21 hand landmarks from a wrist origin,
+         * finger curl array [thumb, index, middle, ring, pinky] (0 = open, 1 = fist),
+         * and hand orientation Euler angles.
+         */
+        function populateHand21(pts, side, wristPos, curls = [0,0,0,0,0], orient = { pitch: 0, yaw: 0, roll: 0, spread: 1 }) {
+            const isLeft = side === "LEFT";
+            const baseIdx = isLeft ? 33 : 54;
+            const signX = isLeft ? 1 : -1;
+
+            const euler = new THREE.Euler(orient.pitch || 0, orient.yaw || 0, orient.roll || 0, 'XYZ');
+            const rotMat = new THREE.Matrix4().makeRotationFromEuler(euler);
+
+            function transformLocal(lx, ly, lz) {
+                const v = new THREE.Vector3(lx, ly, lz).applyMatrix4(rotMat);
+                return {
+                    x: wristPos.x + v.x,
+                    y: wristPos.y + v.y,
+                    z: wristPos.z + v.z
+                };
+            }
+
+            // 0: WRIST
+            pts[baseIdx + 0] = { x: wristPos.x, y: wristPos.y, z: wristPos.z };
+
+            // Thumb (Indices 1, 2, 3, 4)
+            const tc = curls[0] || 0;
+            const thumbKnuckles = [
+                { x: -signX * 0.028, y: 0.022, z: 0.012 },
+                { x: -signX * (0.052 - tc * 0.015), y: 0.048, z: 0.022 + tc * 0.015 },
+                { x: -signX * (0.068 - tc * 0.042), y: 0.074 - tc * 0.015, z: 0.030 + tc * 0.028 },
+                { x: -signX * (0.078 - tc * 0.075), y: 0.098 - tc * 0.032, z: 0.035 + tc * 0.042 }
+            ];
+            thumbKnuckles.forEach((tk, k) => {
+                pts[baseIdx + 1 + k] = transformLocal(tk.x, tk.y, tk.z);
+            });
+
+            // 4 Fingers: Index (5..8), Middle (9..12), Ring (13..16), Pinky (17..20)
+            const fingerSpecs = [
+                { mcpX: -signX * 0.032, mcpY: 0.082, lengths: [0.034, 0.024, 0.019], spreadAngle: -signX * 0.10 },
+                { mcpX: -signX * 0.008, mcpY: 0.086, lengths: [0.038, 0.027, 0.020], spreadAngle: -signX * 0.02 },
+                { mcpX:  signX * 0.015, mcpY: 0.082, lengths: [0.035, 0.025, 0.019], spreadAngle:  signX * 0.05 },
+                { mcpX:  signX * 0.036, mcpY: 0.074, lengths: [0.028, 0.020, 0.016], spreadAngle:  signX * 0.13 }
+            ];
+
+            const spreadMult = orient.spread !== undefined ? orient.spread : 1.0;
+
+            fingerSpecs.forEach((spec, fIdx) => {
+                const c = curls[fIdx + 1] || 0;
+                const startJoint = baseIdx + 5 + fIdx * 4;
+
+                // MCP Joint
+                let curX = spec.mcpX;
+                let curY = spec.mcpY;
+                let curZ = 0.005;
+                pts[startJoint] = transformLocal(curX, curY, curZ);
+
+                // Accumulate flexion angles across PIP, DIP, TIP
+                let cumAngle = 0;
+                const jointFlex = [c * 1.35, c * 1.55, c * 1.25];
+                for (let seg = 0; seg < 3; seg++) {
+                    cumAngle += jointFlex[seg];
+                    const len = spec.lengths[seg];
+                    curX += Math.sin(spec.spreadAngle * spreadMult) * len * (1 - c * 0.7);
+                    curY += Math.cos(cumAngle) * len;
+                    curZ += Math.sin(cumAngle) * len;
+                    pts[startJoint + 1 + seg] = transformLocal(curX, curY, curZ);
+                }
+            });
+
+            // Sync Pose Auxiliary Hand Landmarks (17..22) with Wrist & Hand
+            if (isLeft) {
+                pts[15] = { ...pts[33] };
+                pts[17] = { ...pts[33 + 17] };
+                pts[19] = { ...pts[33 + 5] };
+                pts[21] = { ...pts[33 + 2] };
+            } else {
+                pts[16] = { ...pts[54] };
+                pts[18] = { ...pts[54 + 17] };
+                pts[20] = { ...pts[54 + 5] };
+                pts[22] = { ...pts[54 + 2] };
+            }
+        }
+
+        /***********************************************************************
+         * 5. BUILT-IN SIGN LANGUAGE & GESTURE KEYFRAME PRESETS
+         ***********************************************************************/
+        function buildSignPresetPose(presetId) {
+            const p = buildNeutral75Landmarks();
+
+            if (presetId === "NEUTRAL") {
+                return p;
+            }
+
+            if (presetId === "HELLO") {
+                // Right hand raised near forehead in salute/wave, open spread palm
+                p[14] = { x: -0.34, y: 0.36, z: 0.16 }; // Right Elbow lifted
+                p[16] = { x: -0.19, y: 0.58, z: 0.20 }; // Right Wrist near temple
+                populateHand21(p, "RIGHT", p[16], [0.08, 0.0, 0.0, 0.0, 0.0], { pitch: 0.1, yaw: 0.15, roll: 0.22, spread: 1.4 });
+                // Left hand relaxed at hip level
+                p[13] = { x: 0.30, y: 0.10, z: 0.06 };
+                p[15] = { x: 0.25, y: 0.02, z: 0.18 };
+                populateHand21(p, "LEFT", p[15], [0.25, 0.3, 0.35, 0.4, 0.45], { pitch: 0.3, yaw: -0.2, roll: -0.2, spread: 0.8 });
+                return p;
+            }
+
+            if (presetId === "THANK_YOU") {
+                // ASL "Thank You": Flat right hand starts at chin/lips and extends forward toward viewer
+                p[14] = { x: -0.28, y: 0.20, z: 0.20 };
+                p[16] = { x: -0.05, y: 0.44, z: 0.34 };
+                populateHand21(p, "RIGHT", p[16], [0.05, 0.02, 0.02, 0.02, 0.02], { pitch: 0.45, yaw: -0.25, roll: 0.45, spread: 0.4 });
+                // Slight polite head nod
+                p[0].y -= 0.015;
+                p[0].z += 0.018;
+                return p;
+            }
+
+            if (presetId === "ILY") {
+                // ASL "I Love You" Sign: Thumb, Index, and Pinky extended; Middle and Ring curled down
+                p[14] = { x: -0.32, y: 0.22, z: 0.16 };
+                p[16] = { x: -0.24, y: 0.44, z: 0.28 };
+                populateHand21(p, "RIGHT", p[16], [0.0, 0.0, 0.95, 0.95, 0.0], { pitch: 0.05, yaw: 0.1, roll: 0.05, spread: 1.4 });
+
+                // Left hand also doing ILY for symmetry
+                p[13] = { x: 0.32, y: 0.22, z: 0.16 };
+                p[15] = { x: 0.24, y: 0.44, z: 0.28 };
+                populateHand21(p, "LEFT", p[15], [0.0, 0.0, 0.95, 0.95, 0.0], { pitch: 0.05, yaw: -0.1, roll: -0.05, spread: 1.4 });
+                return p;
+            }
+
+            if (presetId === "PEACE") {
+                // Victory / Peace "V" Sign (Index & Middle extended, Thumb/Ring/Pinky curled)
+                p[14] = { x: -0.30, y: 0.20, z: 0.15 };
+                p[16] = { x: -0.20, y: 0.43, z: 0.30 };
+                populateHand21(p, "RIGHT", p[16], [0.85, 0.0, 0.0, 0.95, 0.95], { pitch: 0.0, yaw: 0.05, roll: 0.0, spread: 1.8 });
+                return p;
+            }
+
+            if (presetId === "STOP") {
+                // Both hands raised open palm forward
+                p[13] = { x: 0.30, y: 0.24, z: 0.18 };
+                p[15] = { x: 0.22, y: 0.42, z: 0.32 };
+                populateHand21(p, "LEFT", p[15], [0.05, 0.0, 0.0, 0.0, 0.0], { pitch: 0.05, yaw: 0, roll: 0, spread: 0.6 });
+
+                p[14] = { x: -0.30, y: 0.24, z: 0.18 };
+                p[16] = { x: -0.22, y: 0.42, z: 0.32 };
+                populateHand21(p, "RIGHT", p[16], [0.05, 0.0, 0.0, 0.0, 0.0], { pitch: 0.05, yaw: 0, roll: 0, spread: 0.6 });
+                return p;
+            }
+
+            if (presetId === "THINKING") {
+                // Right index finger tapping chin, left arm crossed under right elbow
+                p[14] = { x: -0.18, y: 0.20, z: 0.24 };
+                p[16] = { x: -0.05, y: 0.45, z: 0.20 };
+                populateHand21(p, "RIGHT", p[16], [0.6, 0.15, 0.95, 0.95, 0.95], { pitch: -0.2, yaw: 0.3, roll: 0.4, spread: 1.0 });
+
+                // Left hand supporting right elbow
+                p[13] = { x: 0.22, y: 0.12, z: 0.18 };
+                p[15] = { x: -0.10, y: 0.18, z: 0.24 };
+                populateHand21(p, "LEFT", p[15], [0.4, 0.5, 0.5, 0.5, 0.5], { pitch: 0.2, yaw: -0.8, roll: -1.1, spread: 0.8 });
+                return p;
+            }
+
+            if (presetId === "FIST_POWER") {
+                // Dual Closed Fists Guard / Strength Sign
+                p[13] = { x: 0.28, y: 0.18, z: 0.18 };
+                p[15] = { x: 0.16, y: 0.36, z: 0.28 };
+                populateHand21(p, "LEFT", p[15], [0.9, 1.0, 1.0, 1.0, 1.0], { pitch: 0.1, yaw: -0.3, roll: -0.2, spread: 0.7 });
+
+                p[14] = { x: -0.28, y: 0.18, z: 0.18 };
+                p[16] = { x: -0.16, y: 0.36, z: 0.28 };
+                populateHand21(p, "RIGHT", p[16], [0.9, 1.0, 1.0, 1.0, 1.0], { pitch: 0.1, yaw: 0.3, roll: 0.2, spread: 0.7 });
+                return p;
+            }
+
+            if (presetId === "ASL_A") {
+                // ASL Letter 'A': Right fist with thumb resting upright alongside index finger
+                p[14] = { x: -0.29, y: 0.18, z: 0.16 };
+                p[16] = { x: -0.21, y: 0.42, z: 0.28 };
+                populateHand21(p, "RIGHT", p[16], [0.15, 0.98, 0.98, 0.98, 0.98], { pitch: 0.05, yaw: 0.1, roll: 0.0, spread: 0.65 });
+                return p;
+            }
+
+            if (presetId === "ASL_B") {
+                // ASL Letter 'B': Flat tall fingers together, thumb tucked across palm
+                p[14] = { x: -0.29, y: 0.19, z: 0.16 };
+                p[16] = { x: -0.21, y: 0.43, z: 0.28 };
+                populateHand21(p, "RIGHT", p[16], [0.95, 0.0, 0.0, 0.0, 0.0], { pitch: 0.0, yaw: 0.08, roll: 0.0, spread: 0.25 });
+                return p;
+            }
+
+            if (presetId === "ASL_C") {
+                // ASL Letter 'C': Curved C-shape fingers and thumb
+                p[14] = { x: -0.30, y: 0.19, z: 0.16 };
+                p[16] = { x: -0.21, y: 0.42, z: 0.28 };
+                populateHand21(p, "RIGHT", p[16], [0.45, 0.52, 0.52, 0.52, 0.52], { pitch: 0.05, yaw: 0.55, roll: 0.1, spread: 0.45 });
+                return p;
+            }
+
+            return p;
+        }
+
+        const SIGN_PRESETS = [
+            { id: "NEUTRAL", label: "Neutral Pose", icon: "🧍" },
+            { id: "HELLO", label: "Hello / Salute", icon: "👋" },
+            { id: "THANK_YOU", label: "Thank You", icon: "🙏" },
+            { id: "ILY", label: "I Love You (ASL)", icon: "🤟" },
+            { id: "PEACE", label: "Peace / Victory", icon: "✌️" },
+            { id: "STOP", label: "Raised Hands", icon: "✋" },
+            { id: "THINKING", label: "Question / Think", icon: "🤔" },
+            { id: "FIST_POWER", label: "Strong / Guard", icon: "✊" },
+            { id: "ASL_A", label: "ASL Letter 'A'", icon: "🅰️" },
+            { id: "ASL_B", label: "ASL Letter 'B'", icon: "🅱️" },
+            { id: "ASL_C", label: "ASL Letter 'C'", icon: "🌙" }
+        ];
+
+        /***********************************************************************
+         * 6. APPLICATION STATE & THREE.JS SCENE VARIABLES
+         ***********************************************************************/
+        let currentLandmarks = buildNeutral75Landmarks();
+        let startKeyframe = buildNeutral75Landmarks();
+        let targetKeyframe = buildSignPresetPose("HELLO");
+        let customKeyframes = [];
+
+        let selectedIndex = 16; // Default to RIGHT_WRIST
+        let hierarchicalMode = true;
+        let currentCategoryFilter = "ALL";
+        let activeArticulatorHand = "LEFT";
+        let handCurlState = {
+            LEFT: [0, 0, 0, 0, 0],
+            RIGHT: [0, 0, 0, 0, 0]
+        };
+
+        let layerVisibility = {
+            skin: true,
+            bones: false,
+            points: false,
+            labels: false
+        };
+        let currentAvatarStyle = "REALISTIC";
+        let benchmarkNodeScale = 0.75;
+        let facialState = {
+            yaw: 0,
+            pitch: 0,
+            roll: 0,
+            mouthOpen: 0.12,
+            smile: 0.25,
+            browRaise: 0.15
+        };
+
+        // Animation Player State
+        let isPlaying = false;
+        let playbackSpeed = 1.0;
+        let activeSignId = "NEUTRAL";
+
+        // Collapsible Drawer State (Left Presets & Right Inspector)
+        const drawerState = { left: false, right: false };
+
+        function toggleDrawer(side, forceOpen) {
+            const otherSide = side === 'left' ? 'right' : 'left';
+            const el = side === 'left' ? document.getElementById("leftSidebar") : document.getElementById("rightSidebar");
+            const otherEl = side === 'left' ? document.getElementById("rightSidebar") : document.getElementById("leftSidebar");
+            const btn = side === 'left' ? document.getElementById("btnToggleLeft") : document.getElementById("btnToggleRight");
+            const otherBtn = side === 'left' ? document.getElementById("btnToggleRight") : document.getElementById("btnToggleLeft");
+            if (!el) return;
+
+            if (forceOpen !== undefined) {
+                drawerState[side] = forceOpen;
+            } else {
+                drawerState[side] = !drawerState[side];
+            }
+
+            // Mutual exclusivity: only one drawer can be active at a time!
+            if (drawerState[side]) {
+                drawerState[otherSide] = false;
+                if (otherEl) {
+                    otherEl.classList.add("hidden");
+                    otherEl.classList.remove("flex");
+                }
+                if (otherBtn) {
+                    otherBtn.classList.remove("bg-indigo-600", "text-white", "border-indigo-600", "shadow-sm");
+                    otherBtn.classList.add("bg-white", "text-slate-700", "border-slate-200");
+                }
+            }
+
+            const isOpen = drawerState[side];
+            if (isOpen) {
+                el.classList.remove("hidden");
+                el.classList.add("flex");
+                if (btn) {
+                    btn.classList.add("bg-indigo-600", "text-white", "border-indigo-600", "shadow-sm");
+                    btn.classList.remove("bg-white", "text-slate-700", "border-slate-200");
+                }
+            } else {
+                el.classList.add("hidden");
+                el.classList.remove("flex");
+                if (btn) {
+                    btn.classList.remove("bg-indigo-600", "text-white", "border-indigo-600", "shadow-sm");
+                    btn.classList.add("bg-white", "text-slate-700", "border-slate-200");
+                }
+            }
+
+            // Immediately resize 3D canvas so avatar remains centered and 100% visible
+            onWindowResize();
+            setTimeout(onWindowResize, 60);
+            setTimeout(onWindowResize, 180);
+        }
+
+        function renderCommonSignsBar() {
+            const bar = document.getElementById("commonSignsBar");
+            if (!bar) return;
+            bar.innerHTML = SIGN_PRESETS.map(preset => {
+                const isActive = preset.id === activeSignId;
+                return `
+                    <button onclick="triggerSignPreset('${preset.id}', '${preset.label}')"
+                        class="px-3 py-1 rounded-lg text-xs font-semibold whitespace-nowrap transition-all duration-150 flex items-center gap-1.5 shrink-0 shadow-xs ${
+                            isActive
+                                ? 'bg-indigo-600 text-white shadow-sm shadow-indigo-500/20 ring-1 ring-indigo-500'
+                                : 'bg-white hover:bg-indigo-50 text-slate-700 hover:text-indigo-900 border border-slate-200'
+                        }">
+                        <span class="text-sm">${preset.icon}</span>
+                        <span>${preset.label}</span>
+                    </button>
+                `;
+            }).join('');
+        }
+
+        // Three.js Core Objects
+        let scene, camera, renderer, orbitControls, transformControl;
+        const landmarkMeshes = [];   // 75 Sphere Meshes
+        const boneMeshes = [];       // Cylindrical Bones
+        let selectionRingMesh;       // Highlight ring around selected sphere
+        const labelElements = [];    // 75 HTML Overlay Badges
+        let isSoftwareRenderer = false;
+
+        // Volumetric 3D Sculpted Character Avatar Meshes (driven by the 75 landmarks)
+        let avatarSkinGroup;
+        let skinMaterial, suitMaterial, suitAccentMaterial, hairMaterial, lipMaterial, browMaterial, nailMaterial;
+        let headGroup, craniumMesh, hairCapMesh, jawChinMesh, neckMesh, trapCollarMesh;
+        let leftEyeGroup, rightEyeGroup, leftBrowMesh, rightBrowMesh;
+        let noseBridgeMesh, noseTipMesh, leftNostrilMesh, rightNostrilMesh;
+        let upperLipMesh, lowerLipMesh, mouthCavityMesh, leftEarMesh, rightEarMesh;
+        let torsoMesh, chestSeamMesh, leftClavicleMesh, rightClavicleMesh, leftDeltoidMesh, rightDeltoidMesh, pelvisMesh;
+        const skinLimbCapsules = [];
+        const jointKnuckleSpheres = [];
+        const fingernailMeshes = [];
+        let leftPalmMesh, rightPalmMesh, leftThumbWebMesh, rightThumbWebMesh;
+
+        /***********************************************************************
+         * 7. INITIALIZE THREE.JS SCENE, LIGHTING, 75 BENCHMARKS & AVATAR MESH
+         *    Includes resilient WebGL context creation + 3D Software Renderer
+         *    fallback so "Error creating WebGL context" never crashes the app.
+         ***********************************************************************/
+        function createResilientRenderer(width, height) {
+            const configs = [
+                { antialias: true, alpha: true, powerPreference: "high-performance" },
+                { antialias: false, alpha: true, powerPreference: "default" },
+                { antialias: false, alpha: false, failIfMajorPerformanceCaveat: false }
+            ];
+
+            // Probe if browser can allocate a raw WebGL1/WebGL2 context first
+            const probeCanvas = document.createElement("canvas");
+            let glContext = null;
+            try {
+                glContext = probeCanvas.getContext("webgl2", { antialias: false }) ||
+                            probeCanvas.getContext("webgl", { antialias: false }) ||
+                            probeCanvas.getContext("experimental-webgl", { antialias: false });
+            } catch (e) {
+                glContext = null;
+            }
+
+            if (glContext) {
+                // Release probe context before instantiating Three.WebGLRenderer
+                const loseExt = glContext.getExtension("WEBGL_lose_context");
+                if (loseExt) loseExt.loseContext();
+
+                for (const cfg of configs) {
+                    try {
+                        const r = new THREE.WebGLRenderer(cfg);
+                        r.setSize(width, height);
+                        r.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+                        r.toneMapping = THREE.ACESFilmicToneMapping;
+                        r.toneMappingExposure = 1.12;
+                        isSoftwareRenderer = false;
+                        return r;
+                    } catch (err) {
+                        // Try next lighter WebGL configuration
+                    }
+                }
+            }
+
+            // Fallback: High-Precision 3D Canvas2D Software Projection & Shading Engine
+            isSoftwareRenderer = true;
+            return createSoftware3DRenderer(width, height);
+        }
+
+        function createSoftware3DRenderer(width, height) {
+            const domElement = document.createElement("canvas");
+            const ctx = domElement.getContext("2d");
+            let dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+            function setSize(w, h) {
+                width = Math.max(1, w);
+                height = Math.max(1, h);
+                domElement.width = Math.round(width * dpr);
+                domElement.height = Math.round(height * dpr);
+                domElement.style.width = `${width}px`;
+                domElement.style.height = `${height}px`;
+            }
+            setSize(width, height);
+
+            function projectPoint(x, y, z, cam) {
+                const v = new THREE.Vector3(x, y, z).project(cam);
+                return {
+                    sx: (v.x * 0.5 + 0.5) * width,
+                    sy: (-(v.y * 0.5) + 0.5) * height,
+                    ndcZ: v.z
+                };
+            }
+
+            function estimateScreenRadius(worldPos, worldRadius, cam) {
+                const pCenter = projectPoint(worldPos.x, worldPos.y, worldPos.z, cam);
+                const camRight = new THREE.Vector3(1, 0, 0).applyQuaternion(cam.quaternion);
+                const edgeWorld = new THREE.Vector3().copy(worldPos).addScaledVector(camRight, worldRadius);
+                const pEdge = projectPoint(edgeWorld.x, edgeWorld.y, edgeWorld.z, cam);
+                return Math.max(1.5, Math.hypot(pEdge.sx - pCenter.sx, pEdge.sy - pCenter.sy));
+            }
+
+            function drawTaperedCapsule2D(ax, ay, ar, bx, by, br, fillStyle, strokeStyle, alpha = 1) {
+                const dx = bx - ax;
+                const dy = by - ay;
+                const len = Math.hypot(dx, dy);
+                ctx.save();
+                ctx.globalAlpha = alpha;
+                if (len < 0.5) {
+                    ctx.beginPath();
+                    ctx.arc(ax, ay, Math.max(ar, br), 0, Math.PI * 2);
+                    ctx.fillStyle = fillStyle;
+                    ctx.fill();
+                    ctx.restore();
+                    return;
+                }
+                const nx = -dy / len;
+                const ny = dx / len;
+                const angle = Math.atan2(dy, dx);
+
+                ctx.beginPath();
+                ctx.moveTo(ax + nx * ar, ay + ny * ar);
+                ctx.lineTo(bx + nx * br, by + ny * br);
+                ctx.arc(bx, by, br, angle + Math.PI * 0.5, angle - Math.PI * 0.5, true);
+                ctx.lineTo(ax - nx * ar, ay - ny * ar);
+                ctx.arc(ax, ay, ar, angle - Math.PI * 0.5, angle + Math.PI * 0.5, true);
+                ctx.closePath();
+
+                const grad = ctx.createLinearGradient(ax + nx * ar, ay + ny * ar, ax - nx * ar, ay - ny * ar);
+                grad.addColorStop(0, fillStyle.light);
+                grad.addColorStop(0.45, fillStyle.mid);
+                grad.addColorStop(1, fillStyle.dark);
+                ctx.fillStyle = grad;
+                ctx.fill();
+
+                if (strokeStyle) {
+                    ctx.strokeStyle = strokeStyle;
+                    ctx.lineWidth = 0.85;
+                    ctx.stroke();
+                }
+                ctx.restore();
+            }
+
+            function getStylePalette() {
+                if (currentAvatarStyle === "MANNEQUIN") {
+                    return {
+                        skin: { light: "#f1f5f9", mid: "#cbd5e1", dark: "#64748b", stroke: "rgba(148,163,184,0.45)" },
+                        suit: { light: "#64748b", mid: "#475569", dark: "#1e293b", stroke: "rgba(56,189,248,0.35)" },
+                        hair: "#334155",
+                        lip: "#94a3b8",
+                        alpha: 1.0
+                    };
+                }
+                if (currentAvatarStyle === "XRAY") {
+                    return {
+                        skin: { light: "rgba(125,211,252,0.5)", mid: "rgba(56,189,248,0.34)", dark: "rgba(3,105,161,0.32)", stroke: "rgba(56,189,248,0.55)" },
+                        suit: { light: "rgba(56,189,248,0.38)", mid: "rgba(30,41,59,0.45)", dark: "rgba(15,23,42,0.45)", stroke: "rgba(56,189,248,0.45)" },
+                        hair: "rgba(56,189,248,0.22)",
+                        lip: "rgba(56,189,248,0.65)",
+                        alpha: 0.45
+                    };
+                }
+                return {
+                    skin: { light: "#f6d5be", mid: "#deb89e", dark: "#9c6b53", stroke: "rgba(120,73,52,0.30)" },
+                    suit: { light: "#6366f1", mid: "#4338ca", dark: "#312e81", stroke: "rgba(99,102,241,0.35)" },
+                    hair: "#241d19",
+                    lip: "#ca7b79",
+                    alpha: 1.0
+                };
+            }
+
+            return {
+                domElement,
+                shadowMap: { enabled: false },
+                setSize,
+                setPixelRatio: (r) => { dpr = Math.min(r || 1, 2); setSize(width, height); },
+                render: (scn, cam) => {
+                    cam.updateMatrixWorld();
+                    scn.updateMatrixWorld();
+
+                    ctx.save();
+                    ctx.scale(dpr, dpr);
+                    ctx.clearRect(0, 0, width, height);
+
+                    // 1. Draw Studio Floor Grid (-0.95 Y)
+                    ctx.strokeStyle = "rgba(165, 180, 252, 0.45)";
+                    ctx.lineWidth = 1;
+                    for (let g = -1.5; g <= 1.5; g += 0.25) {
+                        const a = projectPoint(g, -0.95, -1.5, cam);
+                        const b = projectPoint(g, -0.95, 1.5, cam);
+                        if (a.ndcZ < 1 && b.ndcZ < 1) {
+                            ctx.beginPath(); ctx.moveTo(a.sx, a.sy); ctx.lineTo(b.sx, b.sy); ctx.stroke();
+                        }
+                        const c = projectPoint(-1.5, -0.95, g, cam);
+                        const d = projectPoint(1.5, -0.95, g, cam);
+                        if (c.ndcZ < 1 && d.ndcZ < 1) {
+                            ctx.beginPath(); ctx.moveTo(c.sx, c.sy); ctx.lineTo(d.sx, d.sy); ctx.stroke();
+                        }
+                    }
+
+                    const p = currentLandmarks;
+                    const proj = p.map(pt => projectPoint(pt.x, pt.y, pt.z, cam));
+                    const drawQueue = [];
+                    const palette = getStylePalette();
+
+                    // 2. Queue Sculpted Volumetric Avatar Parts if visible
+                    if (avatarSkinGroup && avatarSkinGroup.visible && currentAvatarStyle !== "HIDDEN") {
+                        // Torso & Pelvis Hull
+                        const sL = p[11], sR = p[12], hL = p[23], hR = p[24];
+                        const torsoZ = (proj[11].ndcZ + proj[12].ndcZ + proj[23].ndcZ + proj[24].ndcZ) * 0.25;
+                        drawQueue.push({
+                            depth: torsoZ + 0.005,
+                            draw: () => {
+                                const psL = proj[11], psR = proj[12], phL = proj[23], phR = proj[24];
+                                const shOutL = estimateScreenRadius(sL, 0.052, cam);
+                                const shOutR = estimateScreenRadius(sR, 0.052, cam);
+                                const hpOutL = estimateScreenRadius(hL, 0.062, cam);
+                                const hpOutR = estimateScreenRadius(hR, 0.062, cam);
+
+                                const waistL = projectPoint((sL.x * 0.35 + hL.x * 0.65) * 0.86, sL.y * 0.35 + hL.y * 0.65, (sL.z + hL.z) * 0.5, cam);
+                                const waistR = projectPoint((sR.x * 0.35 + hR.x * 0.65) * 0.86, sR.y * 0.35 + hR.y * 0.65, (sR.z + hR.z) * 0.5, cam);
+                                const neckMid = projectPoint((sL.x + sR.x) * 0.5, (sL.y + sR.y) * 0.5 + 0.045, (sL.z + sR.z) * 0.5, cam);
+                                const pelvisBot = projectPoint((hL.x + hR.x) * 0.5, (hL.y + hR.y) * 0.5 - 0.055, (hL.z + hR.z) * 0.5, cam);
+
+                                ctx.save();
+                                ctx.globalAlpha = palette.alpha;
+                                ctx.beginPath();
+                                ctx.moveTo(neckMid.sx, neckMid.sy);
+                                ctx.quadraticCurveTo(psL.sx - shOutL * 0.4, psL.sy - shOutL * 0.35, psL.sx - shOutL * 0.6, psL.sy + shOutL * 0.2);
+                                ctx.quadraticCurveTo(waistL.sx - hpOutL * 0.45, waistL.sy, phL.sx - hpOutL * 0.5, phL.sy);
+                                ctx.quadraticCurveTo(pelvisBot.sx, pelvisBot.sy + hpOutL * 0.55, phR.sx + hpOutR * 0.5, phR.sy);
+                                ctx.quadraticCurveTo(waistR.sx + hpOutR * 0.45, waistR.sy, psR.sx + shOutR * 0.6, psR.sy + shOutR * 0.2);
+                                ctx.quadraticCurveTo(psR.sx + shOutR * 0.4, psR.sy - shOutR * 0.35, neckMid.sx, neckMid.sy);
+                                ctx.closePath();
+
+                                const tGrad = ctx.createLinearGradient(psL.sx, psL.sy, psR.sx, phR.sy);
+                                tGrad.addColorStop(0, palette.skin.light);
+                                tGrad.addColorStop(0.5, palette.skin.mid);
+                                tGrad.addColorStop(1, palette.skin.dark);
+                                ctx.fillStyle = tGrad;
+                                ctx.fill();
+                                ctx.strokeStyle = palette.skin.stroke;
+                                ctx.lineWidth = 1.4;
+                                ctx.stroke();
+
+                                // Underwear Overlay (Briefs)
+                                ctx.beginPath();
+                                ctx.moveTo(waistL.sx - hpOutL * 0.45, waistL.sy);
+                                ctx.quadraticCurveTo(phL.sx - hpOutL * 0.5, phL.sy, pelvisBot.sx, pelvisBot.sy + hpOutL * 0.55);
+                                ctx.quadraticCurveTo(phR.sx + hpOutR * 0.5, phR.sy, waistR.sx + hpOutR * 0.45, waistR.sy);
+                                ctx.quadraticCurveTo(pelvisBot.sx, waistL.sy + (pelvisBot.sy - waistL.sy) * 0.2, waistL.sx - hpOutL * 0.45, waistL.sy);
+                                ctx.closePath();
+                                const uGrad = ctx.createLinearGradient(waistL.sx, waistL.sy, phR.sx, phR.sy);
+                                uGrad.addColorStop(0, palette.suit.light);
+                                uGrad.addColorStop(1, palette.suit.dark);
+                                ctx.fillStyle = uGrad;
+                                ctx.fill();
+                                ctx.strokeStyle = palette.suit.stroke;
+                                ctx.lineWidth = 1.2;
+                                ctx.stroke();
+
+                                // Subtle Collarbone Line
+                                ctx.beginPath();
+                                ctx.moveTo(psL.sx, psL.sy);
+                                ctx.quadraticCurveTo(neckMid.sx, neckMid.sy + shOutL * 0.45, psR.sx, psR.sy);
+                                ctx.strokeStyle = palette.skin.dark;
+                                ctx.lineWidth = 1.5;
+                                ctx.stroke();
+                                ctx.restore();
+                            }
+                        });
+
+                        // Neck Column
+                        const earMidWorld = {
+                            x: (p[7].x + p[8].x) * 0.5,
+                            y: (p[7].y + p[8].y) * 0.5 - 0.04,
+                            z: (p[7].z + p[8].z) * 0.5
+                        };
+                        const shMidWorld = {
+                            x: (p[11].x + p[12].x) * 0.5,
+                            y: (p[11].y + p[12].y) * 0.5 + 0.03,
+                            z: (p[11].z + p[12].z) * 0.5
+                        };
+                        const pNeckTop = projectPoint(earMidWorld.x, earMidWorld.y, earMidWorld.z, cam);
+                        const pNeckBot = projectPoint(shMidWorld.x, shMidWorld.y, shMidWorld.z, cam);
+                        drawQueue.push({
+                            depth: (pNeckTop.ndcZ + pNeckBot.ndcZ) * 0.5 + 0.002,
+                            draw: () => {
+                                drawTaperedCapsule2D(
+                                    pNeckTop.sx, pNeckTop.sy, estimateScreenRadius(earMidWorld, 0.048, cam),
+                                    pNeckBot.sx, pNeckBot.sy, estimateScreenRadius(shMidWorld, 0.058, cam),
+                                    palette.skin, palette.skin.stroke, palette.alpha
+                                );
+                            }
+                        });
+
+                        // Sculpted Head, Hair, Ears, Eyes, Brows, Nose & Expressive Mouth
+                        const headCenterWorld = {
+                            x: (p[7].x + p[8].x) * 0.5 + (p[0].x - (p[7].x + p[8].x) * 0.5) * 0.25,
+                            y: (p[7].y + p[8].y) * 0.5 + 0.015,
+                            z: (p[7].z + p[8].z) * 0.5 + 0.02
+                        };
+                        const pHead = projectPoint(headCenterWorld.x, headCenterWorld.y, headCenterWorld.z, cam);
+                        const headRx = estimateScreenRadius(headCenterWorld, 0.102, cam);
+                        const headRy = headRx * 1.26;
+
+                        drawQueue.push({
+                            depth: pHead.ndcZ,
+                            draw: () => {
+                                ctx.save();
+                                ctx.globalAlpha = palette.alpha;
+
+                                // Ears (Benchmarks 7 & 8)
+                                [7, 8].forEach(eIdx => {
+                                    const pe = proj[eIdx];
+                                    const er = estimateScreenRadius(p[eIdx], 0.020, cam);
+                                    ctx.beginPath();
+                                    ctx.ellipse(pe.sx, pe.sy, er * 0.55, er * 1.25, 0, 0, Math.PI * 2);
+                                    ctx.fillStyle = palette.skin.mid;
+                                    ctx.fill();
+                                    ctx.strokeStyle = palette.skin.stroke;
+                                    ctx.stroke();
+                                });
+
+                                // Sculpted Cranium & Jawline Contour
+                                const jawDrop = (facialState.mouthOpen || 0.12) * headRy * 0.16;
+                                ctx.beginPath();
+                                ctx.ellipse(pHead.sx, pHead.sy - headRy * 0.06, headRx, headRy + jawDrop * 0.5, 0, 0, Math.PI * 2);
+                                const hGrad = ctx.createRadialGradient(
+                                    pHead.sx - headRx * 0.28, pHead.sy - headRy * 0.28, headRx * 0.15,
+                                    pHead.sx, pHead.sy, headRy * 1.15
+                                );
+                                hGrad.addColorStop(0, palette.skin.light);
+                                hGrad.addColorStop(0.55, palette.skin.mid);
+                                hGrad.addColorStop(1, palette.skin.dark);
+                                ctx.fillStyle = hGrad;
+                                ctx.fill();
+                                ctx.strokeStyle = palette.skin.stroke;
+                                ctx.lineWidth = 1.2;
+                                ctx.stroke();
+
+                                // Groomed Hair Cap
+                                if (currentAvatarStyle !== "XRAY") {
+                                    ctx.beginPath();
+                                    ctx.arc(pHead.sx, pHead.sy - headRy * 0.18, headRx * 1.03, Math.PI * 1.08, Math.PI * 1.92);
+                                    ctx.quadraticCurveTo(pHead.sx, pHead.sy - headRy * 0.68, pHead.sx - headRx * 1.02, pHead.sy - headRy * 0.18);
+                                    ctx.closePath();
+                                    ctx.fillStyle = palette.hair;
+                                    ctx.fill();
+                                }
+
+                                // Eyes (Sclera, Blue Iris, Pupil & Catchlight around Benchmarks 2 & 5)
+                                [2, 5].forEach(eyeIdx => {
+                                    const pe = proj[eyeIdx];
+                                    const er = estimateScreenRadius(p[eyeIdx], 0.0145, cam);
+                                    ctx.beginPath();
+                                    ctx.ellipse(pe.sx, pe.sy, er * 1.15, er * 0.78, 0, 0, Math.PI * 2);
+                                    ctx.fillStyle = "#f8fafc";
+                                    ctx.fill();
+                                    ctx.strokeStyle = "rgba(30,41,59,0.5)";
+                                    ctx.lineWidth = 0.9;
+                                    ctx.stroke();
+
+                                    // Iris
+                                    ctx.beginPath();
+                                    ctx.arc(pe.sx, pe.sy, er * 0.52, 0, Math.PI * 2);
+                                    ctx.fillStyle = "#0284c7";
+                                    ctx.fill();
+
+                                    // Pupil
+                                    ctx.beginPath();
+                                    ctx.arc(pe.sx, pe.sy, er * 0.26, 0, Math.PI * 2);
+                                    ctx.fillStyle = "#020617";
+                                    ctx.fill();
+
+                                    // Specular glint
+                                    ctx.beginPath();
+                                    ctx.arc(pe.sx - er * 0.18, pe.sy - er * 0.18, Math.max(1, er * 0.14), 0, Math.PI * 2);
+                                    ctx.fillStyle = "#ffffff";
+                                    ctx.fill();
+                                });
+
+                                // Eyebrows above Left (1..3) and Right (4..6) Eyes
+                                const browLiftPx = (facialState.browRaise || 0.15) * headRy * 0.12;
+                                [[1, 2, 3], [4, 5, 6]].forEach(([iIn, iMid, iOut]) => {
+                                    const pIn = proj[iIn], pMid = proj[iMid], pOut = proj[iOut];
+                                    const browOff = estimateScreenRadius(p[iMid], 0.020, cam) + browLiftPx;
+                                    ctx.beginPath();
+                                    ctx.moveTo(pIn.sx, pIn.sy - browOff * 0.85);
+                                    ctx.quadraticCurveTo(pMid.sx, pMid.sy - browOff * 1.25, pOut.sx, pOut.sy - browOff * 0.8);
+                                    ctx.strokeStyle = "#27221e";
+                                    ctx.lineWidth = Math.max(2, headRx * 0.08);
+                                    ctx.lineCap = "round";
+                                    ctx.stroke();
+                                });
+
+                                // Sculpted Nose Bridge & Tip (Benchmark 0)
+                                const pNose = proj[0];
+                                const pEyeMid = { sx: (proj[2].sx + proj[5].sx) * 0.5, sy: (proj[2].sy + proj[5].sy) * 0.5 };
+                                const noseR = estimateScreenRadius(p[0], 0.013, cam);
+                                ctx.beginPath();
+                                ctx.moveTo(pEyeMid.sx, pEyeMid.sy);
+                                ctx.lineTo(pNose.sx, pNose.sy);
+                                ctx.strokeStyle = palette.skin.dark;
+                                ctx.lineWidth = Math.max(1.5, noseR * 0.7);
+                                ctx.stroke();
+
+                                ctx.beginPath();
+                                ctx.arc(pNose.sx, pNose.sy, noseR, 0, Math.PI * 2);
+                                ctx.fillStyle = palette.skin.light;
+                                ctx.fill();
+
+                                // Expressive Lips & Mouth Cavity (Benchmarks 9 & 10)
+                                const pML = proj[9], pMR = proj[10];
+                                const mMidX = (pML.sx + pMR.sx) * 0.5;
+                                const mMidY = (pML.sy + pMR.sy) * 0.5;
+                                const openGap = (0.005 + (facialState.mouthOpen || 0.12) * 0.022) * (headRy / 0.12);
+
+                                ctx.beginPath();
+                                ctx.moveTo(pML.sx, pML.sy);
+                                ctx.quadraticCurveTo(mMidX, mMidY - openGap, pMR.sx, pMR.sy);
+                                ctx.quadraticCurveTo(mMidX, mMidY + openGap * 1.35, pML.sx, pML.sy);
+                                ctx.closePath();
+                                ctx.fillStyle = "#3b0d11";
+                                ctx.fill();
+                                ctx.strokeStyle = palette.lip;
+                                ctx.lineWidth = Math.max(2.2, headRx * 0.09);
+                                ctx.stroke();
+
+                                ctx.restore();
+                            }
+                        });
+
+                        // Limbs & Finger Phalanges
+                        skinLimbCapsules.forEach(mesh => {
+                            const { a, b, rTop, rBot, matType } = mesh.userData;
+                            const pa = proj[a], pb = proj[b];
+                            if (pa.ndcZ >= 1 || pb.ndcZ >= 1) return;
+                            const ra = estimateScreenRadius(p[a], rTop, cam);
+                            const rb = estimateScreenRadius(p[b], rBot, cam);
+                            const fillPal = matType === "suit" ? palette.suit : palette.skin;
+                            drawQueue.push({
+                                depth: (pa.ndcZ + pb.ndcZ) * 0.5,
+                                draw: () => drawTaperedCapsule2D(pa.sx, pa.sy, ra, pb.sx, pb.sy, rb, fillPal, fillPal.stroke, palette.alpha)
+                            });
+                        });
+
+                        // Volumetric Palms (Left 33 & Right 54)
+                        [33, 54].forEach(offset => {
+                            const pIndices = [0, 1, 2, 5, 9, 13, 17].map(k => offset + k);
+                            const avgZ = pIndices.reduce((acc, idx) => acc + proj[idx].ndcZ, 0) / pIndices.length;
+                            drawQueue.push({
+                                depth: avgZ + 0.001,
+                                draw: () => {
+                                    ctx.save();
+                                    ctx.globalAlpha = palette.alpha;
+                                    ctx.beginPath();
+                                    pIndices.forEach((idx, i) => {
+                                        if (i === 0) ctx.moveTo(proj[idx].sx, proj[idx].sy);
+                                        else ctx.lineTo(proj[idx].sx, proj[idx].sy);
+                                    });
+                                    ctx.closePath();
+                                    ctx.fillStyle = palette.skin.mid;
+                                    ctx.fill();
+                                    ctx.strokeStyle = palette.skin.stroke;
+                                    ctx.lineWidth = 1.2;
+                                    ctx.stroke();
+                                    ctx.restore();
+                                }
+                            });
+                        });
+                    }
+
+                    // 3. Queue Skeletal Bones if visible
+                    if (layerVisibility.bones) {
+                        BONE_CONNECTIONS.forEach(([a, b]) => {
+                            const pa = proj[a], pb = proj[b];
+                            if (pa.ndcZ >= 1 || pb.ndcZ >= 1) return;
+                            let stroke = "rgba(56, 189, 248, 0.78)";
+                            let lw = 2.6;
+                            if (a >= 33 && b >= 33 && a < 54 && b < 54) {
+                                stroke = "rgba(52, 211, 153, 0.82)";
+                                lw = 2.0;
+                            } else if (a >= 54 && b >= 54) {
+                                stroke = "rgba(251, 191, 36, 0.82)";
+                                lw = 2.0;
+                            }
+                            drawQueue.push({
+                                depth: (pa.ndcZ + pb.ndcZ) * 0.5 - 0.002,
+                                draw: () => {
+                                    ctx.beginPath();
+                                    ctx.moveTo(pa.sx, pa.sy);
+                                    ctx.lineTo(pb.sx, pb.sy);
+                                    ctx.strokeStyle = stroke;
+                                    ctx.lineWidth = lw;
+                                    ctx.lineCap = "round";
+                                    ctx.stroke();
+                                }
+                            });
+                        });
+                    }
+
+                    // 4. Queue 75 Interactive Benchmark Spheres if visible
+                    if (layerVisibility.points) {
+                        for (let i = 0; i < 75; i++) {
+                            const pt = proj[i];
+                            if (pt.ndcZ >= 1) continue;
+                            const meta = BENCHMARK_METADATA[i];
+                            const r = Math.max(2.6, estimateScreenRadius(p[i], meta.radius * benchmarkNodeScale, cam));
+                            drawQueue.push({
+                                depth: pt.ndcZ - 0.004,
+                                draw: () => {
+                                    ctx.beginPath();
+                                    ctx.arc(pt.sx, pt.sy, r, 0, Math.PI * 2);
+                                    if (meta.group === "POSE") ctx.fillStyle = "#38bdf8";
+                                    else if (meta.group === "LEFT_HAND") ctx.fillStyle = "#34d399";
+                                    else ctx.fillStyle = "#fbbf24";
+                                    ctx.fill();
+                                    ctx.strokeStyle = "#090d16";
+                                    ctx.lineWidth = 1.1;
+                                    ctx.stroke();
+
+                                    if (i === selectedIndex) {
+                                        ctx.beginPath();
+                                        ctx.arc(pt.sx, pt.sy, r + 4.5, 0, Math.PI * 2);
+                                        ctx.strokeStyle = "#ffffff";
+                                        ctx.lineWidth = 2;
+                                        ctx.stroke();
+                                    }
+                                }
+                            });
+                        }
+                    }
+
+                    // Painter's Algorithm Sort (Back-to-Front: largest ndcZ drawn first)
+                    drawQueue.sort((a, b) => b.depth - a.depth);
+                    drawQueue.forEach(item => item.draw());
+
+                    // 5. Draw 3D Interactive X/Y/Z Transform Gizmo on Selected Benchmark
+                    if (layerVisibility.points && p[selectedIndex]) {
+                        const selW = p[selectedIndex];
+                        const pOrigin = proj[selectedIndex];
+                        const axisLen = 0.11;
+                        const axes = [
+                            { axis: 'x', end: projectPoint(selW.x + axisLen, selW.y, selW.z, cam), color: "#f43f5e", label: "X" },
+                            { axis: 'y', end: projectPoint(selW.x, selW.y + axisLen, selW.z, cam), color: "#10b981", label: "Y" },
+                            { axis: 'z', end: projectPoint(selW.x, selW.y, selW.z + axisLen, cam), color: "#3b82f6", label: "Z" }
+                        ];
+                        axes.forEach(ax => {
+                            ctx.beginPath();
+                            ctx.moveTo(pOrigin.sx, pOrigin.sy);
+                            ctx.lineTo(ax.end.sx, ax.end.sy);
+                            ctx.strokeStyle = ax.color;
+                            ctx.lineWidth = 2.8;
+                            ctx.stroke();
+
+                            ctx.beginPath();
+                            ctx.arc(ax.end.sx, ax.end.sy, 5.5, 0, Math.PI * 2);
+                            ctx.fillStyle = ax.color;
+                            ctx.fill();
+                            ctx.strokeStyle = "#ffffff";
+                            ctx.lineWidth = 1;
+                            ctx.stroke();
+                        });
+                    }
+
+                    ctx.restore();
+                }
+            };
+        }
+
+        function initThreeScene() {
+            const container = document.getElementById("canvasContainer");
+            const width = container.clientWidth || 800;
+            const height = container.clientHeight || 600;
+
+            scene = new THREE.Scene();
+
+            camera = new THREE.PerspectiveCamera(40, width / height, 0.05, 50);
+            camera.position.set(0, 0.32, 1.80);
+
+            renderer = createResilientRenderer(width, height);
+            container.appendChild(renderer.domElement);
+
+            // Update Renderer Status Badge
+            const modeText = document.getElementById("rendererModeText");
+            const modeDot = document.getElementById("rendererDot");
+            if (modeText && modeDot) {
+                if (isSoftwareRenderer) {
+                    modeText.textContent = "3D Canvas Projection Engine (WebGL-Free)";
+                    modeDot.className = "w-2 h-2 rounded-full bg-indigo-500";
+                } else {
+                    modeText.textContent = "WebGL 3D Hardware Accelerated";
+                    modeDot.className = "w-2 h-2 rounded-full bg-emerald-500";
+                }
+            }
+
+            // Three-Point Cinematic Studio Lighting for Sculpted Face & Finger Definition
+            const ambientLight = new THREE.HemisphereLight(0xffffff, 0xe0e7ff, 0.95);
+            scene.add(ambientLight);
+
+            // Warm Key Light (Front-Right)
+            const keyLight = new THREE.DirectionalLight(0xfffbf5, 1.15);
+            keyLight.position.set(1.8, 2.6, 2.8);
+            scene.add(keyLight);
+
+            // Soft Cool Fill Light (Front-Left)
+            const fillLight = new THREE.DirectionalLight(0xe0e7ff, 0.70);
+            fillLight.position.set(-2.2, 1.4, 2.0);
+            scene.add(fillLight);
+
+            // Crisp Violet/Indigo Back Rim Light (Separates shoulders, hair & fingers from background)
+            const backRimLight = new THREE.DirectionalLight(0x818cf8, 0.65);
+            backRimLight.position.set(0.0, 2.2, -2.5);
+            scene.add(backRimLight);
+
+            // Subtle Warm Under-Fill for Chin & Palm Contours
+            const bounceLight = new THREE.PointLight(0xfef08a, 0.25, 4);
+            bounceLight.position.set(0, -0.4, 1.2);
+            scene.add(bounceLight);
+
+            // Studio Floor Grid (Soft Indigo Center Axis & Slate-200 Floor Grid)
+            const gridHelper = new THREE.GridHelper(3.2, 32, 0xa5b4fc, 0xe2e8f0);
+            gridHelper.position.y = -0.95;
+            scene.add(gridHelper);
+
+            // OrbitControls - Center Avatar in Viewport
+            orbitControls = new THREE.OrbitControls(camera, renderer.domElement);
+            orbitControls.target.set(0, 0.25, 0.0);
+            orbitControls.enableDamping = true;
+            orbitControls.dampingFactor = 0.08;
+            orbitControls.maxDistance = 5;
+            orbitControls.minDistance = 0.30;
+
+            // TransformControls (3D Gizmo for moving any of the 75 spheres)
+            transformControl = new THREE.TransformControls(camera, renderer.domElement);
+            transformControl.setSize(0.72);
+            transformControl.addEventListener('dragging-changed', (event) => {
+                orbitControls.enabled = !event.value;
+            });
+
+            let lastGizmoPosition = new THREE.Vector3();
+            transformControl.addEventListener('mouseDown', () => {
+                if (transformControl.object) {
+                    lastGizmoPosition.copy(transformControl.object.position);
+                }
+            });
+
+            transformControl.addEventListener('objectChange', () => {
+                if (!transformControl.object) return;
+                const idx = transformControl.object.userData.benchmarkIndex;
+                const newPos = transformControl.object.position;
+                const dx = newPos.x - lastGizmoPosition.x;
+                const dy = newPos.y - lastGizmoPosition.y;
+                const dz = newPos.z - lastGizmoPosition.z;
+
+                // Update primary benchmark
+                currentLandmarks[idx].x = newPos.x;
+                currentLandmarks[idx].y = newPos.y;
+                currentLandmarks[idx].z = newPos.z;
+
+                // If Hierarchical Mode is active, translate attached child benchmarks
+                if (hierarchicalMode) {
+                    const children = getChildIndices(idx);
+                    children.forEach(cIdx => {
+                        currentLandmarks[cIdx].x += dx;
+                        currentLandmarks[cIdx].y += dy;
+                        currentLandmarks[cIdx].z += dz;
+                    });
+                }
+
+                // Keep Pose Wrist (15/16) and Hand Wrist (33/54) coupled
+                if (idx === 15) { currentLandmarks[33] = { ...currentLandmarks[15] }; }
+                if (idx === 33) { currentLandmarks[15] = { ...currentLandmarks[33] }; }
+                if (idx === 16) { currentLandmarks[54] = { ...currentLandmarks[16] }; }
+                if (idx === 54) { currentLandmarks[16] = { ...currentLandmarks[54] }; }
+
+                lastGizmoPosition.copy(newPos);
+                sync3DSceneToLandmarks();
+                updateInspectorUI();
+            });
+            scene.add(transformControl);
+
+            // 1. Create the 75 Interactive Benchmark Spheres
+            const labelsOverlay = document.getElementById("labelsOverlay");
+            for (let i = 0; i < 75; i++) {
+                const meta = BENCHMARK_METADATA[i];
+                const geom = new THREE.SphereGeometry(meta.radius, 20, 20);
+                const mat = new THREE.MeshStandardMaterial({
+                    color: meta.colorHex,
+                    roughness: 0.2,
+                    metalness: 0.15,
+                    emissive: meta.colorHex,
+                    emissiveIntensity: 0.35
+                });
+                const mesh = new THREE.Mesh(geom, mat);
+                mesh.scale.setScalar(benchmarkNodeScale);
+                mesh.visible = layerVisibility.points;
+                mesh.userData = { benchmarkIndex: i, name: meta.name, group: meta.group };
+                scene.add(mesh);
+                landmarkMeshes.push(mesh);
+
+                // Create 2D floating label
+                const lbl = document.createElement("div");
+                lbl.className = "absolute px-1 py-0.2 rounded text-[9px] mono font-bold bg-white/95 text-slate-800 border border-slate-300 shadow-sm -translate-x-1/2 -translate-y-full pointer-events-none";
+                lbl.textContent = i;
+                labelsOverlay.appendChild(lbl);
+                labelElements.push(lbl);
+            }
+
+            // Selection Halo Ring
+            const ringGeom = new THREE.RingGeometry(0.024, 0.031, 32);
+            const ringMat = new THREE.MeshBasicMaterial({ color: 0x6366f1, side: THREE.DoubleSide });
+            selectionRingMesh = new THREE.Mesh(ringGeom, ringMat);
+            selectionRingMesh.visible = layerVisibility.points;
+            scene.add(selectionRingMesh);
+
+            // 2. Create Cylindrical Bones Connecting the 75 Benchmarks
+            const unitCylGeom = new THREE.CylinderGeometry(1, 1, 1, 10);
+            BONE_CONNECTIONS.forEach(([a, b]) => {
+                let boneColor = 0x818cf8;
+                let radius = 0.0055;
+                if (a >= 33 && b >= 33 && a < 54 && b < 54) {
+                    boneColor = 0x10b981;
+                    radius = 0.0038;
+                } else if (a >= 54 && b >= 54) {
+                    boneColor = 0xa78bfa;
+                    radius = 0.0038;
+                }
+                const mat = new THREE.MeshStandardMaterial({
+                    color: boneColor,
+                    roughness: 0.35,
+                    metalness: 0.25,
+                    transparent: true,
+                    opacity: 0.70
+                });
+                const cyl = new THREE.Mesh(unitCylGeom, mat);
+                cyl.visible = layerVisibility.bones;
+                cyl.userData = { a, b, radius };
+                scene.add(cyl);
+                boneMeshes.push(cyl);
+            });
+
+            // 3. Create High-Detail Anatomically Sculpted 3D Character (Face, Trunk, Arms & Hands)
+            buildVolumetricSkinMeshes();
+
+            // Raycasting & Direct 2D/3D Benchmark Dragging (works in both WebGL and Software Renderer)
+            const raycaster = new THREE.Raycaster();
+            const mouse = new THREE.Vector2();
+            let pointerDownPos = { x: 0, y: 0 };
+            let softwareDragState = null;
+
+            renderer.domElement.addEventListener('pointerdown', (e) => {
+                pointerDownPos = { x: e.clientX, y: e.clientY };
+
+                if (isSoftwareRenderer && layerVisibility.points) {
+                    const rect = renderer.domElement.getBoundingClientRect();
+                    const mx = e.clientX - rect.left;
+                    const my = e.clientY - rect.top;
+
+                    // Check if user grabbed the selected benchmark or its X/Y/Z gizmo handles in software mode
+                    const selPt = currentLandmarks[selectedIndex];
+                    const projPoint = (wx, wy, wz) => {
+                        const v = new THREE.Vector3(wx, wy, wz).project(camera);
+                        return { sx: (v.x * 0.5 + 0.5) * rect.width, sy: (-(v.y * 0.5) + 0.5) * rect.height };
+                    };
+                    const axisLen = 0.11;
+                    const gizmoHandles = [
+                        { axis: 'x', p: projPoint(selPt.x + axisLen, selPt.y, selPt.z) },
+                        { axis: 'y', p: projPoint(selPt.x, selPt.y + axisLen, selPt.z) },
+                        { axis: 'z', p: projPoint(selPt.x, selPt.y, selPt.z + axisLen) }
+                    ];
+                    for (const h of gizmoHandles) {
+                        if (Math.hypot(mx - h.p.sx, my - h.p.sy) < 12) {
+                            softwareDragState = { axis: h.axis, lastX: e.clientX, lastY: e.clientY };
+                            orbitControls.enabled = false;
+                            return;
+                        }
+                    }
+                }
+            });
+
+            window.addEventListener('pointermove', (e) => {
+                if (!softwareDragState) return;
+                const dxPx = e.clientX - softwareDragState.lastX;
+                const dyPx = e.clientY - softwareDragState.lastY;
+                softwareDragState.lastX = e.clientX;
+                softwareDragState.lastY = e.clientY;
+
+                const scale = 0.0022;
+                let delta = 0;
+                if (softwareDragState.axis === 'x') delta = dxPx * scale;
+                else if (softwareDragState.axis === 'y') delta = -dyPx * scale;
+                else if (softwareDragState.axis === 'z') delta = (dxPx - dyPx) * scale;
+
+                const nextVal = currentLandmarks[selectedIndex][softwareDragState.axis] + delta;
+                onCoordSliderChange(softwareDragState.axis, nextVal);
+            });
+
+            window.addEventListener('pointerup', () => {
+                if (softwareDragState) {
+                    softwareDragState = null;
+                    orbitControls.enabled = true;
+                }
+            });
+
+            renderer.domElement.addEventListener('pointerup', (e) => {
+                const moveDist = Math.hypot(e.clientX - pointerDownPos.x, e.clientY - pointerDownPos.y);
+                if (moveDist > 5) return; // Ignore camera orbit drags
+
+                const rect = renderer.domElement.getBoundingClientRect();
+                mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+                mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+
+                camera.updateMatrixWorld();
+                scene.updateMatrixWorld();
+                raycaster.setFromCamera(mouse, camera);
+                const intersects = raycaster.intersectObjects(landmarkMeshes);
+                if (intersects.length > 0) {
+                    const hitIdx = intersects[0].object.userData.benchmarkIndex;
+                    selectBenchmark(hitIdx);
+                }
+            });
+
+            window.addEventListener('resize', onWindowResize);
+
+            // Sync Initial Positions & Prepare Benchmark Inspector
+            sync3DSceneToLandmarks();
+            selectedIndex = 16;
+            updateInspectorUI();
+        }
+
+        /***********************************************************************
+         * 8. ANATOMICALLY SCULPTED 3D HEAD, EXPRESSIVE FACE, TORSO & HANDS
+         *    Driven dynamically by all 75 benchmarks so the facial expressions,
+         *    collarbones, torso, elbows, palms, fingers & fingernails respond live.
+         ***********************************************************************/
+        function buildSculptedCraniumGeometry() {
+            const geom = new THREE.SphereGeometry(0.105, 36, 32);
+            const pos = geom.attributes.position;
+            const v = new THREE.Vector3();
+
+            for (let i = 0; i < pos.count; i++) {
+                v.fromBufferAttribute(pos, i);
+                const ny = v.y / 0.105;
+                const nz = v.z / 0.105;
+                const nx = v.x / 0.105;
+
+                // Elongate vertical head height
+                v.y *= 1.24;
+
+                // Taper temples & cheekbones into a sculpted jawline and chin
+                if (ny < 0.0) {
+                    const jawFactor = Math.min(1, Math.abs(ny));
+                    v.x *= (1.0 - 0.34 * Math.pow(jawFactor, 1.35));
+                    // Pull chin forward slightly and flatten under-jaw
+                    if (nz > 0) {
+                        v.z *= (1.0 - 0.10 * jawFactor);
+                        if (ny < -0.65 && Math.abs(nx) < 0.38) {
+                            v.z += 0.012 * (1 - Math.abs(nx) / 0.38); // Chin prominence
+                        }
+                    } else {
+                        // Flatten back of lower skull into neck
+                        v.z *= (1.0 - 0.35 * jawFactor);
+                    }
+                } else {
+                    // Upper cranium volume & slightly flattened sides (temples)
+                    v.x *= 0.94;
+                    v.z *= 1.04;
+                }
+
+                // Carve subtle eye sockets on the front face
+                if (nz > 0.45 && ny > 0.02 && ny < 0.38 && Math.abs(nx) > 0.14 && Math.abs(nx) < 0.62) {
+                    const eyeDist = Math.hypot(Math.abs(nx) - 0.36, ny - 0.18);
+                    if (eyeDist < 0.24) {
+                        v.z -= (0.24 - eyeDist) * 0.042;
+                    }
+                }
+
+                // Subtle brow ridge projection above eye sockets
+                if (nz > 0.55 && ny >= 0.28 && ny <= 0.46 && Math.abs(nx) < 0.65) {
+                    v.z += 0.008 * Math.cos((ny - 0.37) * Math.PI / 0.18);
+                }
+
+                // Cheekbone malar contour
+                if (nz > 0.2 && ny > -0.22 && ny < 0.08 && Math.abs(nx) > 0.38) {
+                    v.x *= 1.04;
+                    v.z += 0.006;
+                }
+
+                pos.setXYZ(i, v.x, v.y, v.z);
+            }
+            geom.computeVertexNormals();
+            return geom;
+        }
+
+        function buildGroomedHairGeometry() {
+            const geom = new THREE.SphereGeometry(0.109, 32, 24);
+            const pos = geom.attributes.position;
+            const v = new THREE.Vector3();
+
+            for (let i = 0; i < pos.count; i++) {
+                v.fromBufferAttribute(pos, i);
+                const ny = v.y / 0.109;
+                const nz = v.z / 0.109;
+                const nx = v.x / 0.109;
+
+                v.y *= 1.25;
+                // Keep hair only on top, crown, sides, and back of head; open up the face
+                if (nz > 0.18 && ny < 0.52) {
+                    // Pull front hairline up above forehead
+                    if (Math.abs(nx) < 0.72) {
+                        v.y = Math.max(v.y, 0.058 + 0.015 * Math.cos(nx * 2.5));
+                        v.z *= 0.92;
+                    }
+                }
+                if (ny < -0.25 && nz > -0.2) {
+                    v.y = -0.025;
+                    v.x *= 0.7;
+                }
+                // Add subtle sculpted wave volume on top crown
+                if (ny > 0.45) {
+                    v.y += 0.012 + 0.004 * Math.sin(nx * 10);
+                    v.z += 0.006;
+                }
+                pos.setXYZ(i, v.x, v.y, v.z);
+            }
+            geom.computeVertexNormals();
+            return geom;
+        }
+
+        function createDetailedEyeAssembly() {
+            const eyeGroup = new THREE.Group();
+
+            // Sclera (White Eyeball)
+            const scleraMat = new THREE.MeshPhysicalMaterial({
+                color: 0xf8fafc,
+                roughness: 0.12,
+                clearcoat: 1.0,
+                clearcoatRoughness: 0.05
+            });
+            const sclera = new THREE.Mesh(new THREE.SphereGeometry(0.0145, 20, 20), scleraMat);
+            eyeGroup.add(sclera);
+
+            // Colored Iris Disc
+            const irisMat = new THREE.MeshStandardMaterial({
+                color: 0x0284c7,
+                roughness: 0.25,
+                metalness: 0.1
+            });
+            const iris = new THREE.Mesh(new THREE.CircleGeometry(0.0072, 20), irisMat);
+            iris.position.z = 0.0138;
+            eyeGroup.add(iris);
+
+            // Dark Pupil
+            const pupilMat = new THREE.MeshBasicMaterial({ color: 0x020617 });
+            const pupil = new THREE.Mesh(new THREE.CircleGeometry(0.0036, 16), pupilMat);
+            pupil.position.z = 0.0142;
+            eyeGroup.add(pupil);
+
+            // Corneal Specular Catchlight Dot
+            const glintMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+            const glint = new THREE.Mesh(new THREE.CircleGeometry(0.0014, 10), glintMat);
+            glint.position.set(0.0022, 0.0024, 0.0145);
+            eyeGroup.add(glint);
+
+            // Upper Eyelid Fold
+            const upperLidGeom = new THREE.SphereGeometry(0.0156, 18, 12, 0, Math.PI * 2, 0, Math.PI * 0.42);
+            const upperLid = new THREE.Mesh(upperLidGeom, skinMaterial);
+            upperLid.rotation.x = -Math.PI * 0.18;
+            upperLid.scale.set(1.08, 1.0, 1.05);
+            eyeGroup.add(upperLid);
+
+            // Lower Eyelid Rim
+            const lowerLidGeom = new THREE.SphereGeometry(0.0153, 18, 10, 0, Math.PI * 2, Math.PI * 0.68, Math.PI * 0.32);
+            const lowerLid = new THREE.Mesh(lowerLidGeom, skinMaterial);
+            lowerLid.rotation.x = Math.PI * 0.12;
+            eyeGroup.add(lowerLid);
+
+            return eyeGroup;
+        }
+
+        function buildVolumetricSkinMeshes() {
+            avatarSkinGroup = new THREE.Group();
+            scene.add(avatarSkinGroup);
+
+            // PBR Subsurface-like Warm Skin Material
+            skinMaterial = new THREE.MeshPhysicalMaterial({
+                color: 0xdeb89e,
+                roughness: 0.38,
+                metalness: 0.02,
+                clearcoat: 0.20,
+                clearcoatRoughness: 0.30,
+                reflectivity: 0.50,
+                side: THREE.DoubleSide
+            });
+
+            // Indigo Athletic Shorts/Briefs Material (matching SignSpeak app)
+            suitMaterial = new THREE.MeshStandardMaterial({
+                color: 0x4338ca,
+                roughness: 0.75,
+                metalness: 0.10,
+                side: THREE.DoubleSide
+            });
+
+            // Groomed Dark Espresso Hair Material
+            hairMaterial = new THREE.MeshPhysicalMaterial({
+                color: 0x1e1b18,
+                roughness: 0.45,
+                metalness: 0.08,
+                clearcoat: 0.22
+            });
+
+            // Sculpted Natural Lip Material
+            lipMaterial = new THREE.MeshPhysicalMaterial({
+                color: 0xc97a76,
+                roughness: 0.28,
+                metalness: 0.02,
+                clearcoat: 0.45
+            });
+
+            // Eyebrow Material
+            browMaterial = new THREE.MeshStandardMaterial({
+                color: 0x27221e,
+                roughness: 0.55
+            });
+
+            // Subtle Keratin Fingernail Material
+            nailMaterial = new THREE.MeshPhysicalMaterial({
+                color: 0xf5d6c6,
+                roughness: 0.18,
+                clearcoat: 0.85
+            });
+
+            // --- 1. SCULPTED HEAD & CRANIUM GROUP ---
+            headGroup = new THREE.Group();
+            avatarSkinGroup.add(headGroup);
+
+            craniumMesh = new THREE.Mesh(buildSculptedCraniumGeometry(), skinMaterial);
+            headGroup.add(craniumMesh);
+
+            hairCapMesh = new THREE.Mesh(buildGroomedHairGeometry(), hairMaterial);
+            headGroup.add(hairCapMesh);
+
+            // Articulated Lower Jaw / Chin Cup for dynamic mouth opening
+            const jawGeom = new THREE.SphereGeometry(0.056, 24, 18);
+            jawGeom.scale(0.95, 0.72, 1.05);
+            jawChinMesh = new THREE.Mesh(jawGeom, skinMaterial);
+            jawChinMesh.position.set(0, -0.072, 0.036);
+            headGroup.add(jawChinMesh);
+
+            // --- 2. EXPRESSIVE FACIAL FEATURES (DRIVEN BY BENCHMARKS 0–10) ---
+            leftEyeGroup = createDetailedEyeAssembly();
+            rightEyeGroup = createDetailedEyeAssembly();
+            avatarSkinGroup.add(leftEyeGroup, rightEyeGroup);
+
+            // Sculpted Eyebrows (Arched tapered capsules above eyes)
+            const browGeom = new THREE.CylinderGeometry(0.0042, 0.0062, 0.044, 12);
+            browGeom.rotateZ(Math.PI * 0.5);
+            leftBrowMesh = new THREE.Mesh(browGeom, browMaterial);
+            rightBrowMesh = new THREE.Mesh(browGeom, browMaterial);
+            avatarSkinGroup.add(leftBrowMesh, rightBrowMesh);
+
+            // Sculpted 3D Nose (Bridge + Rounded Tip at Benchmark 0 + Nostril Wings)
+            noseBridgeMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.0085, 0.0135, 0.046, 16), skinMaterial);
+            noseTipMesh = new THREE.Mesh(new THREE.SphereGeometry(0.0135, 18, 18), skinMaterial);
+            noseTipMesh.scale.set(1.05, 0.88, 1.15);
+
+            const nostrilGeom = new THREE.SphereGeometry(0.0085, 14, 14);
+            nostrilGeom.scale(1.15, 0.75, 1.0);
+            leftNostrilMesh = new THREE.Mesh(nostrilGeom, skinMaterial);
+            rightNostrilMesh = new THREE.Mesh(nostrilGeom, skinMaterial);
+            avatarSkinGroup.add(noseBridgeMesh, noseTipMesh, leftNostrilMesh, rightNostrilMesh);
+
+            // Sculpted 3D Lips & Inner Mouth Cavity (Driven by Benchmarks 9 & 10)
+            upperLipMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.0065, 0.0065, 1, 16), lipMaterial);
+            lowerLipMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.0075, 0.0075, 1, 16), lipMaterial);
+            mouthCavityMesh = new THREE.Mesh(
+                new THREE.SphereGeometry(0.022, 16, 12),
+                new THREE.MeshBasicMaterial({ color: 0x3b0d11 })
+            );
+            avatarSkinGroup.add(upperLipMesh, lowerLipMesh, mouthCavityMesh);
+
+            // Sculpted 3D Ears with Helix & Lobe (Anchored to Benchmarks 7 & 8)
+            const earGeom = new THREE.SphereGeometry(0.022, 16, 16);
+            earGeom.scale(0.38, 1.35, 0.78);
+            leftEarMesh = new THREE.Mesh(earGeom, skinMaterial);
+            rightEarMesh = new THREE.Mesh(earGeom, skinMaterial);
+            avatarSkinGroup.add(leftEarMesh, rightEarMesh);
+
+            // --- 3. NECK COLUMN, TRAPEZIUS & COLLARBONES (CLAVICLES) ---
+            neckMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.050, 0.060, 1, 24), skinMaterial);
+            trapCollarMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.065, 0.115, 0.055, 24), skinMaterial);
+            avatarSkinGroup.add(neckMesh, trapCollarMesh);
+
+            const clavGeom = new THREE.CylinderGeometry(0.013, 0.015, 1, 14);
+            leftClavicleMesh = new THREE.Mesh(clavGeom, skinMaterial);
+            rightClavicleMesh = new THREE.Mesh(clavGeom, skinMaterial);
+            avatarSkinGroup.add(leftClavicleMesh, rightClavicleMesh);
+
+            // Rounded Deltoid Shoulder Caps (at Landmarks 11 & 12)
+            const deltoidGeom = new THREE.SphereGeometry(0.060, 22, 22);
+            deltoidGeom.scale(1.05, 1.12, 0.96);
+            leftDeltoidMesh = new THREE.Mesh(deltoidGeom, skinMaterial);
+            rightDeltoidMesh = new THREE.Mesh(deltoidGeom, skinMaterial);
+            avatarSkinGroup.add(leftDeltoidMesh, rightDeltoidMesh);
+
+            // --- 4. MULTI-RING LOFTED ANATOMICAL TORSO & PELVIS (UNDERWEAR) ---
+            torsoMesh = new THREE.Mesh(new THREE.BufferGeometry(), skinMaterial);
+            pelvisMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.155, 0.145, 0.14, 24), suitMaterial);
+            pelvisMesh.scale.set(1.1, 1.0, 0.72);
+            avatarSkinGroup.add(torsoMesh, pelvisMesh);
+
+            // --- 5. MUSCULAR TAPERED ARMS, FOREARMS & FINGER PHALANGES ---
+            const limbPairs = [
+                // Upper Arms (Deltoid/Bicep/Tricep taper into Elbow 13/14) - Bare Skin
+                { a: 11, b: 13, rTop: 0.052, rBot: 0.041, matType: 'skin' },
+                { a: 12, b: 14, rTop: 0.052, rBot: 0.041, matType: 'skin' },
+                // Bare Skin Forearms (Elbow 13/14 tapering into Wrist 15/16)
+                { a: 13, b: 15, rTop: 0.040, rBot: 0.028, matType: 'skin' },
+                { a: 14, b: 16, rTop: 0.040, rBot: 0.028, matType: 'skin' },
+                // Lower Body Thighs & Calves - Bare Skin
+                { a: 23, b: 25, rTop: 0.072, rBot: 0.052, matType: 'skin' },
+                { a: 24, b: 26, rTop: 0.072, rBot: 0.052, matType: 'skin' },
+                { a: 25, b: 27, rTop: 0.050, rBot: 0.034, matType: 'skin' },
+                { a: 26, b: 28, rTop: 0.050, rBot: 0.034, matType: 'skin' }
+            ];
+
+            // Add Volumetric Finger Phalanges for Left (33..53) and Right (54..74)
+            [33, 54].forEach(offset => {
+                const fChains = [
+                    [1,2, 0.0130, 0.0110], [2,3, 0.0110, 0.0095], [3,4, 0.0095, 0.0078],
+                    [5,6, 0.0115, 0.0098], [6,7, 0.0098, 0.0084], [7,8, 0.0084, 0.0068],
+                    [9,10, 0.0120, 0.0102], [10,11, 0.0102, 0.0086], [11,12, 0.0086, 0.0070],
+                    [13,14, 0.0112, 0.0094], [14,15, 0.0094, 0.0080], [15,16, 0.0080, 0.0065],
+                    [17,18, 0.0098, 0.0082], [18,19, 0.0082, 0.0070], [19,20, 0.0070, 0.0056]
+                ];
+                fChains.forEach(([ja, jb, rt, rb]) => {
+                    limbPairs.push({ a: offset + ja, b: offset + jb, rTop: rt, rBot: rb, matType: 'skin' });
+                });
+            });
+
+            limbPairs.forEach(spec => {
+                const geom = new THREE.CylinderGeometry(spec.rTop, spec.rBot, 1, 16);
+                const mat = spec.matType === 'suit' ? suitMaterial : skinMaterial;
+                const mesh = new THREE.Mesh(geom, mat);
+                mesh.userData = spec;
+                avatarSkinGroup.add(mesh);
+                skinLimbCapsules.push(mesh);
+            });
+
+            // Smooth Organic Joint & Knuckle Spheres (Elbows, Wrists, Finger Knuckles & Rounded Fingertips)
+            const jointIndices = [
+                { idx: 13, r: 0.040, mat: skinMaterial },
+                { idx: 14, r: 0.040, mat: skinMaterial },
+                { idx: 15, r: 0.029, mat: skinMaterial },
+                { idx: 16, r: 0.029, mat: skinMaterial },
+                { idx: 25, r: 0.051, mat: skinMaterial },
+                { idx: 26, r: 0.051, mat: skinMaterial }
+            ];
+            [33, 54].forEach(offset => {
+                const radii = [
+                    0.022,
+                    0.013, 0.011, 0.0095, 0.0078,
+                    0.012, 0.0098, 0.0084, 0.0068,
+                    0.0125, 0.0102, 0.0086, 0.0070,
+                    0.0115, 0.0094, 0.0080, 0.0065,
+                    0.010, 0.0082, 0.0070, 0.0056
+                ];
+                for (let j = 1; j <= 20; j++) {
+                    jointIndices.push({ idx: offset + j, r: radii[j], mat: skinMaterial });
+                }
+            });
+            jointIndices.forEach(js => {
+                const sp = new THREE.Mesh(new THREE.SphereGeometry(js.r, 14, 14), js.mat);
+                sp.userData = js;
+                avatarSkinGroup.add(sp);
+                jointKnuckleSpheres.push(sp);
+            });
+
+            // 3D Fingernails on all 10 Distal Fingertips (Indices 4, 8, 12, 16, 20 on Left & Right Hands)
+            const nailGeom = new THREE.SphereGeometry(0.0055, 12, 10);
+            nailGeom.scale(1.1, 1.35, 0.28);
+            [33, 54].forEach(offset => {
+                [4, 8, 12, 16, 20].forEach(tipLocal => {
+                    const nail = new THREE.Mesh(nailGeom, nailMaterial);
+                    nail.userData = {
+                        dipIdx: offset + tipLocal - 1,
+                        tipIdx: offset + tipLocal,
+                        wristIdx: offset,
+                        isLeft: offset === 33
+                    };
+                    avatarSkinGroup.add(nail);
+                    fingernailMeshes.push(nail);
+                });
+            });
+
+            // Volumetric 3D Sculpted Palms (Dorsal + Palmar Thickness & Thumb Thenar Web)
+            leftPalmMesh = new THREE.Mesh(new THREE.BufferGeometry(), skinMaterial);
+            rightPalmMesh = new THREE.Mesh(new THREE.BufferGeometry(), skinMaterial);
+            avatarSkinGroup.add(leftPalmMesh, rightPalmMesh);
+        }
+
+        function updateVolumetricSkinMeshes() {
+            const p = currentLandmarks;
+            const v = (idx) => new THREE.Vector3(p[idx].x, p[idx].y, p[idx].z);
+
+            // --- 1. HEAD & CRANIUM ORIENTATION FROM FACE BENCHMARKS (0..10) ---
+            const nose = v(0);
+            const earL = v(7);
+            const earR = v(8);
+            const eyeL = v(2);
+            const eyeR = v(5);
+            const mouthL = v(9);
+            const mouthR = v(10);
+
+            const earMid = new THREE.Vector3().addVectors(earL, earR).multiplyScalar(0.5);
+            const eyeMid = new THREE.Vector3().addVectors(eyeL, eyeR).multiplyScalar(0.5);
+            const mouthMid = new THREE.Vector3().addVectors(mouthL, mouthR).multiplyScalar(0.5);
+
+            // Compute head coordinate basis from anatomical landmarks
+            const rightAxis = new THREE.Vector3().subVectors(earL, earR).normalize();
+            const faceUpRough = new THREE.Vector3().subVectors(eyeMid, mouthMid).normalize();
+            const forwardAxis = new THREE.Vector3().subVectors(nose, earMid).normalize();
+            const upAxis = new THREE.Vector3().crossVectors(forwardAxis, rightAxis).normalize();
+            if (upAxis.dot(faceUpRough) < 0) upAxis.negate();
+            const orthoForward = new THREE.Vector3().crossVectors(rightAxis, upAxis).normalize();
+
+            const headRotMat = new THREE.Matrix4().makeBasis(rightAxis, upAxis, orthoForward);
+            const headQuat = new THREE.Quaternion().setFromRotationMatrix(headRotMat);
+
+            const headCenter = earMid.clone()
+                .addScaledVector(orthoForward, 0.018)
+                .addScaledVector(upAxis, 0.008);
+
+            headGroup.position.copy(headCenter);
+            headGroup.quaternion.copy(headQuat);
+
+            // Articulate Lower Jaw based on mouth opening
+            const mouthOpenAmt = facialState.mouthOpen || 0.12;
+            jawChinMesh.position.set(0, -0.068 - mouthOpenAmt * 0.022, 0.032 - mouthOpenAmt * 0.006);
+
+            // --- 2. EYES, EYEBROWS, NOSE, LIPS & EARS ---
+            // Position 3D Eyeballs recessed slightly behind eye landmarks (2 & 5)
+            leftEyeGroup.position.copy(eyeL).addScaledVector(orthoForward, -0.008);
+            rightEyeGroup.position.copy(eyeR).addScaledVector(orthoForward, -0.008);
+            leftEyeGroup.quaternion.copy(headQuat);
+            rightEyeGroup.quaternion.copy(headQuat);
+
+            // Expressive Eyebrows above eyes (1-3 and 4-6)
+            const browOffsetUp = 0.021 + (facialState.browRaise || 0) * 0.014;
+            leftBrowMesh.position.copy(eyeL)
+                .addScaledVector(upAxis, browOffsetUp)
+                .addScaledVector(orthoForward, 0.005);
+            leftBrowMesh.quaternion.copy(headQuat);
+            leftBrowMesh.rotateZ(-0.08 - (facialState.browRaise || 0) * 0.12);
+
+            rightBrowMesh.position.copy(eyeR)
+                .addScaledVector(upAxis, browOffsetUp)
+                .addScaledVector(orthoForward, 0.005);
+            rightBrowMesh.quaternion.copy(headQuat);
+            rightBrowMesh.rotateZ(0.08 + (facialState.browRaise || 0) * 0.12);
+
+            // Sculpted Nose Bridge, Tip (0), and Nostrils
+            const nasion = eyeMid.clone().addScaledVector(orthoForward, 0.006).addScaledVector(upAxis, -0.004);
+            alignCylinderBetween(noseBridgeMesh, nose, nasion, 1, 1);
+            noseTipMesh.position.copy(nose).addScaledVector(orthoForward, -0.003);
+            noseTipMesh.quaternion.copy(headQuat);
+
+            leftNostrilMesh.position.copy(nose)
+                .addScaledVector(rightAxis, 0.011)
+                .addScaledVector(upAxis, -0.005)
+                .addScaledVector(orthoForward, -0.009);
+            leftNostrilMesh.quaternion.copy(headQuat);
+
+            rightNostrilMesh.position.copy(nose)
+                .addScaledVector(rightAxis, -0.011)
+                .addScaledVector(upAxis, -0.005)
+                .addScaledVector(orthoForward, -0.009);
+            rightNostrilMesh.quaternion.copy(headQuat);
+
+            // Sculpted Lips & Mouth Cavity (tracked to Mouth Left 9 & Mouth Right 10)
+            const lipGap = 0.004 + mouthOpenAmt * 0.016;
+            const upperLipA = mouthL.clone().addScaledVector(upAxis, lipGap * 0.45);
+            const upperLipB = mouthR.clone().addScaledVector(upAxis, lipGap * 0.45);
+            const lowerLipA = mouthL.clone().addScaledVector(upAxis, -lipGap * 0.65);
+            const lowerLipB = mouthR.clone().addScaledVector(upAxis, -lipGap * 0.65);
+
+            alignCylinderBetween(upperLipMesh, upperLipA, upperLipB, 1, 1);
+            alignCylinderBetween(lowerLipMesh, lowerLipA, lowerLipB, 1, 1);
+
+            const mouthWidth = mouthL.distanceTo(mouthR);
+            mouthCavityMesh.position.copy(mouthMid).addScaledVector(orthoForward, -0.008);
+            mouthCavityMesh.quaternion.copy(headQuat);
+            mouthCavityMesh.scale.set(
+                Math.max(0.4, mouthWidth * 18),
+                Math.max(0.15, mouthOpenAmt * 1.15),
+                0.45
+            );
+
+            // Sculpted Ears (Benchmarks 7 & 8)
+            leftEarMesh.position.copy(earL).addScaledVector(rightAxis, 0.004);
+            leftEarMesh.quaternion.copy(headQuat);
+            leftEarMesh.rotateY(0.22);
+
+            rightEarMesh.position.copy(earR).addScaledVector(rightAxis, -0.004);
+            rightEarMesh.quaternion.copy(headQuat);
+            rightEarMesh.rotateY(-0.22);
+
+            // --- 3. NECK, COLLARBONES & DELTOID CAPS ---
+            const sL = v(11), sR = v(12), hL = v(23), hR = v(24);
+            const shoulderMid = new THREE.Vector3().addVectors(sL, sR).multiplyScalar(0.5);
+            const hipMid = new THREE.Vector3().addVectors(hL, hR).multiplyScalar(0.5);
+
+            const neckTop = headCenter.clone().addScaledVector(upAxis, -0.065).addScaledVector(orthoForward, -0.018);
+            const neckBase = shoulderMid.clone().add(new THREE.Vector3(0, 0.042, 0.01));
+            alignCylinderBetween(neckMesh, neckBase, neckTop, 1, 1);
+
+            trapCollarMesh.position.copy(shoulderMid).add(new THREE.Vector3(0, 0.032, 0.01));
+            trapCollarMesh.scale.set(1.15, 1.0, 0.72);
+
+            const sternumTop = shoulderMid.clone().add(new THREE.Vector3(0, 0.012, 0.068));
+            alignCylinderBetween(leftClavicleMesh, sternumTop, sL, 1, 1);
+            alignCylinderBetween(rightClavicleMesh, sternumTop, sR, 1, 1);
+
+            leftDeltoidMesh.position.copy(sL);
+            rightDeltoidMesh.position.copy(sR);
+
+            // --- 4. ANATOMICAL MULTI-SECTION TORSO & PELVIS ---
+            updateAnatomicalTorsoGeometry(torsoMesh.geometry, sL, sR, hL, hR);
+            // Shift the underwear mesh slightly up to cover the hip joint smoothly
+            pelvisMesh.position.copy(hipMid).add(new THREE.Vector3(0, 0.025, 0));
+
+            // --- 5. LIMBS, KNUCKLES, PALMS & 3D FINGERNAILS ---
+            skinLimbCapsules.forEach(mesh => {
+                const { a, b } = mesh.userData;
+                alignCylinderBetween(mesh, v(a), v(b), 1, 1);
+            });
+
+            jointKnuckleSpheres.forEach(sp => {
+                sp.position.copy(v(sp.userData.idx));
+            });
+
+            updateVolumetricPalmGeometry(leftPalmMesh.geometry, 33, true);
+            updateVolumetricPalmGeometry(rightPalmMesh.geometry, 54, false);
+
+            // Orient 3D Fingernails on dorsal side of fingertips
+            fingernailMeshes.forEach(nail => {
+                const { dipIdx, tipIdx, wristIdx, isLeft } = nail.userData;
+                const dipPos = v(dipIdx);
+                const tipPos = v(tipIdx);
+                const wristPos = v(wristIdx);
+                const indexMcp = v(wristIdx + 5);
+                const pinkyMcp = v(wristIdx + 17);
+
+                // Compute palm dorsal normal
+                const vIndex = new THREE.Vector3().subVectors(indexMcp, wristPos);
+                const vPinky = new THREE.Vector3().subVectors(pinkyMcp, wristPos);
+                const palmNormal = new THREE.Vector3().crossVectors(vIndex, vPinky).normalize();
+                if (!isLeft) palmNormal.negate(); // Dorsal normal points out of back of hand
+
+                const fingerDir = new THREE.Vector3().subVectors(tipPos, dipPos).normalize();
+                const sideAxis = new THREE.Vector3().crossVectors(fingerDir, palmNormal).normalize();
+                const orthoDorsal = new THREE.Vector3().crossVectors(sideAxis, fingerDir).normalize();
+
+                const nailMat4 = new THREE.Matrix4().makeBasis(sideAxis, fingerDir, orthoDorsal);
+                nail.quaternion.setFromRotationMatrix(nailMat4);
+                nail.position.copy(tipPos)
+                    .addScaledVector(fingerDir, -0.0015)
+                    .addScaledVector(orthoDorsal, 0.0052);
+            });
+        }
+
+        function alignCylinderBetween(mesh, posA, posB, scaleX = 1, scaleZ = 1) {
+            const dir = new THREE.Vector3().subVectors(posB, posA);
+            const len = dir.length();
+            if (len < 0.0001) return;
+            mesh.position.copy(posA).add(posB).multiplyScalar(0.5);
+            mesh.scale.set(scaleX, len, scaleZ);
+            mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir.normalize());
+        }
+
+        /**
+         * Builds a smooth 6-level anatomical torso loft connecting shoulders (11,12)
+         * to hips (23,24) with pectoral contour, tapered waist, and rounded ribcage.
+         */
+        function updateAnatomicalTorsoGeometry(geom, sL, sR, hL, hR) {
+            const shoulderMid = new THREE.Vector3().addVectors(sL, sR).multiplyScalar(0.5);
+            const hipMid = new THREE.Vector3().addVectors(hL, hR).multiplyScalar(0.5);
+
+            const rightVec = new THREE.Vector3().subVectors(sL, sR);
+            const shoulderHalfWidth = rightVec.length() * 0.5;
+            const hipHalfWidth = sL.distanceTo(sR) > 0.01 ? hL.distanceTo(hR) * 0.52 : 0.145;
+
+            const rightDir = rightVec.clone().normalize();
+            const spineVec = new THREE.Vector3().subVectors(shoulderMid, hipMid);
+            const upDir = spineVec.clone().normalize();
+            const forwardDir = new THREE.Vector3().crossVectors(rightDir, upDir).normalize();
+
+            // 6 anatomical cross-section slices from top collar down to pelvis
+            const levels = [
+                { t: 1.03, w: shoulderHalfWidth * 0.55, dFront: 0.068, dBack: 0.062, yOff: 0 }, // Upper Trapezius / Collar
+                { t: 0.92, w: shoulderHalfWidth * 0.98, dFront: 0.095, dBack: 0.082, yOff: 0 }, // Upper Chest / Deltoid Bridge
+                { t: 0.72, w: shoulderHalfWidth * 0.88, dFront: 0.112, dBack: 0.086, yOff: 0 }, // Pectoralis Major Peak
+                { t: 0.46, w: shoulderHalfWidth * 0.74, dFront: 0.092, dBack: 0.076, yOff: 0 }, // Lower Ribcage
+                { t: 0.22, w: hipHalfWidth * 0.92,      dFront: 0.084, dBack: 0.072, yOff: 0 }, // Tapered Waist / Abdomen
+                { t: 0.00, w: hipHalfWidth * 1.06,      dFront: 0.088, dBack: 0.078, yOff: 0 }  // Pelvis / Hip Crest
+            ];
+
+            const radialSegs = 24;
+            const rings = [];
+
+            levels.forEach(lv => {
+                const center = new THREE.Vector3().lerpVectors(hipMid, shoulderMid, lv.t);
+                const ringPts = [];
+                for (let s = 0; s < radialSegs; s++) {
+                    const angle = (s / radialSegs) * Math.PI * 2;
+                    const cosA = Math.cos(angle);
+                    const sinA = Math.sin(angle);
+
+                    const xLocal = cosA * lv.w;
+                    let zDepth = sinA >= 0 ? lv.dFront : lv.dBack;
+
+                    // Add subtle pectoral twin-lobe contour on the front chest (t == 0.72)
+                    if (lv.t === 0.72 && sinA > 0.2) {
+                        zDepth += 0.012 * Math.sin(Math.abs(cosA) * Math.PI);
+                    }
+
+                    const pt = center.clone()
+                        .addScaledVector(rightDir, xLocal)
+                        .addScaledVector(forwardDir, sinA * zDepth);
+                    ringPts.push(pt);
+                }
+                rings.push(ringPts);
+            });
+
+            const positions = [];
+            for (let r = 0; r < rings.length - 1; r++) {
+                const ringA = rings[r];
+                const ringB = rings[r + 1];
+                for (let s = 0; s < radialSegs; s++) {
+                    const nextS = (s + 1) % radialSegs;
+                    const p1 = ringA[s], p2 = ringA[nextS];
+                    const p3 = ringB[nextS], p4 = ringB[s];
+
+                    positions.push(p1.x, p1.y, p1.z, p2.x, p2.y, p2.z, p3.x, p3.y, p3.z);
+                    positions.push(p1.x, p1.y, p1.z, p3.x, p3.y, p3.z, p4.x, p4.y, p4.z);
+                }
+            }
+
+            geom.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+            geom.computeVertexNormals();
+        }
+
+        /**
+         * Builds a 3D volumetric hand palm mesh with palmar and dorsal surfaces,
+         * side walls, and thumb web connecting wrist (0) to knuckles (1, 5, 9, 13, 17).
+         */
+        function updateVolumetricPalmGeometry(geom, offset, isLeft) {
+            const p = currentLandmarks;
+            const v = (i) => new THREE.Vector3(p[offset + i].x, p[offset + i].y, p[offset + i].z);
+
+            const wrist = v(0);
+            const kThumb = v(1);
+            const kThumbMcp = v(2);
+            const kIndex = v(5);
+            const kMiddle = v(9);
+            const kRing = v(13);
+            const kPinky = v(17);
+
+            const vIdx = new THREE.Vector3().subVectors(kIndex, wrist);
+            const vPnk = new THREE.Vector3().subVectors(kPinky, wrist);
+            const normal = new THREE.Vector3().crossVectors(vIdx, vPnk).normalize();
+            if (!isLeft) normal.negate();
+
+            const halfThick = 0.0115;
+            const perim = [wrist, kThumb, kThumbMcp, kIndex, kMiddle, kRing, kPinky];
+
+            const topPts = perim.map(pt => pt.clone().addScaledVector(normal, halfThick));
+            const botPts = perim.map(pt => pt.clone().addScaledVector(normal, -halfThick));
+
+            const palmCenter = new THREE.Vector3()
+                .add(wrist).add(kIndex).add(kMiddle).add(kRing).add(kPinky)
+                .multiplyScalar(0.2);
+            const topCenter = palmCenter.clone().addScaledVector(normal, halfThick * 1.15);
+            const botCenter = palmCenter.clone().addScaledVector(normal, -halfThick * 0.85);
+
+            const positions = [];
+            const n = perim.length;
+
+            for (let i = 0; i < n; i++) {
+                const next = (i + 1) % n;
+                // Dorsal top fan
+                positions.push(
+                    topCenter.x, topCenter.y, topCenter.z,
+                    topPts[i].x, topPts[i].y, topPts[i].z,
+                    topPts[next].x, topPts[next].y, topPts[next].z
+                );
+                // Palmar bottom fan
+                positions.push(
+                    botCenter.x, botCenter.y, botCenter.z,
+                    botPts[next].x, botPts[next].y, botPts[next].z,
+                    botPts[i].x, botPts[i].y, botPts[i].z
+                );
+                // Side edge strip
+                positions.push(
+                    topPts[i].x, topPts[i].y, topPts[i].z,
+                    botPts[i].x, botPts[i].y, botPts[i].z,
+                    botPts[next].x, botPts[next].y, botPts[next].z
+                );
+                positions.push(
+                    topPts[i].x, topPts[i].y, topPts[i].z,
+                    botPts[next].x, botPts[next].y, botPts[next].z,
+                    topPts[next].x, topPts[next].y, topPts[next].z
+                );
+            }
+
+            geom.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+            geom.computeVertexNormals();
+        }
+
+        /***********************************************************************
+         * 9. SYNCHRONIZE ALL 75 SPHERES, BONES & SKIN TO `currentLandmarks`
+         ***********************************************************************/
+        function sync3DSceneToLandmarks() {
+            for (let i = 0; i < 75; i++) {
+                const pt = currentLandmarks[i];
+                landmarkMeshes[i].position.set(pt.x, pt.y, pt.z);
+            }
+
+            // Update Cylindrical Bones
+            boneMeshes.forEach(cyl => {
+                const { a, b, radius } = cyl.userData;
+                const posA = landmarkMeshes[a].position;
+                const posB = landmarkMeshes[b].position;
+                alignCylinderBetween(cyl, posA, posB, radius, radius);
+            });
+
+            // Update Selection Halo Ring
+            if (landmarkMeshes[selectedIndex]) {
+                selectionRingMesh.position.copy(landmarkMeshes[selectedIndex].position);
+                selectionRingMesh.lookAt(camera.position);
+            }
+
+            // Update Volumetric Skin Avatar
+            if (avatarSkinGroup) {
+                updateVolumetricSkinMeshes();
+            }
+        }
+
+        /***********************************************************************
+         * 10. UI CONTROLS: BENCHMARK LIST, INSPECTOR, SLIDERS & PRESETS
+         ***********************************************************************/
+        function renderPresetButtons() {
+            const container = document.getElementById("presetButtonsContainer");
+            container.innerHTML = SIGN_PRESETS.map(preset => `
+                <button onclick="triggerSignPreset('${preset.id}', '${preset.label}')"
+                    class="px-2.5 py-2 rounded-xl text-left text-xs font-medium bg-white hover:bg-indigo-50/70 border border-slate-200/90 hover:border-indigo-300 text-slate-700 hover:text-indigo-950 transition flex items-center gap-2 group shadow-sm">
+                    <span class="text-sm">${preset.icon}</span>
+                    <span class="truncate font-semibold text-slate-700 group-hover:text-indigo-900">${preset.label}</span>
+                </button>
+            `).join('');
+        }
+
+        function setCategoryFilter(cat) {
+            currentCategoryFilter = cat;
+            ['ALL', 'POSE', 'LEFT_HAND', 'RIGHT_HAND'].forEach(c => {
+                const btn = document.getElementById(`cat_${c}`);
+                if (c === cat) {
+                    btn.className = "py-1 rounded-lg bg-indigo-600 text-white font-semibold shadow-sm";
+                } else {
+                    btn.className = "py-1 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200";
+                }
+            });
+            renderLandmarkList();
+        }
+
+        function renderLandmarkList() {
+            const container = document.getElementById("landmarkListContainer");
+            const query = (document.getElementById("landmarkSearch").value || "").trim().toLowerCase();
+
+            const filtered = BENCHMARK_METADATA.filter(meta => {
+                if (currentCategoryFilter !== "ALL" && meta.group !== currentCategoryFilter) return false;
+                if (!query) return true;
+                return meta.index.toString().includes(query) || meta.name.toLowerCase().includes(query);
+            });
+
+            container.innerHTML = filtered.map(meta => {
+                const isSel = meta.index === selectedIndex;
+                const pt = currentLandmarks[meta.index];
+                return `
+                    <button onclick="selectBenchmark(${meta.index})"
+                        class="w-full px-2.5 py-1.5 rounded-lg text-left transition flex items-center justify-between border ${
+                            isSel
+                                ? 'bg-indigo-50 border-indigo-400 text-indigo-950 font-semibold shadow-sm'
+                                : 'bg-white border-slate-100 hover:bg-slate-50 text-slate-700'
+                        }">
+                        <div class="flex items-center gap-2 min-w-0">
+                            <span class="mono text-[11px] font-bold px-1.5 py-0.5 rounded border ${meta.badgeClass}">#${meta.index}</span>
+                            <span class="text-xs font-medium truncate">${meta.name}</span>
+                        </div>
+                        <span class="mono text-[10px] text-slate-500 shrink-0">${pt.x.toFixed(2)}, ${pt.y.toFixed(2)}</span>
+                    </button>
+                `;
+            }).join('');
+        }
+
+        function selectBenchmark(index) {
+            selectedIndex = index;
+            const targetMesh = landmarkMeshes[index];
+            if (targetMesh && transformControl) {
+                transformControl.attach(targetMesh);
+            }
+            updateInspectorUI();
+            renderLandmarkList();
+            toggleDrawer('right', true);
+        }
+
+        function updateInspectorUI() {
+            const meta = BENCHMARK_METADATA[selectedIndex];
+            const pt = currentLandmarks[selectedIndex];
+
+            document.getElementById("inspIndex").textContent = `#${meta.index}`;
+            document.getElementById("inspName").textContent = meta.name;
+            document.getElementById("inspectorGroupBadge").textContent = meta.group;
+
+            let desc = "Spatial 3D benchmark node.";
+            if (meta.index <= 10) desc = "Cranio-facial landmark driving 3D head orientation & expression.";
+            else if (meta.index <= 32) desc = "Upper/Lower body skeletal benchmark driving trunk & limb posture.";
+            else if (meta.index <= 53) desc = `Left Hand landmark (${meta.index - 33}/20) for sign articulation.`;
+            else desc = `Right Hand landmark (${meta.index - 54}/20) for sign articulation.`;
+            document.getElementById("inspDesc").textContent = desc;
+
+            document.getElementById("valX").textContent = pt.x.toFixed(3);
+            document.getElementById("valY").textContent = pt.y.toFixed(3);
+            document.getElementById("valZ").textContent = pt.z.toFixed(3);
+
+            document.getElementById("sliderX").value = pt.x;
+            document.getElementById("sliderY").value = pt.y;
+            document.getElementById("sliderZ").value = pt.z;
+        }
+
+        function onCoordSliderChange(axis, val) {
+            const num = parseFloat(val);
+            const prev = currentLandmarks[selectedIndex][axis];
+            const delta = num - prev;
+
+            currentLandmarks[selectedIndex][axis] = num;
+
+            if (hierarchicalMode) {
+                const children = getChildIndices(selectedIndex);
+                children.forEach(cIdx => {
+                    currentLandmarks[cIdx][axis] += delta;
+                });
+            }
+
+            if (selectedIndex === 15) currentLandmarks[33] = { ...currentLandmarks[15] };
+            if (selectedIndex === 33) currentLandmarks[15] = { ...currentLandmarks[33] };
+            if (selectedIndex === 16) currentLandmarks[54] = { ...currentLandmarks[16] };
+            if (selectedIndex === 54) currentLandmarks[16] = { ...currentLandmarks[54] };
+
+            sync3DSceneToLandmarks();
+            updateInspectorUI();
+        }
+
+        function setKinematicsMode(isHierarchical) {
+            hierarchicalMode = isHierarchical;
+            const btnFK = document.getElementById("btnModeFK");
+            const btnFree = document.getElementById("btnModeFree");
+            if (isHierarchical) {
+                btnFK.className = "px-2.5 py-1 rounded-md text-xs font-semibold transition-all bg-white text-indigo-700 shadow-sm";
+                btnFree.className = "px-2.5 py-1 rounded-md text-xs font-medium transition-all text-slate-600 hover:text-slate-900";
+                showToast("Hierarchical Mode: Moving shoulders, elbows, or wrists moves attached hand landmarks.");
+            } else {
+                btnFree.className = "px-2.5 py-1 rounded-md text-xs font-semibold transition-all bg-white text-indigo-700 shadow-sm";
+                btnFK.className = "px-2.5 py-1 rounded-md text-xs font-medium transition-all text-slate-600 hover:text-slate-900";
+                showToast("Single Point Mode: Each of the 75 benchmarks moves independently.");
+            }
+        }
+
+        /***********************************************************************
+         * 11. HAND FINGER ARTICULATOR & HEAD/TRUNK MACROS
+         ***********************************************************************/
+        function selectArticulatorHand(side) {
+            activeArticulatorHand = side;
+            const btnL = document.getElementById("artHandLeft");
+            const btnR = document.getElementById("artHandRight");
+            if (side === "LEFT") {
+                btnL.className = "py-1 rounded font-semibold text-emerald-700 bg-white shadow-sm border border-slate-200";
+                btnR.className = "py-1 rounded font-medium text-slate-600 hover:text-slate-900";
+            } else {
+                btnR.className = "py-1 rounded font-semibold text-amber-700 bg-white shadow-sm border border-slate-200";
+                btnL.className = "py-1 rounded font-medium text-slate-600 hover:text-slate-900";
+            }
+            for (let i = 0; i < 5; i++) {
+                const pct = Math.round(handCurlState[side][i] * 100);
+                document.getElementById(`curlSlider${i}`).value = pct;
+                document.getElementById(`curlVal${i}`).textContent = `${pct}%`;
+            }
+        }
+
+        function setFingerCurl(fingerIdx, pctValue) {
+            const norm = parseFloat(pctValue) / 100;
+            handCurlState[activeArticulatorHand][fingerIdx] = norm;
+            document.getElementById(`curlVal${fingerIdx}`).textContent = `${Math.round(pctValue)}%`;
+
+            const wristIdx = activeArticulatorHand === "LEFT" ? 15 : 16;
+            populateHand21(
+                currentLandmarks,
+                activeArticulatorHand,
+                currentLandmarks[wristIdx],
+                handCurlState[activeArticulatorHand],
+                { pitch: 0.1, yaw: 0, roll: 0, spread: 1.0 }
+            );
+            sync3DSceneToLandmarks();
+            updateInspectorUI();
+        }
+
+        function mirrorHand(dir) {
+            // Mirrors Right Hand pose & wrist relative to shoulders onto Left Hand
+            if (dir === "RtoL") {
+                currentLandmarks[13] = {
+                    x: -currentLandmarks[14].x,
+                    y: currentLandmarks[14].y,
+                    z: currentLandmarks[14].z
+                };
+                currentLandmarks[15] = {
+                    x: -currentLandmarks[16].x,
+                    y: currentLandmarks[16].y,
+                    z: currentLandmarks[16].z
+                };
+                for (let k = 0; k < 21; k++) {
+                    currentLandmarks[33 + k] = {
+                        x: -currentLandmarks[54 + k].x,
+                        y: currentLandmarks[54 + k].y,
+                        z: currentLandmarks[54 + k].z
+                    };
+                }
+                sync3DSceneToLandmarks();
+                showToast("Mirrored Right Hand [54–74] onto Left Hand [33–53]");
+            }
+        }
+
+        function applyHeadTrunkMacro() {
+            const yawDeg = parseFloat(document.getElementById("headYawSlider").value);
+            const pitchDeg = parseFloat(document.getElementById("headPitchSlider").value);
+            const rollDeg = parseFloat(document.getElementById("headRollSlider").value);
+            const mouthPct = parseFloat(document.getElementById("mouthOpenSlider").value);
+            const smilePct = parseFloat(document.getElementById("smileSlider").value);
+            const browPct = parseFloat(document.getElementById("browRaiseSlider").value);
+
+            document.getElementById("headYawVal").textContent = `${yawDeg}°`;
+            document.getElementById("headPitchVal").textContent = `${pitchDeg}°`;
+            document.getElementById("headRollVal").textContent = `${rollDeg}°`;
+            document.getElementById("mouthOpenVal").textContent = `${mouthPct}%`;
+            document.getElementById("smileVal").textContent = `${smilePct}%`;
+            document.getElementById("browRaiseVal").textContent = `${browPct}%`;
+
+            facialState.yaw = yawDeg;
+            facialState.pitch = pitchDeg;
+            facialState.roll = rollDeg;
+            facialState.mouthOpen = mouthPct / 100;
+            facialState.smile = smilePct / 100;
+            facialState.browRaise = browPct / 100;
+
+            const base = buildNeutral75Landmarks();
+
+            // Apply smile width & corner lift to Mouth Benchmarks (9 and 10)
+            const smileNorm = facialState.smile;
+            const mouthSpread = 0.030 + smileNorm * 0.012 + facialState.mouthOpen * 0.005;
+            const mouthLift = smileNorm * 0.010 - facialState.mouthOpen * 0.008;
+            base[9].x = mouthSpread;
+            base[10].x = -mouthSpread;
+            base[9].y += mouthLift;
+            base[10].y += mouthLift;
+
+            // Apply eyebrow/eye expression lift to Eye Benchmarks (1..6)
+            for (let e = 1; e <= 6; e++) {
+                base[e].y += facialState.browRaise * 0.005;
+            }
+
+            // Rotate all Cranio-Facial Benchmarks (0..10) around Neck Pivot
+            const pivot = { x: 0, y: 0.52, z: 0.02 };
+            const euler = new THREE.Euler(
+                THREE.MathUtils.degToRad(pitchDeg),
+                THREE.MathUtils.degToRad(yawDeg),
+                THREE.MathUtils.degToRad(rollDeg),
+                'YXZ'
+            );
+
+            for (let i = 0; i <= 10; i++) {
+                const v = new THREE.Vector3(
+                    base[i].x - pivot.x,
+                    base[i].y - pivot.y,
+                    base[i].z - pivot.z
+                ).applyEuler(euler);
+                currentLandmarks[i] = {
+                    x: pivot.x + v.x,
+                    y: pivot.y + v.y,
+                    z: pivot.z + v.z
+                };
+            }
+            sync3DSceneToLandmarks();
+            updateInspectorUI();
+        }
+
+        function resetFacialExpression() {
+            document.getElementById("headYawSlider").value = 0;
+            document.getElementById("headPitchSlider").value = 0;
+            document.getElementById("headRollSlider").value = 0;
+            document.getElementById("mouthOpenSlider").value = 12;
+            document.getElementById("smileSlider").value = 25;
+            document.getElementById("browRaiseSlider").value = 15;
+            applyHeadTrunkMacro();
+            showToast("Reset head pose and facial expression benchmarks [0–10].");
+        }
+
+        function setAvatarStyle(style) {
+            currentAvatarStyle = style;
+            if (style === "HIDDEN") {
+                avatarSkinGroup.visible = false;
+                showToast("Avatar Mesh Hidden — Showing pure 75-benchmark skeleton.");
+                return;
+            }
+            avatarSkinGroup.visible = true;
+
+            if (style === "REALISTIC") {
+                skinMaterial.color.setHex(0xdeb89e);
+                skinMaterial.transparent = false;
+                skinMaterial.opacity = 1.0;
+                skinMaterial.roughness = 0.38;
+
+                suitMaterial.color.setHex(0x4338ca);
+                suitMaterial.transparent = false;
+                suitMaterial.opacity = 1.0;
+                hairCapMesh.visible = true;
+            } else if (style === "MANNEQUIN") {
+                skinMaterial.color.setHex(0xe2e8f0);
+                skinMaterial.transparent = false;
+                skinMaterial.opacity = 1.0;
+                skinMaterial.roughness = 0.22;
+
+                suitMaterial.color.setHex(0x6366f1);
+                suitMaterial.transparent = false;
+                suitMaterial.opacity = 1.0;
+                hairCapMesh.visible = true;
+            } else if (style === "XRAY") {
+                skinMaterial.color.setHex(0x818cf8);
+                skinMaterial.transparent = true;
+                skinMaterial.opacity = 0.34;
+                skinMaterial.roughness = 0.15;
+
+                suitMaterial.color.setHex(0x4338ca);
+                suitMaterial.transparent = true;
+                suitMaterial.opacity = 0.38;
+                hairCapMesh.visible = false;
+            }
+            skinMaterial.needsUpdate = true;
+            suitMaterial.needsUpdate = true;
+        }
+
+        function setBenchmarkNodeScale(scaleVal) {
+            benchmarkNodeScale = parseFloat(scaleVal);
+            landmarkMeshes.forEach(m => m.scale.setScalar(benchmarkNodeScale));
+        }
+
+        /***********************************************************************
+         * 12. SIGN ANIMATION INTERPOLATION & TIMELINE PLAYER
+         ***********************************************************************/
+        function triggerSignPreset(presetId, label) {
+            activeSignId = presetId;
+            const badge = document.getElementById("activeSignBadge");
+            if (badge) badge.textContent = label;
+            const tlName = document.getElementById("timelineSignName");
+            if (tlName) tlName.textContent = label;
+
+            renderCommonSignsBar();
+            renderPresetButtons();
+
+            // Interpolate smoothly from current pose to target preset
+            startKeyframe = JSON.parse(JSON.stringify(currentLandmarks));
+            targetKeyframe = buildSignPresetPose(presetId);
+            timelineProgress = 0;
+            isPlaying = true;
+            updatePlayPauseButtonUI();
+        }
+
+        function resetToNeutralPose() {
+            triggerSignPreset("NEUTRAL", "Rest / Neutral");
+        }
+
+        function togglePlayAnimation() {
+            isPlaying = !isPlaying;
+            if (isPlaying && timelineProgress >= 100) {
+                timelineProgress = 0;
+            }
+            updatePlayPauseButtonUI();
+        }
+
+        function updatePlayPauseButtonUI() {
+            const playIcon = document.getElementById("playIcon");
+            const pauseIcon = document.getElementById("pauseIcon");
+            if (isPlaying) {
+                playIcon.classList.add("hidden");
+                pauseIcon.classList.remove("hidden");
+            } else {
+                playIcon.classList.remove("hidden");
+                pauseIcon.classList.add("hidden");
+            }
+        }
+
+        function setPlaybackSpeed(val) {
+            playbackSpeed = parseFloat(val);
+        }
+
+        function scrubTimeline(val) {
+            timelineProgress = parseFloat(val);
+            interpolateLandmarksAt(timelineProgress / 100);
+        }
+
+        function interpolateLandmarksAt(t) {
+            // Smoothstep easing for natural organic motion
+            const smoothT = t * t * (3 - 2 * t);
+
+            for (let i = 0; i < 75; i++) {
+                const a = startKeyframe[i];
+                const b = targetKeyframe[i];
+                currentLandmarks[i].x = a.x + (b.x - a.x) * smoothT;
+                currentLandmarks[i].y = a.y + (b.y - a.y) * smoothT;
+                currentLandmarks[i].z = a.z + (b.z - a.z) * smoothT;
+
+                // Add subtle wave oscillation when playing "HELLO"
+                if (activeSignId === "HELLO" && (i === 16 || i >= 54)) {
+                    const waveOffset = Math.sin(t * Math.PI * 4) * 0.035 * Math.sin(t * Math.PI);
+                    currentLandmarks[i].x += waveOffset;
+                }
+            }
+
+            sync3DSceneToLandmarks();
+            updateInspectorUI();
+
+            document.getElementById("timelineSlider").value = timelineProgress;
+            document.getElementById("timelineProgressText").textContent = `${Math.round(timelineProgress)}%`;
+            const frame = Math.round((timelineProgress / 100) * 60);
+            document.getElementById("frameCounterText").textContent = `${frame} / 60`;
+        }
+
+        function captureCustomKeyframe() {
+            customKeyframes.push(JSON.parse(JSON.stringify(currentLandmarks)));
+            document.getElementById("customKfCount").textContent = customKeyframes.length;
+            if (customKeyframes.length >= 2) {
+                startKeyframe = customKeyframes[customKeyframes.length - 2];
+                targetKeyframe = customKeyframes[customKeyframes.length - 1];
+                document.getElementById("timelineSignName").textContent = `Custom Keyframe #${customKeyframes.length - 1} → #${customKeyframes.length}`;
+                showToast(`Recorded Keyframe #${customKeyframes.length}! Press Play to interpolate between your custom poses.`);
+            } else {
+                showToast("Recorded Keyframe #1! Adjust the 75 benchmarks and record a 2nd keyframe to animate.");
+            }
+        }
+
+        /***********************************************************************
+         * 13. LAYER VISIBILITY, CAMERA PRESETS & JSON I/O MODAL
+         ***********************************************************************/
+        function toggleLayer(layer) {
+            layerVisibility[layer] = !layerVisibility[layer];
+            const isVis = layerVisibility[layer];
+
+            if (layer === 'skin') {
+                avatarSkinGroup.visible = isVis;
+                const btn = document.getElementById("toggleSkinBtn");
+                if (btn) {
+                    btn.className = isVis
+                        ? "px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200 hover:bg-indigo-100 transition flex items-center gap-1.5"
+                        : "px-2.5 py-1.5 rounded-lg text-xs font-medium bg-slate-100 text-slate-500 border border-slate-200 transition flex items-center gap-1.5";
+                }
+            }
+            if (layer === 'bones') {
+                boneMeshes.forEach(b => b.visible = isVis);
+                const btn = document.getElementById("toggleBonesBtn");
+                if (btn) {
+                    btn.className = isVis
+                        ? "px-2.5 py-1 rounded-lg text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200 hover:bg-indigo-100 transition flex items-center gap-1.5 shadow-xs"
+                        : "px-2.5 py-1 rounded-lg text-xs font-medium bg-slate-100 text-slate-600 border border-slate-200 hover:text-slate-900 transition flex items-center gap-1.5 shadow-xs";
+                    btn.innerHTML = `<span class="w-2 h-2 rounded-full ${isVis ? 'bg-indigo-500' : 'bg-slate-400'}"></span> Bones`;
+                }
+            }
+            if (layer === 'points') {
+                landmarkMeshes.forEach(m => m.visible = isVis);
+                selectionRingMesh.visible = isVis;
+                transformControl.visible = isVis;
+                const btn = document.getElementById("togglePointsBtn");
+                if (btn) {
+                    btn.className = isVis
+                        ? "px-2.5 py-1 rounded-lg text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 transition flex items-center gap-1.5 shadow-xs"
+                        : "px-2.5 py-1 rounded-lg text-xs font-medium bg-slate-100 text-slate-600 border border-slate-200 hover:text-slate-900 transition flex items-center gap-1.5 shadow-xs";
+                    btn.innerHTML = `<span class="w-2 h-2 rounded-full ${isVis ? 'bg-emerald-500' : 'bg-slate-400'}"></span> Nodes`;
+                }
+            }
+            if (layer === 'labels') {
+                const overlay = document.getElementById("labelsOverlay");
+                overlay.classList.toggle("hidden", !isVis);
+                const btn = document.getElementById("toggleLabelsBtn");
+                if (btn) {
+                    btn.className = isVis
+                        ? "px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200 transition"
+                        : "px-2.5 py-1.5 rounded-lg text-xs font-medium bg-slate-100 text-slate-500 border border-slate-200 transition";
+                }
+            }
+        }
+
+        function setCameraView(preset) {
+            if (preset === 'front') {
+                camera.position.set(0, 0.32, 1.80);
+                orbitControls.target.set(0, 0.25, 0.0);
+            } else if (preset === 'portrait') {
+                const nose = currentLandmarks[0];
+                camera.position.set(0, nose.y + 0.02, nose.z + 0.48);
+                orbitControls.target.set(0, nose.y - 0.01, nose.z - 0.04);
+            } else if (preset === 'FaceHands') {
+                camera.position.set(0, 0.44, 1.05);
+                orbitControls.target.set(0, 0.38, 0.15);
+            } else if (preset === 'leftHand') {
+                const lw = currentLandmarks[33];
+                camera.position.set(lw.x + 0.15, lw.y + 0.12, lw.z + 0.45);
+                orbitControls.target.set(lw.x, lw.y + 0.04, lw.z);
+            } else if (preset === 'rightHand') {
+                const rw = currentLandmarks[54];
+                camera.position.set(rw.x - 0.15, rw.y + 0.12, rw.z + 0.45);
+                orbitControls.target.set(rw.x, rw.y + 0.04, rw.z);
+            }
+            orbitControls.update();
+        }
+
+        function openJsonModal() {
+            const modal = document.getElementById("jsonModal");
+            modal.classList.remove("hidden");
+            modal.classList.add("flex");
+            exportCurrentPoseJSON();
+        }
+
+        function closeJsonModal() {
+            const modal = document.getElementById("jsonModal");
+            modal.classList.add("hidden");
+            modal.classList.remove("flex");
+            document.getElementById("jsonStatusMsg").textContent = "";
+        }
+
+        function exportCurrentPoseJSON() {
+            const payload = {
+                schema: "MediaPipe_Holistic_75_Landmarks",
+                counts: { pose: 33, left_hand: 21, right_hand: 21, total: 75 },
+                landmarks: currentLandmarks.map((pt, idx) => ({
+                    index: idx,
+                    name: BENCHMARK_METADATA[idx].name,
+                    group: BENCHMARK_METADATA[idx].group,
+                    x: Number(pt.x.toFixed(4)),
+                    y: Number(pt.y.toFixed(4)),
+                    z: Number(pt.z.toFixed(4))
+                }))
+            };
+            document.getElementById("jsonTextarea").value = JSON.stringify(payload, null, 2);
+            document.getElementById("jsonStatusMsg").textContent = "Loaded all 75 active benchmarks.";
+        }
+
+        function copyJsonToClipboard() {
+            const textarea = document.getElementById("jsonTextarea");
+            textarea.select();
+            document.execCommand("copy");
+            document.getElementById("jsonStatusMsg").textContent = "Copied 75-benchmark JSON to clipboard!";
+        }
+
+        function importPoseFromJSON() {
+            try {
+                const raw = JSON.parse(document.getElementById("jsonTextarea").value);
+                const arr = Array.isArray(raw) ? raw : raw.landmarks;
+                if (!Array.isArray(arr) || arr.length !== 75) {
+                    document.getElementById("jsonStatusMsg").textContent = "Error: JSON must contain an array of exactly 75 landmarks.";
+                    return;
+                }
+                for (let i = 0; i < 75; i++) {
+                    currentLandmarks[i] = {
+                        x: Number(arr[i].x) || 0,
+                        y: Number(arr[i].y) || 0,
+                        z: Number(arr[i].z) || 0
+                    };
+                }
+                sync3DSceneToLandmarks();
+                updateInspectorUI();
+                closeJsonModal();
+                showToast("Successfully applied custom 75-benchmark JSON to 3D rig!");
+            } catch (err) {
+                document.getElementById("jsonStatusMsg").textContent = "Invalid JSON syntax.";
+            }
+        }
+
+        function showToast(msg) {
+            const banner = document.getElementById("toastBanner");
+            banner.textContent = msg;
+            banner.classList.remove("hidden");
+            clearTimeout(banner._timer);
+            banner._timer = setTimeout(() => banner.classList.add("hidden"), 3200);
+        }
+
+        /***********************************************************************
+         * 14. RENDER LOOP & 2D LABEL PROJECTION
+         ***********************************************************************/
+        function onWindowResize() {
+            const container = document.getElementById("canvasContainer");
+            camera.aspect = container.clientWidth / container.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(container.clientWidth, container.clientHeight);
+        }
+
+        function update2DFloatingLabels() {
+            if (!layerVisibility.labels) return;
+            const container = document.getElementById("canvasContainer");
+            const width = container.clientWidth;
+            const height = container.clientHeight;
+            const tempV = new THREE.Vector3();
+
+            for (let i = 0; i < 75; i++) {
+                tempV.copy(landmarkMeshes[i].position);
+                tempV.project(camera);
+                const x = (tempV.x * 0.5 + 0.5) * width;
+                const y = (-(tempV.y * 0.5) + 0.5) * height;
+                const lbl = labelElements[i];
+                if (tempV.z < 1 && x >= 0 && x <= width && y >= 0 && y <= height) {
+                    lbl.style.transform = `translate(${x}px, ${y}px)`;
+                    lbl.style.display = "block";
+                } else {
+                    lbl.style.display = "none";
+                }
+            }
+        }
+
+        function animateLoop() {
+            requestAnimationFrame(animateLoop);
+
+            if (isPlaying) {
+                timelineProgress += 0.65 * playbackSpeed;
+                if (timelineProgress >= 100) {
+                    timelineProgress = 100;
+                    isPlaying = false;
+                    updatePlayPauseButtonUI();
+                }
+                interpolateLandmarksAt(timelineProgress / 100);
+            }
+
+            orbitControls.update();
+            if (selectionRingMesh && landmarkMeshes[selectedIndex]) {
+                selectionRingMesh.position.copy(landmarkMeshes[selectedIndex].position);
+                selectionRingMesh.lookAt(camera.position);
+            }
+
+            update2DFloatingLabels();
+            renderer.render(scene, camera);
+        }
+
+        window.onload = function () {
+            renderPresetButtons();
+            renderCommonSignsBar();
+            initThreeScene();
+            renderLandmarkList();
+            animateLoop();
+
+            // Observe canvasContainer resizing so Three.js adapts whenever sidebars dock or undock
+            const canvasElem = document.getElementById("canvasContainer");
+            if (window.ResizeObserver && canvasElem) {
+                const ro = new ResizeObserver(() => {
+                    onWindowResize();
+                });
+                ro.observe(canvasElem);
+            }
+        };
+    </script>
+</body>
+</html>

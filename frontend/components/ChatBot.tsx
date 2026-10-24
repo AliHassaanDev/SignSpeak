@@ -20,6 +20,7 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import { signBridgeAPI } from "@/app/lib/api";
+import { useLanguage } from "@/app/context/LanguageContext";
 
 /* ─────────────────────── Types ─────────────────────── */
 
@@ -527,6 +528,7 @@ function parseInlineMarkdown(text: string) {
 /* ─────────────────────── Component ─────────────────────── */
 
 export default function ChatBot() {
+  const { t, isUrdu } = useLanguage();
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -633,9 +635,11 @@ export default function ChatBot() {
       {
         id: uid(),
         role: "bot",
-        text:
-          "### 🔄 Conversation Reset\n\n" +
-          "Hi! I'm **SignBot**. Ask me anything about **Ethical Sign Language**, **Deaf Community Etiquette**, or how to use the **SignSpeak app**!",
+        text: isUrdu
+          ? "### 🔄 نئی گفتگو شروع ہوئی\n\n" +
+            "السلام علیکم! میں **سائن بوٹ** ہوں۔ مجھ سے **اخلاقی اشاراتی زبان**، **بہری برادری کے آداب**، یا **سائن اسپیک ایپ کے استعمال** کے بارے میں کچھ بھی پوچھیں!"
+          : "### 🔄 Conversation Reset\n\n" +
+            "Hi! I'm **SignBot**. Ask me anything about **Ethical Sign Language**, **Deaf Community Etiquette**, or how to use the **SignSpeak app**!",
         time: getTime(),
         source: "knowledge_base",
         suggestions: DEFAULT_SUGGESTIONS,
@@ -650,14 +654,25 @@ export default function ChatBot() {
     }
   };
 
+  const quickActions = isUrdu
+    ? [
+        { icon: <Hand size={13} />, label: "شکریہ کا اشارہ", query: "پاکستانی اشاروں کی زبان میں شکریہ کیسے ادا کرتے ہیں؟" },
+        { icon: <HeartHandshake size={13} />, label: "بہری برادری کے آداب", query: "اشاراتی زبان میں گفتگو کرتے وقت کن آداب کا خیال رکھنا چاہیے؟" },
+        { icon: <ShieldCheck size={13} />, label: "اخلاقی اے آئی", query: "اشاراتی زبان میں اخلاقی اے آئی کا کیا مطلب ہے؟" },
+        { icon: <Languages size={13} />, label: "اردو ➔ پی ایس ایل", query: "اردو سے پی ایس ایل ترجمہ کیسے کام کرتا ہے؟" },
+        { icon: <Camera size={13} />, label: "پی ایس ایل ➔ اردو", query: "کیمرہ اشارات کی لائیو پہچان کیسے کرتا ہے؟" },
+        { icon: <HelpCircle size={13} />, label: "پی ایس ایل کے بارے میں", query: "کیا پاکستانی اشاروں کی زبان ایک مکمل زبان ہے؟" },
+      ]
+    : QUICK_ACTIONS;
+
   return (
     <>
       {/* ── Floating Action Button ── */}
       {!open && (
-        <button className="chatbot-fab" onClick={handleOpen} aria-label="Open SignBot assistant">
+        <button className="chatbot-fab" onClick={handleOpen} aria-label={t.botFabTooltip}>
           <MessageCircle size={22} />
           {unread > 0 && <span className="chatbot-fab-badge">{unread}</span>}
-          <span className="chatbot-fab-tooltip">Ethical PSL & App Help</span>
+          <span className="chatbot-fab-tooltip">{t.botFabTooltip}</span>
         </button>
       )}
 
@@ -673,7 +688,7 @@ export default function ChatBot() {
               </div>
               <div className="chatbot-header-info">
                 <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                  <span className="chatbot-title">SignBot</span>
+                  <span className="chatbot-title">{t.botTitle}</span>
                   <span
                     style={{
                       background: "rgba(255,255,255,0.2)",
@@ -684,14 +699,14 @@ export default function ChatBot() {
                       fontWeight: 600,
                     }}
                   >
-                    Ethical PSL AI
+                    {t.botTag}
                   </span>
                 </div>
                 <span className="chatbot-subtitle">
                   {typing ? (
-                    <span className="chatbot-typing-label">SignBot is thinking…</span>
+                    <span className="chatbot-typing-label">{t.botThinking}</span>
                   ) : (
-                    "Ethical Sign Language & SignSpeak Assistant"
+                    t.botSubtitle
                   )}
                 </span>
               </div>
@@ -700,8 +715,8 @@ export default function ChatBot() {
               <button
                 className="chatbot-hdr-btn"
                 onClick={handleReset}
-                title="New conversation"
-                aria-label="Reset chat"
+                title={t.botResetTitle}
+                aria-label={t.botResetTitle}
               >
                 <RefreshCw size={14} />
               </button>
@@ -728,7 +743,7 @@ export default function ChatBot() {
             <>
               {/* Quick Actions Bar */}
               <div className="chatbot-quick-bar">
-                {QUICK_ACTIONS.map((a) => (
+                {quickActions.map((a) => (
                   <button
                     key={a.label}
                     className="chatbot-quick-chip"
@@ -818,7 +833,7 @@ export default function ChatBot() {
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={handleKeyDown}
-                  placeholder="Ask about Deaf etiquette, PSL ethics, or app features…"
+                  placeholder={t.botInputPlaceholder}
                   aria-label="Chat message input"
                   maxLength={300}
                 />

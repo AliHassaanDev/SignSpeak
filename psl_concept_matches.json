@@ -1,0 +1,2280 @@
+{
+  "I": [
+    {
+      "category_id": 101,
+      "category": "English Alphabet",
+      "concept_id": 142,
+      "title": "I",
+      "slug": "i",
+      "urdu": "آئی"
+    },
+    {
+      "category_id": 83,
+      "category": "Islamic Signs",
+      "concept_id": 7874,
+      "title": "Here I am",
+      "slug": "here-i-am",
+      "urdu": "لبیک"
+    },
+    {
+      "category_id": 48,
+      "category": "Law and Order",
+      "concept_id": 7423,
+      "title": "F.I.R",
+      "slug": "fir",
+      "urdu": "ایف ائی آر"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4271,
+      "title": "can I help you?",
+      "slug": "can-i-help-you",
+      "urdu": "کیا میں اپ کی مدد کر سکتا ہوں؟"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4272,
+      "title": "can I take your order?",
+      "slug": "can-i-take-your-order",
+      "urdu": "کیا میں آپ کا حکم لے سکتا ہوں؟"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4311,
+      "title": "How can I help you?",
+      "slug": "how-can-i-help-you",
+      "urdu": "میں آپ کی کیسے مدد کر سکتا ہوں؟"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4312,
+      "title": "How do I get there?",
+      "slug": "how-do-i-get-there",
+      "urdu": "میں وہاں کیسے جاوں؟"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4325,
+      "title": "I am a student",
+      "slug": "i-am-a-student",
+      "urdu": "میں ایک طالب علم ہوں."
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4326,
+      "title": "I am learning sign language",
+      "slug": "i-am-learning-sign-language",
+      "urdu": "میں اشاروں کی زبان سیکھ رہا ہوں."
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4327,
+      "title": "I am studying to be an interpreter",
+      "slug": "i-am-studying-to-be-an-interpreter",
+      "urdu": "میں ایک مترجم ہونے کا مطالعہ کر رہا ہوں."
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4335,
+      "title": "I need to go to the bank",
+      "slug": "i-need-to-go-to-the-bank",
+      "urdu": "مجھے بینک جانے کی ضرورت ہے."
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4336,
+      "title": "I need to wash my shirt",
+      "slug": "i-need-to-wash-my-shirt",
+      "urdu": "مجھے اپنی شرٹ دھونے کی ضرورت ہے."
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4340,
+      "title": "I want to visit the deaf club",
+      "slug": "i-want-to-visit-the-deaf-club",
+      "urdu": "میں بہروں کے کلب کا دورہ کرنا چاہتا ہوں."
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4345,
+      "title": "I'll see you later",
+      "slug": "ill-see-you-later",
+      "urdu": "میں اپ سے بعد میں ملتا ہوں."
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4354,
+      "title": "May I have your business card?",
+      "slug": "may-i-have-your-business-card",
+      "urdu": "کیا میں آپ کا کاروباری کارڈ لےسکتا ہوں؟"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4273,
+      "title": "can I use the toilet?",
+      "slug": "can-i-use-the-toilet",
+      "urdu": "کیا میں ٹوائلٹ استعمال کر سکتا ہوں؟"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4289,
+      "title": "Do you know where I can find a room here?",
+      "slug": "do-you-know-where-i-can-find-a-room-here",
+      "urdu": "کیا آپ جانتے ہیں کہ میں یہاں ایک کمرہ کہاں تلاش کر سکتا ہوں؟"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4328,
+      "title": "I do not believe you",
+      "slug": "i-do-not-believe-you",
+      "urdu": "مجھے آپ پر یقین نہیں."
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4329,
+      "title": "I do not like this",
+      "slug": "i-do-not-like-this",
+      "urdu": "مجھے یہ پسند نہیں."
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4330,
+      "title": "I do not understand",
+      "slug": "i-do-not-understand",
+      "urdu": "میں نہیں سمجھا."
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4331,
+      "title": "I have a question",
+      "slug": "i-have-a-question",
+      "urdu": "میرا ایک سوال ہے."
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4332,
+      "title": "I have to buy some medicine",
+      "slug": "i-have-to-buy-some-medicine",
+      "urdu": "مجھے کچھ دوا خریدنا ہے."
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4333,
+      "title": "I have to go shopping",
+      "slug": "i-have-to-go-shopping",
+      "urdu": "مجھے خریداری کرنے جا نا ہے."
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4334,
+      "title": "I like to complete my work early",
+      "slug": "i-like-to-complete-my-work-early",
+      "urdu": "مجھے اپنے کام کو جلدی کرنا پسند ہے."
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4337,
+      "title": "I speak a little bit",
+      "slug": "i-speak-a-little-bit",
+      "urdu": "میں تھوڑا سا بولتا ہوں."
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4338,
+      "title": "I started a computer class today",
+      "slug": "i-started-a-computer-class-today",
+      "urdu": "میں نے آج کمپیوٹر کلاس شروع کی."
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4339,
+      "title": "I studied all night",
+      "slug": "i-studied-all-night",
+      "urdu": "میں نے پوری رات مطالعہ کیا."
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4341,
+      "title": "I was born deaf",
+      "slug": "i-was-born-deaf",
+      "urdu": "میں بہرا پیدا ہوا تھا."
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4342,
+      "title": "I went to a school for hearing children",
+      "slug": "i-went-to-a-school-for-hearing-children",
+      "urdu": "میں بچوں کو سننے کے لئے اسکول گیا."
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4343,
+      "title": "I will be back soon",
+      "slug": "i-will-be-back-soon",
+      "urdu": "میں جلد ہی واپس آؤں گا."
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4344,
+      "title": "I would like to interview for this job",
+      "slug": "i-would-like-to-interview-for-this-job",
+      "urdu": "میں اس کام کے لئے انٹرویو کرنا چاہوں گا."
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 7054,
+      "title": "I am sick",
+      "slug": "i-am-sick",
+      "urdu": "میں بیمار ہوں"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 7055,
+      "title": "I need to apply for leave.",
+      "slug": "i-need-to-apply-for-leave",
+      "urdu": "مجھے چھٹی کیلئے درخواست دینی ہے۔"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 7056,
+      "title": "I will be late",
+      "slug": "i-will-be-late",
+      "urdu": "مجھے  دیر ہو سکتی ہے"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 7129,
+      "title": "I forgot to bring my registration card.",
+      "slug": "i-forgot-to-bring-my-registration-card",
+      "urdu": "میں اپنا اندراج کارڈ لانا بھول گیا"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 8105,
+      "title": "I am fine, thank you",
+      "slug": "i-am-fine-thank-you",
+      "urdu": "میں ٹھیک ہوں، شکریہ۔"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 8106,
+      "title": "I am sorry",
+      "slug": "i-am-sorry",
+      "urdu": "مجھے افسوس ہے۔"
+    },
+    {
+      "category_id": 81,
+      "category": "KFC",
+      "concept_id": 6768,
+      "title": "Where can I sit?",
+      "slug": "where-can-i-sit",
+      "urdu": "میں کہاں بیٹھ سکتا ہوں؟"
+    },
+    {
+      "category_id": 81,
+      "category": "KFC",
+      "concept_id": 6744,
+      "title": "I want to order",
+      "slug": "i-want-to-order",
+      "urdu": "میں آرڈر دینا چاہتا ہوں"
+    },
+    {
+      "category_id": 81,
+      "category": "KFC",
+      "concept_id": 6743,
+      "title": "I need tissues",
+      "slug": "i-need-tissues",
+      "urdu": "مجھے ٹشو کی ضرورت ہے۔"
+    },
+    {
+      "category_id": 81,
+      "category": "KFC",
+      "concept_id": 6742,
+      "title": "I need ketchup",
+      "slug": "i-need-ketchup",
+      "urdu": "مجھے کیچپ کی ضرورت ہے۔"
+    },
+    {
+      "category_id": 81,
+      "category": "KFC",
+      "concept_id": 6741,
+      "title": "I have an complaint",
+      "slug": "i-have-an-complaint",
+      "urdu": "مجھے ایک شکایت ہے۔"
+    }
+  ],
+  "HAPPY": [
+    {
+      "category_id": 1,
+      "category": "Adjectives",
+      "concept_id": 5644,
+      "title": "happy",
+      "slug": "happy",
+      "urdu": "خُوش"
+    },
+    {
+      "category_id": 43,
+      "category": "Holidays and Celebrations",
+      "concept_id": 2538,
+      "title": "happy birthday",
+      "slug": "happy-birthday",
+      "urdu": "سالگرہ مبارک"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4306,
+      "title": "Happy New Year!",
+      "slug": "happy-new-year",
+      "urdu": "نیا سال مبارک ہو!"
+    }
+  ],
+  "SAD": [
+    {
+      "category_id": 1,
+      "category": "Adjectives",
+      "concept_id": 5845,
+      "title": "sad",
+      "slug": "sad",
+      "urdu": "اُداس"
+    }
+  ],
+  "GOOD": [
+    {
+      "category_id": 1,
+      "category": "Adjectives",
+      "concept_id": 8037,
+      "title": "Good",
+      "slug": "good",
+      "urdu": "اچھا"
+    },
+    {
+      "category_id": 83,
+      "category": "Islamic Signs",
+      "concept_id": 7991,
+      "title": "Reward of good deeds",
+      "slug": "reward-of-good-deeds",
+      "urdu": "ثواب"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4301,
+      "title": "good afternoon",
+      "slug": "good-afternoon",
+      "urdu": "دوپہر بخیر"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4302,
+      "title": "good evening",
+      "slug": "good-evening",
+      "urdu": "شام بخیر"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4303,
+      "title": "good morning",
+      "slug": "good-morning",
+      "urdu": "صبح بخیر"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4304,
+      "title": "good night",
+      "slug": "good-night",
+      "urdu": "شب بخیر"
+    },
+    {
+      "category_id": 81,
+      "category": "KFC",
+      "concept_id": 6740,
+      "title": "Have a good day!",
+      "slug": "have-a-good-day",
+      "urdu": "آپ کا دن اچھا گزرے"
+    }
+  ],
+  "NO": [
+    {
+      "category_id": 3,
+      "category": "Airport",
+      "concept_id": 190,
+      "title": "No Smoking",
+      "slug": "no-smoking",
+      "urdu": "تمباکو نوشی منع ہے"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4363,
+      "title": "No talking during the test",
+      "slug": "no-talking-during-the-test",
+      "urdu": "امتحان کے دوران باتیں نہ کریں"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4377,
+      "title": "There is no sign for that; you have to fingerspell it.",
+      "slug": "there-is-no-sign-for-that-you-have-to-fingerspell-it",
+      "urdu": "اس کے لئے کوئی اشارہ نہیں ہے؛ آپ کو انگلیوں سے ہجے کرنا پڑے گا."
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 8107,
+      "title": "No",
+      "slug": "no",
+      "urdu": "نہیں"
+    },
+    {
+      "category_id": 69,
+      "category": "Sports and Games",
+      "concept_id": 4589,
+      "title": "no ball",
+      "slug": "no-ball",
+      "urdu": "نو بال"
+    },
+    {
+      "category_id": 70,
+      "category": "Transport",
+      "concept_id": 4695,
+      "title": "no \"U\" turn",
+      "slug": "no-u-turn",
+      "urdu": "یو ٹرن منع ہے"
+    },
+    {
+      "category_id": 70,
+      "category": "Transport",
+      "concept_id": 4696,
+      "title": "no entry",
+      "slug": "no-entry",
+      "urdu": "داخلہ منع ہے"
+    },
+    {
+      "category_id": 70,
+      "category": "Transport",
+      "concept_id": 4697,
+      "title": "no overtaking",
+      "slug": "no-overtaking",
+      "urdu": "اورٹیکنگ منع ہے"
+    },
+    {
+      "category_id": 70,
+      "category": "Transport",
+      "concept_id": 4698,
+      "title": "no parking",
+      "slug": "no-parking",
+      "urdu": "نو پارکنگ"
+    }
+  ],
+  "WATER": [
+    {
+      "category_id": 9,
+      "category": "Appliances",
+      "concept_id": 309,
+      "title": "Water Pump",
+      "slug": "water-pump",
+      "urdu": "پانی کا پمپ"
+    },
+    {
+      "category_id": 9,
+      "category": "Appliances",
+      "concept_id": 308,
+      "title": "Water Cooler",
+      "slug": "water-cooler",
+      "urdu": "پانی کا کولر"
+    },
+    {
+      "category_id": 10,
+      "category": "Around The House",
+      "concept_id": 6003,
+      "title": "water bottle",
+      "slug": "water-bottle",
+      "urdu": "پانی کی بوتل"
+    },
+    {
+      "category_id": 79,
+      "category": "Construction",
+      "concept_id": 6434,
+      "title": "water tower",
+      "slug": "water-tower",
+      "urdu": "پانی کا ٹاور"
+    },
+    {
+      "category_id": 31,
+      "category": "Drinks",
+      "concept_id": 1580,
+      "title": "mineral water",
+      "slug": "mineral-water",
+      "urdu": "منرل واٹر"
+    },
+    {
+      "category_id": 31,
+      "category": "Drinks",
+      "concept_id": 7070,
+      "title": "water",
+      "slug": "water",
+      "urdu": "پانی"
+    },
+    {
+      "category_id": 34,
+      "category": "Farming and Agriculture",
+      "concept_id": 1810,
+      "title": "saline water",
+      "slug": "saline-water",
+      "urdu": "نمکین کھارا پانی"
+    },
+    {
+      "category_id": 35,
+      "category": "Flowers, Plants and Trees",
+      "concept_id": 1917,
+      "title": "water hyacinth",
+      "slug": "water-hyacinth",
+      "urdu": "سنبل آبی"
+    },
+    {
+      "category_id": 83,
+      "category": "Islamic Signs",
+      "concept_id": 7875,
+      "title": "Holy water of ZamZam",
+      "slug": "holy-water-of-zamzam",
+      "urdu": "آبِ زم زم"
+    },
+    {
+      "category_id": 47,
+      "category": "Kitchen",
+      "concept_id": 7793,
+      "title": "water glass",
+      "slug": "water-glass",
+      "urdu": "پانی کا گلاس"
+    },
+    {
+      "category_id": 47,
+      "category": "Kitchen",
+      "concept_id": 7792,
+      "title": "water dispenser",
+      "slug": "water-dispenser",
+      "urdu": "پانی کا ڈسپینسر"
+    },
+    {
+      "category_id": 64,
+      "category": "Science",
+      "concept_id": 4260,
+      "title": "water cycle",
+      "slug": "water-cycle",
+      "urdu": "اَبی سائیکل"
+    },
+    {
+      "category_id": 64,
+      "category": "Science",
+      "concept_id": 4261,
+      "title": "water pressure",
+      "slug": "water-pressure",
+      "urdu": "آبی دباﺅ"
+    },
+    {
+      "category_id": 77,
+      "category": "Textile",
+      "concept_id": 6596,
+      "title": "water plant",
+      "slug": "water-plant",
+      "urdu": "پانی کا پلانٹ"
+    },
+    {
+      "category_id": 70,
+      "category": "Transport",
+      "concept_id": 4742,
+      "title": "water tanker",
+      "slug": "water-tanker",
+      "urdu": "پانی کا ٹینکر"
+    }
+  ],
+  "FOOD": [
+    {
+      "category_id": 9,
+      "category": "Appliances",
+      "concept_id": 290,
+      "title": "Food Processor",
+      "slug": "food-processor",
+      "urdu": "فوڑ پروسیسر"
+    },
+    {
+      "category_id": 20,
+      "category": "Buildings and Places",
+      "concept_id": 999,
+      "title": "fast food restaurant",
+      "slug": "fast-food-restaurant",
+      "urdu": "فاسٹ فوڈ ریسٹورنٹ"
+    },
+    {
+      "category_id": 20,
+      "category": "Buildings and Places",
+      "concept_id": 7412,
+      "title": "fast food",
+      "slug": "fast-food",
+      "urdu": "فاسٹ فوڈ"
+    },
+    {
+      "category_id": 42,
+      "category": "Health and Medical Care",
+      "concept_id": 2352,
+      "title": "food poisoning",
+      "slug": "food-poisoning",
+      "urdu": "غِذائی زَہريَت"
+    },
+    {
+      "category_id": 78,
+      "category": "Hospitality",
+      "concept_id": 6919,
+      "title": "food service",
+      "slug": "food-service",
+      "urdu": "کھانے کی خدمت"
+    },
+    {
+      "category_id": 57,
+      "category": "Nouns - General",
+      "concept_id": 3254,
+      "title": "carbohydrates food",
+      "slug": "carbohydrates-food",
+      "urdu": "نِشاستہ دار غذا"
+    },
+    {
+      "category_id": 64,
+      "category": "Science",
+      "concept_id": 4177,
+      "title": "food chain",
+      "slug": "food-chain",
+      "urdu": "غِذائی سِلسِلہ"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 7153,
+      "title": "Use food chart",
+      "slug": "use-food-chart",
+      "urdu": "خوراک کا چارٹ استعمال کریں"
+    }
+  ],
+  "NAME": [
+    {
+      "category_id": 12,
+      "category": "Banking",
+      "concept_id": 600,
+      "title": "name",
+      "slug": "name",
+      "urdu": "نام"
+    },
+    {
+      "category_id": 12,
+      "category": "Banking",
+      "concept_id": 599,
+      "title": "mother's name",
+      "slug": "mothers-name",
+      "urdu": "ماں کا نام"
+    },
+    {
+      "category_id": 12,
+      "category": "Banking",
+      "concept_id": 587,
+      "title": "father's name",
+      "slug": "fathers-name",
+      "urdu": "باپ کا نام"
+    },
+    {
+      "category_id": 32,
+      "category": "Family and Marriage",
+      "concept_id": 1681,
+      "title": "maiden name",
+      "slug": "maiden-name",
+      "urdu": "عورت کا شادی سے پہلے کا نام"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4359,
+      "title": "my name is..",
+      "slug": "my-name-is",
+      "urdu": "میرا نام ۔ ۔ ۔ ۔ ۔  ہے۔"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 7165,
+      "title": "What is your father's name?",
+      "slug": "what-is-your-fathers-name",
+      "urdu": "آپ کے والد کا نام کیا ہے؟"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4384,
+      "title": "what is your name?",
+      "slug": "what-is-your-name",
+      "urdu": "آپ کا نام کیا ہے؟"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 7166,
+      "title": "What is your husband's name?",
+      "slug": "what-is-your-husbands-name",
+      "urdu": "آپ کے شوہر کا نام کیا ہے؟"
+    }
+  ],
+  "BOOK": [
+    {
+      "category_id": 12,
+      "category": "Banking",
+      "concept_id": 582,
+      "title": "cheque book",
+      "slug": "cheque-book",
+      "urdu": "چیک بک"
+    },
+    {
+      "category_id": 20,
+      "category": "Buildings and Places",
+      "concept_id": 967,
+      "title": "book store",
+      "slug": "book-store",
+      "urdu": "کتابوں کی دکان"
+    },
+    {
+      "category_id": 24,
+      "category": "Classroom",
+      "concept_id": 1273,
+      "title": "book",
+      "slug": "book",
+      "urdu": "کتاب"
+    },
+    {
+      "category_id": 47,
+      "category": "Kitchen",
+      "concept_id": 2674,
+      "title": "cook book",
+      "slug": "cook-book",
+      "urdu": "کھانا پکانے کی کتاب"
+    },
+    {
+      "category_id": 62,
+      "category": "Professions",
+      "concept_id": 3922,
+      "title": "book seller",
+      "slug": "book-seller",
+      "urdu": "کتاب فروش"
+    }
+  ],
+  "PAKISTAN": [
+    {
+      "category_id": 19,
+      "category": "Brand Names",
+      "concept_id": 853,
+      "title": "Allied Bank of Pakistan",
+      "slug": "allied-bank-of-pakistan",
+      "urdu": "الائیڈ بینک آف پاکستان"
+    },
+    {
+      "category_id": 19,
+      "category": "Brand Names",
+      "concept_id": 919,
+      "title": "Pakistan International Airlines",
+      "slug": "pakistan-international-airlines",
+      "urdu": "پاکستان انٹرنیشنل ایئرلائنز"
+    },
+    {
+      "category_id": 19,
+      "category": "Brand Names",
+      "concept_id": 920,
+      "title": "Pakistan Steel",
+      "slug": "pakistan-steel",
+      "urdu": "پاکستان اسٹیل"
+    },
+    {
+      "category_id": 19,
+      "category": "Brand Names",
+      "concept_id": 921,
+      "title": "Pakistan Telecommunication Company",
+      "slug": "pakistan-telecommunication-company",
+      "urdu": "پاکستان ٹیلی کمیونیکیشن کمپنی"
+    },
+    {
+      "category_id": 19,
+      "category": "Brand Names",
+      "concept_id": 933,
+      "title": "Shell Pakistan",
+      "slug": "shell-pakistan",
+      "urdu": "شیل پاکستان"
+    },
+    {
+      "category_id": 19,
+      "category": "Brand Names",
+      "concept_id": 942,
+      "title": "Telenor Pakistan",
+      "slug": "telenor-pakistan",
+      "urdu": "ٹیلی نار پاکستان"
+    },
+    {
+      "category_id": 19,
+      "category": "Brand Names",
+      "concept_id": 948,
+      "title": "Unilever Pakistan",
+      "slug": "unilever-pakistan",
+      "urdu": "یونی لیور پاکستان"
+    },
+    {
+      "category_id": 19,
+      "category": "Brand Names",
+      "concept_id": 7621,
+      "title": "Pakistan Cables",
+      "slug": "pakistan-cables",
+      "urdu": "پاکستان کیبلز"
+    },
+    {
+      "category_id": 40,
+      "category": "Government",
+      "concept_id": 2194,
+      "title": "Pakistan Muslim League",
+      "slug": "pakistan-muslim-league",
+      "urdu": "پاکستان مسلم لیگ"
+    },
+    {
+      "category_id": 40,
+      "category": "Government",
+      "concept_id": 7649,
+      "title": "PML (Pakistan Muslim League)",
+      "slug": "pml-pakistan-muslim-league",
+      "urdu": "پی ایم ایل (پاکستان مسلم لیگ)"
+    },
+    {
+      "category_id": 40,
+      "category": "Government",
+      "concept_id": 7670,
+      "title": "PTI (Pakistan Tehreek-e-Insaf)",
+      "slug": "pti-pakistan-tehreek-e-insaf",
+      "urdu": "پی ٹی آئی (پاکستان تحریک انصاف)"
+    },
+    {
+      "category_id": 40,
+      "category": "Government",
+      "concept_id": 7660,
+      "title": "PPP (Pakistan Peoples Party)",
+      "slug": "ppp-pakistan-peoples-party",
+      "urdu": "پی پی پی (پاکستان پیپلز پارٹی)"
+    },
+    {
+      "category_id": 40,
+      "category": "Government",
+      "concept_id": 7588,
+      "title": "NBP (National Bank of Pakistan)",
+      "slug": "nbp-national-bank-of-pakistan",
+      "urdu": "این بی پی (نیشنل بینک آف پاکستان)"
+    },
+    {
+      "category_id": 40,
+      "category": "Government",
+      "concept_id": 2195,
+      "title": "Pakistan Peoples Party",
+      "slug": "pakistan-peoples-party",
+      "urdu": "پاکستان پیپلز پارٹی"
+    },
+    {
+      "category_id": 55,
+      "category": "Military",
+      "concept_id": 7620,
+      "title": "Pakistan Armed Forces",
+      "slug": "pakistan-armed-forces",
+      "urdu": "پاکستانی مُسَلؔح افواج"
+    },
+    {
+      "category_id": 55,
+      "category": "Military",
+      "concept_id": 7622,
+      "title": "Pakistan Naval Force",
+      "slug": "pakistan-naval-force",
+      "urdu": "پاک بحریہ"
+    },
+    {
+      "category_id": 60,
+      "category": "Pakistan Places",
+      "concept_id": 3836,
+      "title": "Pakistan",
+      "slug": "pakistan",
+      "urdu": "پاکستان"
+    },
+    {
+      "category_id": 60,
+      "category": "Pakistan Places",
+      "concept_id": 7567,
+      "title": "Minar-e-Pakistan",
+      "slug": "minar-e-pakistan",
+      "urdu": "مینار پاکستان"
+    }
+  ],
+  "STOP": [
+    {
+      "category_id": 20,
+      "category": "Buildings and Places",
+      "concept_id": 1050,
+      "title": "truck stop",
+      "slug": "truck-stop",
+      "urdu": "ٹرک اڈا"
+    },
+    {
+      "category_id": 79,
+      "category": "Construction",
+      "concept_id": 6493,
+      "title": "drill stop",
+      "slug": "drill-stop",
+      "urdu": "ڈرل سٹاپ"
+    },
+    {
+      "category_id": 41,
+      "category": "Grammar",
+      "concept_id": 2231,
+      "title": "full stop",
+      "slug": "full-stop",
+      "urdu": "وقف لازم"
+    },
+    {
+      "category_id": 70,
+      "category": "Transport",
+      "concept_id": 4651,
+      "title": "bus stop",
+      "slug": "bus-stop",
+      "urdu": "بس اسٹاپ"
+    },
+    {
+      "category_id": 70,
+      "category": "Transport",
+      "concept_id": 4721,
+      "title": "stop ahead",
+      "slug": "stop-ahead",
+      "urdu": "آگے اسٹاپ ہے"
+    }
+  ],
+  "DOCTOR": [
+    {
+      "category_id": 20,
+      "category": "Buildings and Places",
+      "concept_id": 7369,
+      "title": "doctor office",
+      "slug": "doctor-office",
+      "urdu": "طبیب کا دفتر"
+    },
+    {
+      "category_id": 42,
+      "category": "Health and Medical Care",
+      "concept_id": 7388,
+      "title": "ENT doctor",
+      "slug": "ent-doctor",
+      "urdu": "ای این ٹی ڈاکٹر"
+    },
+    {
+      "category_id": 62,
+      "category": "Professions",
+      "concept_id": 3957,
+      "title": "doctor",
+      "slug": "doctor",
+      "urdu": "ڈاکٹر"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 7088,
+      "title": "Are you receiving treatment from any other doctor or hospital?",
+      "slug": "are-you-receiving-treatment-from-any-other-doctor-or-hospital",
+      "urdu": "کیا آپ کسی دوسرے ڈاکٹر یا ہسپتال میں زیر علاج ہیں؟"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 7098,
+      "title": "Are you taking consultation from another doctor?",
+      "slug": "are-you-taking-consultation-from-another-doctor",
+      "urdu": "کیا آپ کسی اور ڈاکٹر سے مشورہ لے رہے ہیں؟"
+    }
+  ],
+  "SCHOOL": [
+    {
+      "category_id": 24,
+      "category": "Classroom",
+      "concept_id": 1313,
+      "title": "school",
+      "slug": "school",
+      "urdu": "اسکول"
+    },
+    {
+      "category_id": 24,
+      "category": "Classroom",
+      "concept_id": 1314,
+      "title": "school books",
+      "slug": "school-books",
+      "urdu": "اسکول کی کتابیں"
+    },
+    {
+      "category_id": 26,
+      "category": "Clothes and Accessories",
+      "concept_id": 1407,
+      "title": "school uniform",
+      "slug": "school-uniform",
+      "urdu": "اسکول کا  یونیفارم"
+    },
+    {
+      "category_id": 52,
+      "category": "Marine Life",
+      "concept_id": 2930,
+      "title": "school of fish",
+      "slug": "school-of-fish",
+      "urdu": "مچھلیوں کا غول"
+    },
+    {
+      "category_id": 57,
+      "category": "Nouns - General",
+      "concept_id": 3621,
+      "title": "school holiday",
+      "slug": "school-holiday",
+      "urdu": "اسکول کی چھٹی"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4285,
+      "title": "Do you go to school?",
+      "slug": "do-you-go-to-school",
+      "urdu": "کیا آپ اسکول جاتے ہیں؟"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4342,
+      "title": "I went to a school for hearing children",
+      "slug": "i-went-to-a-school-for-hearing-children",
+      "urdu": "میں بچوں کو سننے کے لئے اسکول گیا."
+    }
+  ],
+  "POLICE": [
+    {
+      "category_id": 26,
+      "category": "Clothes and Accessories",
+      "concept_id": 1400,
+      "title": "police uniform",
+      "slug": "police-uniform",
+      "urdu": "پولیس کی وردی"
+    },
+    {
+      "category_id": 48,
+      "category": "Law and Order",
+      "concept_id": 2781,
+      "title": "police officer",
+      "slug": "police-officer",
+      "urdu": "پولیس افسر"
+    },
+    {
+      "category_id": 48,
+      "category": "Law and Order",
+      "concept_id": 2782,
+      "title": "police station",
+      "slug": "police-station",
+      "urdu": "تھانہ"
+    },
+    {
+      "category_id": 48,
+      "category": "Law and Order",
+      "concept_id": 2780,
+      "title": "police inspector",
+      "slug": "police-inspector",
+      "urdu": "پولیس انسپیکٹر"
+    },
+    {
+      "category_id": 55,
+      "category": "Military",
+      "concept_id": 7651,
+      "title": "police custody",
+      "slug": "police-custody",
+      "urdu": "حراست"
+    },
+    {
+      "category_id": 62,
+      "category": "Professions",
+      "concept_id": 4034,
+      "title": "police chief",
+      "slug": "police-chief",
+      "urdu": "پولیس سربراہ"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4374,
+      "title": "The police station is two blocks away.",
+      "slug": "the-police-station-is-two-blocks-away",
+      "urdu": "پولیس اسٹیشن دو بلاکس دور ہے."
+    },
+    {
+      "category_id": 70,
+      "category": "Transport",
+      "concept_id": 4706,
+      "title": "police car",
+      "slug": "police-car",
+      "urdu": "پولیس کی گاڑی"
+    }
+  ],
+  "DRINK": [
+    {
+      "category_id": 31,
+      "category": "Drinks",
+      "concept_id": 1571,
+      "title": "cold drink",
+      "slug": "cold-drink",
+      "urdu": "ٹھنڈا شربت"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4293,
+      "title": "Do you want a soft drink?",
+      "slug": "do-you-want-a-soft-drink",
+      "urdu": "کیا آپ سافٹ ڈرنک پینا چاہتے ہیں؟"
+    },
+    {
+      "category_id": 72,
+      "category": "Verbs",
+      "concept_id": 4990,
+      "title": "drink",
+      "slug": "drink",
+      "urdu": "پینا"
+    }
+  ],
+  "FAMILY": [
+    {
+      "category_id": 32,
+      "category": "Family and Marriage",
+      "concept_id": 1641,
+      "title": "family tree",
+      "slug": "family-tree",
+      "urdu": "شجرہ نسب"
+    },
+    {
+      "category_id": 32,
+      "category": "Family and Marriage",
+      "concept_id": 7558,
+      "title": "maternal family",
+      "slug": "maternal-family",
+      "urdu": "ننھیال"
+    },
+    {
+      "category_id": 32,
+      "category": "Family and Marriage",
+      "concept_id": 7633,
+      "title": "paternal family",
+      "slug": "paternal-family",
+      "urdu": "ددھیال"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 7114,
+      "title": "Does anyone in your family have diabetes?",
+      "slug": "does-anyone-in-your-family-have-diabetes",
+      "urdu": "کیا آپکے خاندان میں کسی کو ذیابیطس ہے؟"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 7121,
+      "title": "Family medical history",
+      "slug": "family-medical-history",
+      "urdu": "موروثی طبعی معلومات"
+    }
+  ],
+  "FRIEND": [
+    {
+      "category_id": 32,
+      "category": "Family and Marriage",
+      "concept_id": 1647,
+      "title": "friend (female)",
+      "slug": "friend-female",
+      "urdu": "سہیلی"
+    },
+    {
+      "category_id": 57,
+      "category": "Nouns - General",
+      "concept_id": 3226,
+      "title": "best friend",
+      "slug": "best-friend",
+      "urdu": "اچھا دوست/قریبی دوست"
+    }
+  ],
+  "MEDICINE": [
+    {
+      "category_id": 36,
+      "category": "Food - General",
+      "concept_id": 7753,
+      "title": "syrup (medicine)",
+      "slug": "syrup-medicine",
+      "urdu": "ادویاتی شربت"
+    },
+    {
+      "category_id": 42,
+      "category": "Health and Medical Care",
+      "concept_id": 8074,
+      "title": "Medicine",
+      "slug": "medicine",
+      "urdu": "دوائی"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4332,
+      "title": "I have to buy some medicine",
+      "slug": "i-have-to-buy-some-medicine",
+      "urdu": "مجھے کچھ دوا خریدنا ہے."
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 7172,
+      "title": "Which medicine are you using?",
+      "slug": "which-medicine-are-you-using",
+      "urdu": "آپ کون سی دوائی استعمال کر رہے ہں؟"
+    }
+  ],
+  "HOSPITAL": [
+    {
+      "category_id": 42,
+      "category": "Health and Medical Care",
+      "concept_id": 2371,
+      "title": "hospital",
+      "slug": "hospital",
+      "urdu": "ہسپتال"
+    },
+    {
+      "category_id": 42,
+      "category": "Health and Medical Care",
+      "concept_id": 7362,
+      "title": "discharge (hospital)",
+      "slug": "discharge-hospital",
+      "urdu": "خارج"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 7088,
+      "title": "Are you receiving treatment from any other doctor or hospital?",
+      "slug": "are-you-receiving-treatment-from-any-other-doctor-or-hospital",
+      "urdu": "کیا آپ کسی دوسرے ڈاکٹر یا ہسپتال میں زیر علاج ہیں؟"
+    },
+    {
+      "category_id": 74,
+      "category": "Vocational",
+      "concept_id": 6017,
+      "title": "patient (hospital)",
+      "slug": "patient-hospital",
+      "urdu": "مریض"
+    }
+  ],
+  "HELP": [
+    {
+      "category_id": 83,
+      "category": "Islamic Signs",
+      "concept_id": 7841,
+      "title": "divine help",
+      "slug": "divine-help",
+      "urdu": "توفیق"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4271,
+      "title": "can I help you?",
+      "slug": "can-i-help-you",
+      "urdu": "کیا میں اپ کی مدد کر سکتا ہوں؟"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4311,
+      "title": "How can I help you?",
+      "slug": "how-can-i-help-you",
+      "urdu": "میں آپ کی کیسے مدد کر سکتا ہوں؟"
+    },
+    {
+      "category_id": 72,
+      "category": "Verbs",
+      "concept_id": 5071,
+      "title": "help",
+      "slug": "help",
+      "urdu": "مدد"
+    }
+  ],
+  "YOU": [
+    {
+      "category_id": 83,
+      "category": "Islamic Signs",
+      "concept_id": 7883,
+      "title": "May Allah reward you",
+      "slug": "may-allah-reward-you",
+      "urdu": "جزاک اللہ"
+    },
+    {
+      "category_id": 63,
+      "category": "Pronouns",
+      "concept_id": 4124,
+      "title": "you",
+      "slug": "you",
+      "urdu": "تم / آپ"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4266,
+      "title": "are you hungry?",
+      "slug": "are-you-hungry",
+      "urdu": "کیا تم بھوکے ہو؟"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4271,
+      "title": "can I help you?",
+      "slug": "can-i-help-you",
+      "urdu": "کیا میں اپ کی مدد کر سکتا ہوں؟"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4279,
+      "title": "Did you ask him?",
+      "slug": "did-you-ask-him",
+      "urdu": "کیا تم نے اس سے پوچھا؟"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4281,
+      "title": "Did you pass or fail?",
+      "slug": "did-you-pass-or-fail",
+      "urdu": "کیا آپ پاس یا ناکام ہوئے ہیں؟"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4283,
+      "title": "Do you allow animals?",
+      "slug": "do-you-allow-animals",
+      "urdu": "کیا آپ جانوروں کی اجازت دیتے ہیں؟"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4292,
+      "title": "Do you use a hearing aid?",
+      "slug": "do-you-use-a-hearing-aid",
+      "urdu": "کیا آپ ایک سماعت کی مدد لیتے ہیں؟"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4308,
+      "title": "Have you eaten?",
+      "slug": "have-you-eaten",
+      "urdu": "کیا تم نے کھا لیا ہے؟"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4311,
+      "title": "How can I help you?",
+      "slug": "how-can-i-help-you",
+      "urdu": "میں آپ کی کیسے مدد کر سکتا ہوں؟"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4345,
+      "title": "I'll see you later",
+      "slug": "ill-see-you-later",
+      "urdu": "میں اپ سے بعد میں ملتا ہوں."
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4365,
+      "title": "See you later!",
+      "slug": "see-you-later",
+      "urdu": "بعد میں ملتے ہیں!"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4369,
+      "title": "thank you",
+      "slug": "thank-you",
+      "urdu": "شکریہ"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 7105,
+      "title": "Do you feel dizzy?",
+      "slug": "do-you-feel-dizzy",
+      "urdu": "کیا آپکو چکؔر آرہے ہیں؟"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 7127,
+      "title": "How many kids do you have?",
+      "slug": "how-many-kids-do-you-have",
+      "urdu": "آپکے کتنے بچّے ہیں؟"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 7128,
+      "title": "How many times do you pass urine at night?",
+      "slug": "how-many-times-do-you-pass-urine-at-night",
+      "urdu": "رات میں آپ کتنی بار پیشاب کرتے ہیں؟"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 7140,
+      "title": "Next time, bring card with you",
+      "slug": "next-time-bring-card-with-you",
+      "urdu": "اگلی بار اپنے ساتھ کارڈ لے کر آئیں"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 7170,
+      "title": "When did you have surgery?",
+      "slug": "when-did-you-have-surgery",
+      "urdu": "آپکی سرجری کب ہوئی؟"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 7173,
+      "title": "You have cataract disease",
+      "slug": "you-have-cataract-disease",
+      "urdu": "آپ کی آنکھ میں سفید موتیا ہے"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 7515,
+      "title": "It's up to you",
+      "slug": "its-up-to-you",
+      "urdu": "جیسے آپکی مرضی"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4265,
+      "title": "are you deaf?",
+      "slug": "are-you-deaf",
+      "urdu": "کیا تم بہرے ہو؟"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4267,
+      "title": "are you ready?",
+      "slug": "are-you-ready",
+      "urdu": "کیا آپ تیار ہیں؟"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4280,
+      "title": "Did you eat?",
+      "slug": "did-you-eat",
+      "urdu": "کیا تم نے کھا یا؟"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4282,
+      "title": "Did you understand?",
+      "slug": "did-you-understand",
+      "urdu": "کیا تم سمجھے؟"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4284,
+      "title": "Do you feel all right?",
+      "slug": "do-you-feel-all-right",
+      "urdu": "کیا تم بالکل ٹھیک محسوس کرتے ہو؟"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4285,
+      "title": "Do you go to school?",
+      "slug": "do-you-go-to-school",
+      "urdu": "کیا آپ اسکول جاتے ہیں؟"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4286,
+      "title": "Do you have a pet?",
+      "slug": "do-you-have-a-pet",
+      "urdu": "کیا آپکے پاس ایک پالتو جانور ہے؟"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4287,
+      "title": "Do you have any aspirin?",
+      "slug": "do-you-have-any-aspirin",
+      "urdu": "کیا آپ کے پاس کوئی اسپرین ہے؟"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4288,
+      "title": "Do you have more of this?",
+      "slug": "do-you-have-more-of-this",
+      "urdu": "کیا آپ اس سے زیادہ ہیں؟"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4289,
+      "title": "Do you know where I can find a room here?",
+      "slug": "do-you-know-where-i-can-find-a-room-here",
+      "urdu": "کیا آپ جانتے ہیں کہ میں یہاں ایک کمرہ کہاں تلاش کر سکتا ہوں؟"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4290,
+      "title": "Do you like to watch TV?",
+      "slug": "do-you-like-to-watch-tv",
+      "urdu": "کیا آپ ٹی وی دیکھنا چاہتے ہیں؟"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4291,
+      "title": "Do you speak English?",
+      "slug": "do-you-speak-english",
+      "urdu": "کیا آپ انگریزی بول سکتے ہیں؟"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4293,
+      "title": "Do you want a soft drink?",
+      "slug": "do-you-want-a-soft-drink",
+      "urdu": "کیا آپ سافٹ ڈرنک پینا چاہتے ہیں؟"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4294,
+      "title": "Do you want milk and sugar?",
+      "slug": "do-you-want-milk-and-sugar",
+      "urdu": "کیا آپ دودھ اور چینی چاہتے ہیں؟"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4295,
+      "title": "Do you want to go to the movies?",
+      "slug": "do-you-want-to-go-to-the-movies",
+      "urdu": "کیا آپ فلموں دیکھنا جانا چاہتے ہیں؟"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4310,
+      "title": "how are you?",
+      "slug": "how-are-you",
+      "urdu": "آپ کیسے ہیں؟"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4313,
+      "title": "How do you feel?",
+      "slug": "how-do-you-feel",
+      "urdu": "اپ کیسا محسوس کر رہے ہیں؟"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4316,
+      "title": "How long are you staying?",
+      "slug": "how-long-are-you-staying",
+      "urdu": "تم کتنے وقت رہو گے؟"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4318,
+      "title": "How many children do you have?",
+      "slug": "how-many-children-do-you-have",
+      "urdu": "آپ کے کتنے بچے ہیں؟"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4323,
+      "title": "how old are you?",
+      "slug": "how-old-are-you",
+      "urdu": "آپ کتنے سال کے ہیں؟"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4328,
+      "title": "I do not believe you",
+      "slug": "i-do-not-believe-you",
+      "urdu": "مجھے آپ پر یقین نہیں."
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4349,
+      "title": "Is somebody meeting you?",
+      "slug": "is-somebody-meeting-you",
+      "urdu": "کیا آپ سے ملاقات کی ہے/کیا کو ئی آپ سے مل رہا ہے؟"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4350,
+      "title": "Is that enough for you?",
+      "slug": "is-that-enough-for-you",
+      "urdu": "کیا آپ کے لئے کافی ہے؟/کیا یہ آپ کے لیے کافی ہے؟"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4361,
+      "title": "Nice to meet you",
+      "slug": "nice-to-meet-you",
+      "urdu": "آپ سے مل کر خوشی ہوئی-"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4370,
+      "title": "Thank you for dining with us.",
+      "slug": "thank-you-for-dining-with-us",
+      "urdu": "ہمارے ساتھ کھانا کھانے کا شکریہ."
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4377,
+      "title": "There is no sign for that; you have to fingerspell it.",
+      "slug": "there-is-no-sign-for-that-you-have-to-fingerspell-it",
+      "urdu": "اس کے لئے کوئی اشارہ نہیں ہے؛ آپ کو انگلیوں سے ہجے کرنا پڑے گا."
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4388,
+      "title": "Where do you live?",
+      "slug": "where-do-you-live",
+      "urdu": "آپ کہاں رہتے ہیں؟"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 7085,
+      "title": "Are you muslim or non-muslim?",
+      "slug": "are-you-muslim-or-non-muslim",
+      "urdu": "آپ مسلمان ہیں یا غیر مسلم؟"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 7088,
+      "title": "Are you receiving treatment from any other doctor or hospital?",
+      "slug": "are-you-receiving-treatment-from-any-other-doctor-or-hospital",
+      "urdu": "کیا آپ کسی دوسرے ڈاکٹر یا ہسپتال میں زیر علاج ہیں؟"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 7097,
+      "title": "Are you renting or do you own your house?",
+      "slug": "are-you-renting-or-do-you-own-your-house",
+      "urdu": "کیا آپ کرائے دار ہیں یا آپ کا اپنا ذاتی مکان ہے؟"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 7098,
+      "title": "Are you taking consultation from another doctor?",
+      "slug": "are-you-taking-consultation-from-another-doctor",
+      "urdu": "کیا آپ کسی اور ڈاکٹر سے مشورہ لے رہے ہیں؟"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 7099,
+      "title": "Are you wearing glasses for the first time?",
+      "slug": "are-you-wearing-glasses-for-the-first-time",
+      "urdu": "کیا آپ پہلی دفعہ عینک پہن رہے ہیں؟"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 7106,
+      "title": "Do you feel itching?",
+      "slug": "do-you-feel-itching",
+      "urdu": "کیا آپ کو خارش محسوس ہوتی ہے؟"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 7107,
+      "title": "Do you have any debts?",
+      "slug": "do-you-have-any-debts",
+      "urdu": "کیا آپ کے ذمے کوئی قرض ہے؟"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 7108,
+      "title": "Do you have any assets?",
+      "slug": "do-you-have-any-assets",
+      "urdu": "کیا آپ کے پاس اثاثے ہیں؟"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 7109,
+      "title": "Do you have bruise or irritation in your feet?",
+      "slug": "do-you-have-bruise-or-irritation-in-your-feet",
+      "urdu": "کیا آپکے پاؤں میں زخم یا جلن ہے؟"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 7110,
+      "title": "Do you have diabetes?",
+      "slug": "do-you-have-diabetes",
+      "urdu": "کیا آپ کو ذیابیطس ہے؟"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 7111,
+      "title": "Do you have gold/silver?",
+      "slug": "do-you-have-goldsilver",
+      "urdu": "کیا آپ کے پاس سونا یا چاندی ہے؟"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 7112,
+      "title": "Do you have trade items?",
+      "slug": "do-you-have-trade-items",
+      "urdu": "کیا آپ کے پاس تجارتی سامان ہے؟"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 7123,
+      "title": "How long have you been diabetic?",
+      "slug": "how-long-have-you-been-diabetic",
+      "urdu": "آپکو کب سے ذیابیطس ہے؟"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 7124,
+      "title": "How long have you been facing this problem?",
+      "slug": "how-long-have-you-been-facing-this-problem",
+      "urdu": "آپ کو یہ مسئلہ کب سے ہے؟"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 7125,
+      "title": "How long have you been suffering with this disease?",
+      "slug": "how-long-have-you-been-suffering-with-this-disease",
+      "urdu": "آپ کب سے اس مرض میں مبتلا ہیں؟"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 7126,
+      "title": "How long have you been wearing glasses?",
+      "slug": "how-long-have-you-been-wearing-glasses",
+      "urdu": "آپ کب سے چشمہ پہن رہے ہیں؟"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 7160,
+      "title": "We are supporting you with some amount",
+      "slug": "we-are-supporting-you-with-some-amount",
+      "urdu": "ہم آپکے ساتھ کچھ مالی تعاون کر رہے ہیں"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 7171,
+      "title": "When do you need this report?",
+      "slug": "when-do-you-need-this-report",
+      "urdu": "آپ کو اس رپورٹ کی ضرورت کب ہے؟"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 7172,
+      "title": "Which medicine are you using?",
+      "slug": "which-medicine-are-you-using",
+      "urdu": "آپ کون سی دوائی استعمال کر رہے ہں؟"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 8105,
+      "title": "I am fine, thank you",
+      "slug": "i-am-fine-thank-you",
+      "urdu": "میں ٹھیک ہوں، شکریہ۔"
+    },
+    {
+      "category_id": 81,
+      "category": "KFC",
+      "concept_id": 6730,
+      "title": "Can you bring my order to the table?",
+      "slug": "can-you-bring-my-order-to-the-table",
+      "urdu": "کیا آپ میرا آرڈر میز پر لاسکتے ہیں؟"
+    }
+  ],
+  "SIGN": [
+    {
+      "category_id": 57,
+      "category": "Nouns - General",
+      "concept_id": 3465,
+      "title": "International Sign",
+      "slug": "international-sign",
+      "urdu": "بین الاقوامی نشان/بین الاقوامی اشارے"
+    },
+    {
+      "category_id": 57,
+      "category": "Nouns - General",
+      "concept_id": 3642,
+      "title": "sign language training for parents",
+      "slug": "sign-language-training-for-parents",
+      "urdu": "والدین کے لئے اشاروں کی زبان کی تربیت۔"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4326,
+      "title": "I am learning sign language",
+      "slug": "i-am-learning-sign-language",
+      "urdu": "میں اشاروں کی زبان سیکھ رہا ہوں."
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4360,
+      "title": "My sign language has already improved",
+      "slug": "my-sign-language-has-already-improved",
+      "urdu": "میری اشاروں کی زبان پہلے ہی بہتر ہوگئی ہے."
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4366,
+      "title": "Sign slowly, please",
+      "slug": "sign-slowly-please",
+      "urdu": "مہربانی کرکےآہستہ آہستہ اشارہ کریں."
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4377,
+      "title": "There is no sign for that; you have to fingerspell it.",
+      "slug": "there-is-no-sign-for-that-you-have-to-fingerspell-it",
+      "urdu": "اس کے لئے کوئی اشارہ نہیں ہے؛ آپ کو انگلیوں سے ہجے کرنا پڑے گا."
+    },
+    {
+      "category_id": 70,
+      "category": "Transport",
+      "concept_id": 4678,
+      "title": "information sign",
+      "slug": "information-sign",
+      "urdu": "معلومات"
+    },
+    {
+      "category_id": 72,
+      "category": "Verbs",
+      "concept_id": 5246,
+      "title": "sign (language)",
+      "slug": "sign-language",
+      "urdu": "اشارہ کرنا"
+    },
+    {
+      "category_id": 72,
+      "category": "Verbs",
+      "concept_id": 5247,
+      "title": "sign (signature)",
+      "slug": "sign-signature",
+      "urdu": "دستخط کرنا"
+    }
+  ],
+  "MY": [
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4336,
+      "title": "I need to wash my shirt",
+      "slug": "i-need-to-wash-my-shirt",
+      "urdu": "مجھے اپنی شرٹ دھونے کی ضرورت ہے."
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4359,
+      "title": "my name is..",
+      "slug": "my-name-is",
+      "urdu": "میرا نام ۔ ۔ ۔ ۔ ۔  ہے۔"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4360,
+      "title": "My sign language has already improved",
+      "slug": "my-sign-language-has-already-improved",
+      "urdu": "میری اشاروں کی زبان پہلے ہی بہتر ہوگئی ہے."
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4367,
+      "title": "Sixty thousand people live in my city",
+      "slug": "sixty-thousand-people-live-in-my-city",
+      "urdu": "میرے شہر میں ساٹھ ہزار لوگ رہتے ہیں."
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4334,
+      "title": "I like to complete my work early",
+      "slug": "i-like-to-complete-my-work-early",
+      "urdu": "مجھے اپنے کام کو جلدی کرنا پسند ہے."
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4357,
+      "title": "My brother is younger than me",
+      "slug": "my-brother-is-younger-than-me",
+      "urdu": "میرا بھائی مجھ سے چھوٹا ہے"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4358,
+      "title": "My internet connection is slow",
+      "slug": "my-internet-connection-is-slow",
+      "urdu": "میرا انٹرنیٹ کنکشن سست ہے."
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 7129,
+      "title": "I forgot to bring my registration card.",
+      "slug": "i-forgot-to-bring-my-registration-card",
+      "urdu": "میں اپنا اندراج کارڈ لانا بھول گیا"
+    },
+    {
+      "category_id": 81,
+      "category": "KFC",
+      "concept_id": 6853,
+      "title": "How long until my order is served?",
+      "slug": "how-long-until-my-order-is-served",
+      "urdu": "میرا آرڈر مکمل ہونے میں کتنا وقت لگے گا؟"
+    },
+    {
+      "category_id": 81,
+      "category": "KFC",
+      "concept_id": 6730,
+      "title": "Can you bring my order to the table?",
+      "slug": "can-you-bring-my-order-to-the-table",
+      "urdu": "کیا آپ میرا آرڈر میز پر لاسکتے ہیں؟"
+    }
+  ],
+  "WANT": [
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4340,
+      "title": "I want to visit the deaf club",
+      "slug": "i-want-to-visit-the-deaf-club",
+      "urdu": "میں بہروں کے کلب کا دورہ کرنا چاہتا ہوں."
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4293,
+      "title": "Do you want a soft drink?",
+      "slug": "do-you-want-a-soft-drink",
+      "urdu": "کیا آپ سافٹ ڈرنک پینا چاہتے ہیں؟"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4294,
+      "title": "Do you want milk and sugar?",
+      "slug": "do-you-want-milk-and-sugar",
+      "urdu": "کیا آپ دودھ اور چینی چاہتے ہیں؟"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4295,
+      "title": "Do you want to go to the movies?",
+      "slug": "do-you-want-to-go-to-the-movies",
+      "urdu": "کیا آپ فلموں دیکھنا جانا چاہتے ہیں؟"
+    },
+    {
+      "category_id": 72,
+      "category": "Verbs",
+      "concept_id": 5315,
+      "title": "want",
+      "slug": "want",
+      "urdu": "چاہنا"
+    },
+    {
+      "category_id": 81,
+      "category": "KFC",
+      "concept_id": 6744,
+      "title": "I want to order",
+      "slug": "i-want-to-order",
+      "urdu": "میں آرڈر دینا چاہتا ہوں"
+    }
+  ],
+  "PLEASE": [
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4364,
+      "title": "please",
+      "slug": "please",
+      "urdu": "براہ مہربانی"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4366,
+      "title": "Sign slowly, please",
+      "slug": "sign-slowly-please",
+      "urdu": "مہربانی کرکےآہستہ آہستہ اشارہ کریں."
+    }
+  ],
+  "THANK": [
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4369,
+      "title": "thank you",
+      "slug": "thank-you",
+      "urdu": "شکریہ"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4370,
+      "title": "Thank you for dining with us.",
+      "slug": "thank-you-for-dining-with-us",
+      "urdu": "ہمارے ساتھ کھانا کھانے کا شکریہ."
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 8105,
+      "title": "I am fine, thank you",
+      "slug": "i-am-fine-thank-you",
+      "urdu": "میں ٹھیک ہوں، شکریہ۔"
+    }
+  ],
+  "WELCOME": [
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4380,
+      "title": "welcome",
+      "slug": "welcome",
+      "urdu": "خوش آمدید"
+    }
+  ],
+  "YES": [
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4396,
+      "title": "yes",
+      "slug": "yes",
+      "urdu": "جی ہاں"
+    }
+  ],
+  "EAT": [
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4280,
+      "title": "Did you eat?",
+      "slug": "did-you-eat",
+      "urdu": "کیا تم نے کھا یا؟"
+    },
+    {
+      "category_id": 72,
+      "category": "Verbs",
+      "concept_id": 8070,
+      "title": "Eat",
+      "slug": "eat",
+      "urdu": "کهانا"
+    }
+  ],
+  "WHERE": [
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4289,
+      "title": "Do you know where I can find a room here?",
+      "slug": "do-you-know-where-i-can-find-a-room-here",
+      "urdu": "کیا آپ جانتے ہیں کہ میں یہاں ایک کمرہ کہاں تلاش کر سکتا ہوں؟"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4388,
+      "title": "Where do you live?",
+      "slug": "where-do-you-live",
+      "urdu": "آپ کہاں رہتے ہیں؟"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4389,
+      "title": "where?",
+      "slug": "where",
+      "urdu": "کہاں؟"
+    },
+    {
+      "category_id": 81,
+      "category": "KFC",
+      "concept_id": 6768,
+      "title": "Where can I sit?",
+      "slug": "where-can-i-sit",
+      "urdu": "میں کہاں بیٹھ سکتا ہوں؟"
+    }
+  ],
+  "SPEAK": [
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4291,
+      "title": "Do you speak English?",
+      "slug": "do-you-speak-english",
+      "urdu": "کیا آپ انگریزی بول سکتے ہیں؟"
+    },
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4337,
+      "title": "I speak a little bit",
+      "slug": "i-speak-a-little-bit",
+      "urdu": "میں تھوڑا سا بولتا ہوں."
+    },
+    {
+      "category_id": 72,
+      "category": "Verbs",
+      "concept_id": 5258,
+      "title": "speak",
+      "slug": "speak",
+      "urdu": "بولنا"
+    }
+  ],
+  "HELLO": [
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4309,
+      "title": "hello",
+      "slug": "hello",
+      "urdu": "ہیلو"
+    }
+  ],
+  "HOW_ARE_YOU": [
+    {
+      "category_id": 65,
+      "category": "Sentences",
+      "concept_id": 4310,
+      "title": "how are you?",
+      "slug": "how-are-you",
+      "urdu": "آپ کیسے ہیں؟"
+    }
+  ],
+  "LEARN": [
+    {
+      "category_id": 72,
+      "category": "Verbs",
+      "concept_id": 5109,
+      "title": "learn",
+      "slug": "learn",
+      "urdu": "سیکھنا"
+    }
+  ],
+  "LOVE": [
+    {
+      "category_id": 72,
+      "category": "Verbs",
+      "concept_id": 5122,
+      "title": "love",
+      "slug": "love",
+      "urdu": "پیار  کَرنا"
+    }
+  ]
+}

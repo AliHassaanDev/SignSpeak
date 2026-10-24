@@ -14,6 +14,7 @@ import {
   Trash2,
   History,
 } from "lucide-react";
+import { useLanguage } from "../app/context/LanguageContext";
 
 export interface PredictionToken {
   id: string;
@@ -54,6 +55,7 @@ export default function TranscriptPanel({
 }: TranscriptPanelProps) {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [copied, setCopied] = useState(false);
+  const { t, isUrdu } = useLanguage();
 
   // Intent states
   const [intent, setIntent] = useState<SilentUserIntent | null>(externalIntent || null);
@@ -226,7 +228,7 @@ export default function TranscriptPanel({
           <div className="silent-intent-badge-group">
             <span className="silent-intent-title">
               <Sparkles size={14} color="#7c3aed" />
-              <span style={{ fontSize: '13px', fontWeight: 600 }}>Live Translation (ترجمہ)</span>
+              <span style={{ fontSize: '13px', fontWeight: 600 }}>{t.liveTranslationTitle}</span>
             </span>
             {intent?.tone && (
               <span className={`intent-tone-badge ${intent.tone}`}>
@@ -237,8 +239,8 @@ export default function TranscriptPanel({
 
           <div style={{ display: "flex", gap: "10px", alignItems: 'center' }}>
             {hasBuffer && (
-              <button className="icon-subtle-btn" onClick={onUndoLast} title="Undo last sign" style={{ background: "transparent", border: "none", cursor: "pointer", color: "#ef4444", display: "inline-flex", alignItems: "center", gap: "3px", fontSize: "11px", fontWeight: 500 }}>
-                <RotateCcw size={13} /> Undo
+              <button className="icon-subtle-btn" onClick={onUndoLast} title={t.undoBtn} style={{ background: "transparent", border: "none", cursor: "pointer", color: "#ef4444", display: "inline-flex", alignItems: "center", gap: "3px", fontSize: "11px", fontWeight: 500 }}>
+                <RotateCcw size={13} /> {t.undoBtn}
               </button>
             )}
             {(hasBuffer || currentDetection || intent) && (
@@ -258,17 +260,17 @@ export default function TranscriptPanel({
                   setIsSpeaking(false);
                   setCopied(false);
                 }}
-                title="Clear all"
+                title={t.clearAllBtn}
                 style={{ background: "transparent", border: "none", cursor: "pointer", color: "var(--muted)", display: "inline-flex", alignItems: "center", gap: "3px", fontSize: "11px", fontWeight: 500, marginRight: '8px' }}
               >
-                <Trash2 size={13} /> Clear
+                <Trash2 size={13} /> {t.clearAllBtn}
               </button>
             )}
 
             <button
               className="refresh-icon-btn"
               onClick={() => setShowHistory(!showHistory)}
-              title="View translation history"
+              title={t.historyBtnTitle}
               style={{
                 background: showHistory ? "rgba(139, 92, 246, 0.15)" : "transparent",
                 border: showHistory ? "1px solid rgba(139, 92, 246, 0.3)" : "1px solid transparent",
@@ -295,10 +297,10 @@ export default function TranscriptPanel({
         {showHistory && (
           <div className="history-dropdown" style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '12px', marginBottom: '16px', maxHeight: '150px', overflowY: 'auto' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-              <h4 style={{ margin: 0, fontSize: '12px', color: '#64748b' }}>Translation History Logs</h4>
-              <button onClick={() => setHistory([])} style={{ border: 'none', background: 'transparent', color: '#ef4444', fontSize: '11px', cursor: 'pointer' }}>Clear</button>
+              <h4 style={{ margin: 0, fontSize: '12px', color: '#64748b' }}>{t.historyDropdownTitle}</h4>
+              <button onClick={() => setHistory([])} style={{ border: 'none', background: 'transparent', color: '#ef4444', fontSize: '11px', cursor: 'pointer' }}>{t.clearAllBtn}</button>
             </div>
-            {history.length === 0 ? <p style={{ fontSize: '11px', color: '#94a3b8', margin: 0 }}>No logs saved yet.</p> : [...history].reverse().map((h, i) => (
+            {history.length === 0 ? <p style={{ fontSize: '11px', color: '#94a3b8', margin: 0 }}>{t.noHistoryLogs}</p> : [...history].reverse().map((h, i) => (
               <div key={i} style={{ borderBottom: '1px solid #e2e8f0', paddingBottom: '8px', marginBottom: '8px' }}>
                 <p dir="rtl" style={{ margin: '0 0 4px 0', fontSize: '14px', fontWeight: 600, color: 'var(--foreground)' }}>{h.urduSentence}</p>
                 <p style={{ margin: 0, fontSize: '12px', color: '#64748b' }}>{h.englishSentence}</p>
@@ -323,9 +325,9 @@ export default function TranscriptPanel({
           ) : (
             <div style={{ color: "var(--muted)", fontSize: "15px", padding: "20px 0", textAlign: "center" }}>
               {displayPills.length > 0 ? (
-                <span>Translating...</span>
+                <span>{isUrdu ? "ترجمہ ہو رہا ہے..." : "Translating..."}</span>
               ) : (
-                <span>Start signing or upload a video to see translation here.</span>
+                <span>{t.waitingGesturesDesc}</span>
               )}
             </div>
           )}
@@ -346,7 +348,7 @@ export default function TranscriptPanel({
               title="Speak the formulated intent sentence"
             >
               {isSpeaking ? <VolumeX size={15} /> : <Volume2 size={15} />}
-              <span>{isSpeaking ? "Stop" : "Listen (سنیں)"}</span>
+              <span>{isSpeaking ? (isUrdu ? "روکیں" : "Stop") : t.listenBtn}</span>
             </button>
 
             <button
@@ -357,7 +359,7 @@ export default function TranscriptPanel({
               title="Copy intent sentence"
             >
               {copied ? <Check size={14} color="#10b981" /> : <Copy size={14} />}
-              <span>{copied ? "Copied!" : "Copy"}</span>
+              <span>{copied ? t.copiedBtn : t.copyBtn}</span>
             </button>
           </div>
         </div>
@@ -366,12 +368,12 @@ export default function TranscriptPanel({
       {/* ─── SUB BLOCK: Raw Detected Signs Buffer ─── */}
       <div style={{ display: "flex", flexDirection: "column", gap: "8px", padding: "0 12px" }}>
         <span style={{ fontSize: "11px", fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
-          Detected Signs (اشارے): {displayPills.length > 0 && <span style={{ color: "var(--violet)", marginLeft: '4px' }}>{displayPills.length}</span>}
+          {isUrdu ? "پہچانے گئے اشارات" : "Detected Signs (اشارے)"}: {displayPills.length > 0 && <span style={{ color: "var(--violet)", marginLeft: '4px' }}>{displayPills.length}</span>}
         </span>
         <div className="canvas-strip" style={{ minHeight: "56px", padding: "12px", background: "rgba(255, 255, 255, 0.4)", borderRadius: "12px", border: "1px dashed rgba(226, 232, 240, 0.8)", flexWrap: "wrap" }}>
           {displayPills.length === 0 ? (
             <span style={{ color: "var(--muted)", fontSize: "12px", margin: "auto", fontStyle: "italic" }}>
-              Raw signs buffer is empty.
+              {isUrdu ? "اشارات کی پٹی خالی ہے۔" : "Raw signs buffer is empty."}
             </span>
           ) : (
             displayPills.map((tok, idx) => (
