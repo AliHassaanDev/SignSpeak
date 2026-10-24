@@ -1,40 +1,40 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HoloSign 75 — 3D Sign & Gesture Benchmark Studio</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <!-- Three.js r128 + OrbitControls + TransformControls -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/TransformControls.js"></script>
     <style>
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: #090d16;
-            color: #e2e8f0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
             overflow: hidden;
             user-select: none;
         }
         .mono {
             font-family: 'JetBrains Mono', monospace;
         }
-        /* Custom Scrollbars */
+        /* Custom Smooth Light Scrollbars */
         ::-webkit-scrollbar {
             width: 6px;
             height: 6px;
         }
         ::-webkit-scrollbar-track {
-            background: rgba(15, 23, 42, 0.6);
+            background: rgba(241, 245, 249, 0.7);
         }
         ::-webkit-scrollbar-thumb {
-            background: rgba(71, 85, 105, 0.8);
+            background: rgba(203, 213, 225, 0.85);
             border-radius: 9999px;
         }
         ::-webkit-scrollbar-thumb:hover {
-            background: rgba(56, 189, 248, 0.8);
+            background: rgba(148, 163, 184, 1);
         }
         input[type=range] {
             -webkit-appearance: none;
@@ -43,113 +43,142 @@
         input[type=range]::-webkit-slider-runnable-track {
             height: 6px;
             border-radius: 999px;
-            background: #1e293b;
+            background: #e2e8f0;
         }
         input[type=range]::-webkit-slider-thumb {
             -webkit-appearance: none;
             height: 16px;
             width: 16px;
             border-radius: 50%;
-            background: #38bdf8;
+            background: #6366f1;
             margin-top: -5px;
             cursor: pointer;
-            box-shadow: 0 0 10px rgba(56, 189, 248, 0.6);
-            transition: transform 0.1s ease;
+            box-shadow: 0 2px 8px rgba(99, 102, 241, 0.4);
+            transition: transform 0.12s ease;
         }
         input[type=range]::-webkit-slider-thumb:hover {
-            transform: scale(1.15);
+            transform: scale(1.18);
         }
         .glass-panel {
-            background: rgba(15, 23, 42, 0.82);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(51, 65, 85, 0.6);
+            background: rgba(255, 255, 255, 0.94);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(226, 232, 240, 0.85);
+            box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.05), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
+        }
+        #leftSidebar, #rightSidebar {
+            transition: width 0.2s ease;
         }
     </style>
 </head>
-<body class="h-screen w-screen flex flex-col overflow-hidden">
+<body class="h-screen w-screen flex flex-col overflow-hidden bg-slate-50 text-slate-800">
 
-    <!-- Top Header Bar -->
-    <header class="h-14 glass-panel border-b border-slate-800 px-4 flex items-center justify-between z-20 shrink-0">
-        <div class="flex items-center gap-3">
-            <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-cyan-500 via-blue-600 to-indigo-700 flex items-center justify-center shadow-lg shadow-cyan-500/20">
-                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 11.5V14m0-2.5v-6a1.5 1.5 0 113 0m-3 6a1.5 1.5 0 00-3 0v2a7.5 7.5 0 0015 0v-5a1.5 1.5 0 00-3 0m-6-3V11m0-5.5v-1a1.5 1.5 0 013 0v1m0 0V11m0-5.5a1.5 1.5 0 013 0v3m0 0V11"></path>
-                </svg>
-            </div>
-            <div>
-                <div class="flex items-center gap-2">
-                    <h1 class="font-bold text-base tracking-tight text-white">HoloSign <span class="text-cyan-400">75</span></h1>
-                    <span class="text-[10px] mono uppercase px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-300 border border-cyan-500/30">Holistic Rig v2.4</span>
-                </div>
-                <p class="text-[11px] text-slate-400 hidden sm:block">33 Pose/Face/Trunk + 21 Left Hand + 21 Right Hand Interactive Benchmarks</p>
-            </div>
-        </div>
-
-        <!-- Visual Toggles & Mode Bar -->
-        <div class="flex items-center gap-2 flex-wrap">
-            <!-- Rigging Mode: Hierarchical vs Independent -->
-            <div class="flex items-center bg-slate-900/90 p-1 rounded-lg border border-slate-700/70">
-                <button id="btnModeFK" onclick="setKinematicsMode(true)" class="px-2.5 py-1 rounded-md text-xs font-medium transition-all bg-cyan-500 text-slate-950 shadow">
-                    Hierarchical (Chain)
-                </button>
-                <button id="btnModeFree" onclick="setKinematicsMode(false)" class="px-2.5 py-1 rounded-md text-xs font-medium transition-all text-slate-300 hover:text-white">
-                    Single Point
-                </button>
-            </div>
-
-            <!-- Mesh / Skin / Bones / Landmarks Toggles -->
-            <div class="flex items-center bg-slate-900/90 p-1 rounded-lg border border-slate-700/70 gap-1">
-                <span class="text-[10px] mono uppercase text-slate-400 px-1.5">Avatar:</span>
-                <select id="avatarStyleSelect" onchange="setAvatarStyle(this.value)" class="bg-slate-800 text-xs font-medium text-cyan-300 rounded px-2 py-1 border border-slate-700 focus:outline-none">
-                    <option value="REALISTIC" selected>Realistic Bare Skin & Underwear</option>
-                    <option value="MANNEQUIN">Studio Porcelain Mannequin</option>
-                    <option value="XRAY">X-Ray Translucent (Internal 75)</option>
-                    <option value="HIDDEN">Skeleton Only</option>
+    <!-- LINE 1: Top Bar (Avatar selector, Node controls, IDs, JSON, Kinematics & Camera) -->
+    <header class="h-12 glass-panel border-b border-slate-200/80 px-3 flex items-center justify-between gap-2 z-20 shrink-0 text-xs overflow-x-auto">
+        <div class="flex items-center gap-2 shrink-0">
+            <!-- Avatar Style Select -->
+            <div class="flex items-center bg-slate-100/80 p-0.5 rounded-lg border border-slate-200 gap-1 text-xs">
+                <span class="text-[10px] mono uppercase text-slate-500 px-1 font-semibold">Avatar:</span>
+                <select id="avatarStyleSelect" onchange="setAvatarStyle(this.value)" class="bg-white text-xs font-semibold text-slate-800 rounded px-2 py-1 border border-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-xs">
+                    <option value="REALISTIC" selected>Skin</option>
+                    <option value="MANNEQUIN">Mannequin</option>
+                    <option value="XRAY">X-Ray</option>
+                    <option value="HIDDEN">Skeleton</option>
                 </select>
             </div>
 
-            <button id="toggleBonesBtn" onclick="toggleLayer('bones')" class="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 hover:bg-cyan-500/30 transition flex items-center gap-1.5">
-                <span class="w-2 h-2 rounded-full bg-cyan-400"></span> Bones
-            </button>
-            <button id="togglePointsBtn" onclick="toggleLayer('points')" class="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 hover:bg-emerald-500/30 transition flex items-center gap-1.5">
-                <span class="w-2 h-2 rounded-full bg-emerald-400"></span> 75 Nodes
-            </button>
-            <div class="hidden xl:flex items-center gap-1.5 bg-slate-900/90 px-2.5 py-1 rounded-lg border border-slate-700/70" title="Adjust 75 Benchmark Sphere Scale">
-                <span class="text-[10px] mono text-slate-400">Node Size</span>
-                <input id="nodeScaleSlider" type="range" min="0.3" max="1.6" step="0.05" value="0.75" oninput="setBenchmarkNodeScale(this.value)" class="w-16">
+            <!-- Layer & Node Controls (Off by default) -->
+            <div class="flex items-center gap-1.5 shrink-0">
+                <button id="toggleBonesBtn" onclick="toggleLayer('bones')" class="px-2.5 py-1 rounded-lg text-xs font-medium bg-slate-100 text-slate-600 border border-slate-200 hover:text-slate-900 transition flex items-center gap-1.5 shadow-xs">
+                    <span class="w-2 h-2 rounded-full bg-slate-400"></span> Bones
+                </button>
+                <button id="togglePointsBtn" onclick="toggleLayer('points')" class="px-2.5 py-1 rounded-lg text-xs font-medium bg-slate-100 text-slate-600 border border-slate-200 hover:text-slate-900 transition flex items-center gap-1.5 shadow-xs">
+                    <span class="w-2 h-2 rounded-full bg-slate-400"></span> Nodes
+                </button>
+                <div class="flex items-center gap-1.5 bg-slate-100/80 px-2 py-1 rounded-lg border border-slate-200" title="Adjust Node Sphere Scale">
+                    <span class="text-[10px] text-slate-500 font-medium">Size</span>
+                    <input id="nodeScaleSlider" type="range" min="0.3" max="1.6" step="0.05" value="0.75" oninput="setBenchmarkNodeScale(this.value)" class="w-14">
+                </div>
             </div>
-            <button id="toggleLabelsBtn" onclick="toggleLayer('labels')" class="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-slate-800 text-slate-400 border border-slate-700 hover:text-white transition">
+
+            <!-- ID Toggle -->
+            <button id="toggleLabelsBtn" onclick="toggleLayer('labels')" class="px-2.5 py-1 rounded-lg text-xs font-medium bg-slate-100 text-slate-700 border border-slate-200 hover:bg-slate-200 hover:text-slate-900 transition shadow-xs shrink-0">
                 # IDs
             </button>
 
-            <!-- Camera View Presets -->
-            <div class="hidden lg:flex items-center bg-slate-900/90 p-1 rounded-lg border border-slate-700/70 text-xs">
-                <button onclick="setCameraView('front')" class="px-2 py-1 rounded hover:bg-slate-800 text-slate-300">Full</button>
-                <button onclick="setCameraView('portrait')" class="px-2 py-1 rounded hover:bg-slate-800 text-cyan-300">Face</button>
-                <button onclick="setCameraView('FaceHands')" class="px-2 py-1 rounded hover:bg-slate-800 text-slate-300">Signer</button>
-                <button onclick="setCameraView('leftHand')" class="px-2 py-1 rounded hover:bg-slate-800 text-emerald-400">L-Hand</button>
-                <button onclick="setCameraView('rightHand')" class="px-2 py-1 rounded hover:bg-slate-800 text-amber-400">R-Hand</button>
-            </div>
-
-            <button onclick="openJsonModal()" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-gradient-to-r from-cyan-500 to-blue-600 text-white hover:opacity-95 transition shadow-lg shadow-cyan-500/20 flex items-center gap-1.5">
+            <!-- JSON I/O Button -->
+            <button onclick="openJsonModal()" class="px-3 py-1 rounded-lg text-xs font-semibold bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:opacity-95 transition shadow-sm shadow-indigo-500/20 flex items-center gap-1.5 shrink-0">
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                 </svg>
-                JSON Data I/O
+                JSON
             </button>
+        </div>
+
+        <div class="flex items-center gap-2 shrink-0">
+            <!-- Kinematics Mode Toggle -->
+            <div class="flex items-center bg-slate-100/80 p-0.5 rounded-lg border border-slate-200 text-xs">
+                <button id="btnModeFK" onclick="setKinematicsMode(true)" class="px-2 py-0.5 rounded text-xs font-semibold transition-all bg-white text-indigo-700 shadow-xs">
+                    Chain
+                </button>
+                <button id="btnModeFree" onclick="setKinematicsMode(false)" class="px-2 py-0.5 rounded text-xs font-medium transition-all text-slate-600 hover:text-slate-900">
+                    Point
+                </button>
+            </div>
+
+            <!-- Compact Camera Views -->
+            <div class="hidden sm:flex items-center bg-slate-100/80 p-0.5 rounded-lg border border-slate-200 text-xs">
+                <button onclick="setCameraView('front')" class="px-2 py-0.5 rounded hover:bg-white text-slate-700">Full</button>
+                <button onclick="setCameraView('portrait')" class="px-2 py-0.5 rounded hover:bg-white text-indigo-600 font-semibold">Face</button>
+                <button onclick="setCameraView('FaceHands')" class="px-2 py-0.5 rounded hover:bg-white text-slate-700">Signer</button>
+                <button onclick="setCameraView('leftHand')" class="px-2 py-0.5 rounded hover:bg-white text-emerald-700">L-Hand</button>
+                <button onclick="setCameraView('rightHand')" class="px-2 py-0.5 rounded hover:bg-white text-amber-700">R-Hand</button>
+            </div>
         </div>
     </header>
 
-    <!-- Main Workspace -->
-    <div class="flex-1 flex overflow-hidden relative">
+    <!-- LINE 2: Two Buttons (Presets & Nodes, Inspector & Control) -->
+    <div class="h-10 bg-white/95 backdrop-blur-md border-b border-slate-200/80 px-4 flex items-center justify-center gap-3 z-20 shrink-0">
+        <button id="btnToggleLeft" onclick="toggleDrawer('left')" class="px-4 py-1.5 rounded-xl text-xs font-semibold bg-white border border-slate-200 text-slate-700 hover:text-indigo-600 hover:border-indigo-300 hover:bg-indigo-50/50 shadow-sm transition flex items-center gap-2">
+            <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"></path>
+            </svg>
+            <span>Presets & Nodes</span>
+        </button>
+        <button id="btnToggleRight" onclick="toggleDrawer('right')" class="px-4 py-1.5 rounded-xl text-xs font-semibold bg-white border border-slate-200 text-slate-700 hover:text-indigo-600 hover:border-indigo-300 hover:bg-indigo-50/50 shadow-sm transition flex items-center gap-2">
+            <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path>
+            </svg>
+            <span>Inspector & Controls</span>
+        </button>
+    </div>
 
-        <!-- Left Sidebar: 75 Benchmark Directory & Sign Presets -->
-        <aside class="w-72 md:w-80 glass-panel border-r border-slate-800 flex flex-col z-10 shrink-0">
+    <!-- LINE 3: Common Signs as in Preset (Horizontal Scrollable Quick Access) -->
+    <div class="h-11 bg-slate-50/95 border-b border-slate-200/80 px-3 flex items-center gap-1.5 overflow-x-auto z-20 shrink-0" id="commonSignsBar">
+        <!-- Rendered via JS from SIGN_PRESETS -->
+    </div>
+
+    <!-- CENTER WORKSPACE: Docked Left Sidebar + Center 3D Avatar Viewport + Docked Right Sidebar -->
+    <div class="flex-1 flex flex-row relative overflow-hidden min-h-0 w-full">
+
+        <!-- Left Docked Sidebar: 75 Benchmark Directory & Sign Presets -->
+        <aside id="leftSidebar" class="w-80 shrink-0 border-r border-slate-200/90 bg-white/95 backdrop-blur-md flex-col z-10 hidden">
+            <!-- Header with close button -->
+            <div class="p-3 border-b border-slate-100 flex items-center justify-between bg-slate-50/70 shrink-0">
+                <div class="flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-indigo-500"></span>
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-800">Presets & Nodes</span>
+                </div>
+                <button onclick="toggleDrawer('left')" class="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 transition" title="Close Panel">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+
             <!-- Sign Language & Gesture Presets -->
-            <div class="p-3.5 border-b border-slate-800/80">
+            <div class="p-3 border-b border-slate-100 shrink-0">
                 <div class="flex items-center justify-between mb-2">
-                    <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Sign & Gesture Presets</span>
-                    <span id="activeSignBadge" class="text-[11px] mono text-cyan-400 bg-cyan-950/60 px-2 py-0.5 rounded border border-cyan-800/50">Rest / Neutral</span>
+                    <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Sign Presets</span>
+                    <span id="activeSignBadge" class="text-[11px] mono text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded border border-indigo-200 font-semibold">Rest / Neutral</span>
                 </div>
                 <div class="grid grid-cols-2 gap-1.5" id="presetButtonsContainer">
                     <!-- Populated via JS -->
@@ -157,28 +186,28 @@
             </div>
 
             <!-- Filter & Search 75 Benchmarks -->
-            <div class="p-3 border-b border-slate-800/80 space-y-2">
+            <div class="p-3 border-b border-slate-100 space-y-2 shrink-0">
                 <div class="flex items-center justify-between">
-                    <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">75 Benchmark Explorer</span>
+                    <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">75 Nodes</span>
                     <div class="flex gap-1 text-[10px] mono">
-                        <span class="px-1.5 py-0.5 rounded bg-cyan-500/15 text-cyan-300">0-32 Pose</span>
-                        <span class="px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-300">33-53 L</span>
-                        <span class="px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-300">54-74 R</span>
+                        <span class="px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-700 border border-indigo-200">0-32 Pose</span>
+                        <span class="px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">33-53 L</span>
+                        <span class="px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200">54-74 R</span>
                     </div>
                 </div>
                 <div class="relative">
-                    <input id="landmarkSearch" type="text" placeholder="Search index (0-74) or joint name..." oninput="renderLandmarkList()"
-                        class="w-full bg-slate-900/90 border border-slate-700/80 rounded-lg pl-8 pr-3 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500">
-                    <svg class="w-3.5 h-3.5 text-slate-500 absolute left-2.5 top-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <input id="landmarkSearch" type="text" placeholder="Search (0-74) or joint name..." oninput="renderLandmarkList()"
+                        class="w-full bg-white border border-slate-200 rounded-lg pl-8 pr-3 py-1.5 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
+                    <svg class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                     </svg>
                 </div>
                 <!-- Category Filter Pills -->
                 <div class="grid grid-cols-4 gap-1 text-[11px]">
-                    <button onclick="setCategoryFilter('ALL')" id="cat_ALL" class="py-1 rounded bg-slate-700 text-white font-medium">All (75)</button>
-                    <button onclick="setCategoryFilter('POSE')" id="cat_POSE" class="py-1 rounded bg-slate-900 text-cyan-400 hover:bg-slate-800">Pose (33)</button>
-                    <button onclick="setCategoryFilter('LEFT_HAND')" id="cat_LEFT_HAND" class="py-1 rounded bg-slate-900 text-emerald-400 hover:bg-slate-800">L-Hand (21)</button>
-                    <button onclick="setCategoryFilter('RIGHT_HAND')" id="cat_RIGHT_HAND" class="py-1 rounded bg-slate-900 text-amber-400 hover:bg-slate-800">R-Hand (21)</button>
+                    <button onclick="setCategoryFilter('ALL')" id="cat_ALL" class="py-1 rounded-lg bg-indigo-600 text-white font-semibold shadow-xs">All (75)</button>
+                    <button onclick="setCategoryFilter('POSE')" id="cat_POSE" class="py-1 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200">Pose (33)</button>
+                    <button onclick="setCategoryFilter('LEFT_HAND')" id="cat_LEFT_HAND" class="py-1 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200">L-Hand (21)</button>
+                    <button onclick="setCategoryFilter('RIGHT_HAND')" id="cat_RIGHT_HAND" class="py-1 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200">R-Hand (21)</button>
                 </div>
             </div>
 
@@ -188,248 +217,241 @@
             </div>
         </aside>
 
-        <!-- Center 3D Viewport & Floating HUD -->
-        <main class="flex-1 relative flex flex-col bg-gradient-to-b from-[#0b1120] via-[#090d16] to-[#05070c]">
+        <!-- Center 3D Avatar Viewport -->
+        <main id="mainViewport" class="flex-1 relative flex flex-col min-w-0 h-full overflow-hidden" style="background: radial-gradient(circle at 50% 32%, #ffffff 0%, #f6f8fb 55%, #e8edf5 100%);">
             <!-- 3D Canvas Container -->
             <div id="canvasContainer" class="flex-1 relative w-full h-full cursor-grab active:cursor-grabbing">
-                <!-- Overlay Legend Top-Left -->
-                <div class="absolute top-3 left-3 pointer-events-none flex flex-col gap-1.5 z-10">
-                    <div class="glass-panel px-3 py-2 rounded-xl text-xs flex items-center gap-4 shadow-lg">
-                        <div class="flex items-center gap-1.5">
-                            <span class="w-2.5 h-2.5 rounded-full bg-cyan-400 shadow shadow-cyan-400"></span>
-                            <span class="text-slate-300">Pose & Face <strong class="mono text-white">[0–32]</strong></span>
-                        </div>
-                        <div class="flex items-center gap-1.5">
-                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow shadow-emerald-400"></span>
-                            <span class="text-slate-300">Left Hand <strong class="mono text-white">[33–53]</strong></span>
-                        </div>
-                        <div class="flex items-center gap-1.5">
-                            <span class="w-2.5 h-2.5 rounded-full bg-amber-400 shadow shadow-amber-400"></span>
-                            <span class="text-slate-300">Right Hand <strong class="mono text-white">[54–74]</strong></span>
-                        </div>
-                    </div>
-                    <div class="glass-panel px-3 py-1.5 rounded-lg text-[11px] text-slate-400 max-w-md">
-                        Click any sphere to attach the <span class="text-cyan-300 font-medium">3D Transform Gizmo</span>. Drag arrows to move benchmarks in real time.
-                    </div>
-                </div>
-
                 <!-- Floating Toast Notification -->
-                <div id="toastBanner" class="hidden absolute top-4 right-4 z-30 glass-panel border-cyan-500/50 text-cyan-200 px-4 py-2 rounded-xl text-xs font-medium shadow-xl"></div>
+                <div id="toastBanner" class="hidden absolute top-4 right-4 z-30 glass-panel border-indigo-200 text-indigo-900 px-4 py-2 rounded-xl text-xs font-semibold shadow-xl"></div>
 
                 <!-- Renderer Backend Badge -->
-                <div id="rendererModeBadge" class="absolute bottom-3 right-3 z-10 pointer-events-none glass-panel px-2.5 py-1 rounded-lg text-[10px] mono text-slate-400 flex items-center gap-1.5">
-                    <span id="rendererDot" class="w-2 h-2 rounded-full bg-emerald-400"></span>
-                    <span id="rendererModeText">3D Engine Ready</span>
+                <div id="rendererModeBadge" class="absolute bottom-3 right-3 z-10 pointer-events-none glass-panel px-2.5 py-1 rounded-lg text-[10px] mono text-slate-500 flex items-center gap-1.5 border border-slate-200/80">
+                    <span id="rendererDot" class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                    <span id="rendererModeText">3D Ready</span>
                 </div>
 
                 <!-- 2D Floating ID Labels Layer -->
                 <div id="labelsOverlay" class="absolute inset-0 pointer-events-none overflow-hidden hidden"></div>
             </div>
-
-            <!-- Bottom Timeline & Keyframe Animation Player -->
-            <div class="h-20 glass-panel border-t border-slate-800 px-4 flex items-center gap-4 z-10 shrink-0">
-                <div class="flex items-center gap-2">
-                    <button id="playPauseBtn" onclick="togglePlayAnimation()" class="w-10 h-10 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 flex items-center justify-center shadow-lg shadow-cyan-500/25 transition">
-                        <svg id="playIcon" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"></path>
-                        </svg>
-                        <svg id="pauseIcon" class="w-5 h-5 hidden" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"></path>
-                        </svg>
-                    </button>
-                    <button onclick="resetToNeutralPose()" title="Reset All 75 Benchmarks to T-Pose" class="px-2.5 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs text-slate-300 border border-slate-700 transition">
-                        Reset Pose
-                    </button>
-                </div>
-
-                <!-- Scrubber Bar -->
-                <div class="flex-1 flex flex-col gap-1">
-                    <div class="flex justify-between items-center text-[11px]">
-                        <span class="text-slate-400">Sign Sequence Timeline (<span id="timelineSignName" class="text-cyan-400 font-medium">Hello / Salute</span>)</span>
-                        <span class="mono text-slate-300"><span id="timelineProgressText">0%</span> | Frame <span id="frameCounterText">0 / 60</span></span>
-                    </div>
-                    <input id="timelineSlider" type="range" min="0" max="100" value="0" step="0.5" oninput="scrubTimeline(this.value)" class="w-full">
-                </div>
-
-                <!-- Playback Speed & Keyframe Capture -->
-                <div class="flex items-center gap-2">
-                    <div class="flex flex-col">
-                        <label class="text-[10px] text-slate-400 uppercase mono">Speed</label>
-                        <select id="speedSelect" onchange="setPlaybackSpeed(this.value)" class="bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-xs text-white focus:outline-none">
-                            <option value="0.5">0.5x Slow</option>
-                            <option value="1" selected>1.0x Normal</option>
-                            <option value="1.5">1.5x Fast</option>
-                            <option value="2">2.0x Rapid</option>
-                        </select>
-                    </div>
-                    <button onclick="captureCustomKeyframe()" class="px-3 py-2 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 text-xs font-medium transition">
-                        + Record Keyframe (<span id="customKfCount">0</span>)
-                    </button>
-                </div>
-            </div>
         </main>
 
-        <!-- Right Sidebar: Selected Benchmark Inspector & Quick Hand Curl Controls -->
-        <aside class="w-80 glass-panel border-l border-slate-800 flex flex-col z-10 shrink-0 overflow-y-auto">
+        <!-- Right Docked Sidebar: Selected Benchmark Inspector & Controls -->
+        <aside id="rightSidebar" class="w-80 shrink-0 border-l border-slate-200/90 bg-white/95 backdrop-blur-md flex-col z-10 overflow-y-auto hidden">
+            <!-- Header with close button -->
+            <div class="p-3 border-b border-slate-100 flex items-center justify-between bg-slate-50/70 shrink-0 sticky top-0 z-10 backdrop-blur-md">
+                <div class="flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-purple-500"></span>
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-800">Inspector & Controls</span>
+                </div>
+                <button onclick="toggleDrawer('right')" class="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 transition" title="Close Panel">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+
             <!-- Selected Landmark Inspector -->
-            <div class="p-4 border-b border-slate-800/80">
+            <div class="p-4 border-b border-slate-100 shrink-0">
                 <div class="flex items-center justify-between mb-3">
-                    <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Benchmark Inspector</span>
-                    <span id="inspectorGroupBadge" class="text-[10px] mono px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">POSE</span>
+                    <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Benchmark Inspector</span>
+                    <span id="inspectorGroupBadge" class="text-[10px] mono px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200 font-semibold">POSE</span>
                 </div>
 
-                <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-3 mb-3">
+                <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 mb-3">
                     <div class="flex items-baseline justify-between">
-                        <span class="text-xs text-slate-400">Benchmark ID</span>
-                        <span id="inspIndex" class="text-lg font-bold mono text-cyan-400">#16</span>
+                        <span class="text-xs text-slate-500">Benchmark ID</span>
+                        <span id="inspIndex" class="text-lg font-bold mono text-indigo-600">#16</span>
                     </div>
-                    <div id="inspName" class="text-sm font-semibold text-white mt-0.5 truncate">RIGHT_WRIST</div>
-                    <div id="inspDesc" class="text-[11px] text-slate-400 mt-1">Primary right wrist anchor driving the 21 right-hand benchmarks.</div>
+                    <div id="inspName" class="text-sm font-semibold text-slate-900 mt-0.5 truncate">RIGHT_WRIST</div>
+                    <div id="inspDesc" class="text-[11px] text-slate-500 mt-1">Primary right wrist anchor driving the 21 right-hand benchmarks.</div>
                 </div>
 
                 <!-- X, Y, Z Coordinate Sliders -->
                 <div class="space-y-3">
                     <div>
                         <div class="flex justify-between text-xs mb-1">
-                            <span class="text-rose-400 font-medium mono">X (Lateral)</span>
-                            <span id="valX" class="mono text-slate-200">0.000</span>
+                            <span class="text-rose-600 font-medium mono">X (Lateral)</span>
+                            <span id="valX" class="mono text-slate-700 font-semibold">0.000</span>
                         </div>
                         <input id="sliderX" type="range" min="-1.5" max="1.5" step="0.005" oninput="onCoordSliderChange('x', this.value)" class="w-full">
                     </div>
                     <div>
                         <div class="flex justify-between text-xs mb-1">
-                            <span class="text-emerald-400 font-medium mono">Y (Vertical)</span>
-                            <span id="valY" class="mono text-slate-200">0.000</span>
+                            <span class="text-emerald-600 font-medium mono">Y (Vertical)</span>
+                            <span id="valY" class="mono text-slate-700 font-semibold">0.000</span>
                         </div>
-                        <input id="sliderY" type="range" min="-1.2" max="1.5" step="0.005" oninput="onCoordSliderChange('y', this.value)" class="w-full">
+                        <input id="sliderY" type="range" min="-1.5" max="1.5" step="0.005" oninput="onCoordSliderChange('y', this.value)" class="w-full">
                     </div>
                     <div>
                         <div class="flex justify-between text-xs mb-1">
-                            <span class="text-blue-400 font-medium mono">Z (Depth)</span>
-                            <span id="valZ" class="mono text-slate-200">0.000</span>
+                            <span class="text-indigo-600 font-medium mono">Z (Depth)</span>
+                            <span id="valZ" class="mono text-slate-700 font-semibold">0.000</span>
                         </div>
-                        <input id="sliderZ" type="range" min="-1.2" max="1.2" step="0.005" oninput="onCoordSliderChange('z', this.value)" class="w-full">
+                        <input id="sliderZ" type="range" min="-1.5" max="1.5" step="0.005" oninput="onCoordSliderChange('z', this.value)" class="w-full">
                     </div>
                 </div>
             </div>
 
-            <!-- Rapid Articulation Studio: Finger Curl & Facial Expression Macros -->
-            <div class="p-4 border-b border-slate-800/80 space-y-4">
-                <div class="flex items-center justify-between">
-                    <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Hand Sign Articulator</span>
-                    <button onclick="mirrorHand('RtoL')" class="text-[11px] text-cyan-400 hover:underline">Mirror R → L</button>
+            <!-- Hand Articulator: Finger Curl Sliders -->
+            <div class="p-4 border-b border-slate-100 shrink-0">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Hand Articulator</span>
+                    <div class="flex gap-1 text-xs">
+                        <button id="btnArticLeft" onclick="setActiveArticulatorHand('LEFT')" class="px-2.5 py-1 rounded-md text-xs font-medium text-slate-600 hover:text-slate-900 border border-slate-200">Left</button>
+                        <button id="btnArticRight" onclick="setActiveArticulatorHand('RIGHT')" class="px-2.5 py-1 rounded-md text-xs font-semibold bg-indigo-600 text-white shadow-xs">Right</button>
+                    </div>
                 </div>
-
-                <!-- Left vs Right Hand Selector for Finger Sliders -->
-                <div class="grid grid-cols-2 gap-1 bg-slate-900 p-1 rounded-lg border border-slate-800 text-xs">
-                    <button id="artHandLeft" onclick="selectArticulatorHand('LEFT')" class="py-1 rounded font-medium text-emerald-300 bg-emerald-500/20 border border-emerald-500/40">Left Hand [33-53]</button>
-                    <button id="artHandRight" onclick="selectArticulatorHand('RIGHT')" class="py-1 rounded font-medium text-slate-400 hover:text-white">Right Hand [54-74]</button>
-                </div>
-
-                <!-- 5 Finger Flexion Sliders -->
-                <div class="space-y-2.5 text-xs">
+                <div class="space-y-3 text-xs">
                     <div>
-                        <div class="flex justify-between mb-1"><span class="text-slate-300">Thumb Curl</span><span id="curlVal0" class="mono text-slate-400">0%</span></div>
-                        <input id="curlSlider0" type="range" min="0" max="100" value="0" oninput="setFingerCurl(0, this.value)" class="w-full">
+                        <div class="flex justify-between text-xs mb-1">
+                            <span class="text-slate-700">Thumb Curl</span>
+                            <span id="thumbCurlVal" class="mono text-slate-500">0%</span>
+                        </div>
+                        <input id="thumbCurlSlider" type="range" min="0" max="100" value="0" oninput="applyFingerCurl(0, this.value)" class="w-full">
                     </div>
                     <div>
-                        <div class="flex justify-between mb-1"><span class="text-slate-300">Index Finger</span><span id="curlVal1" class="mono text-slate-400">0%</span></div>
-                        <input id="curlSlider1" type="range" min="0" max="100" value="0" oninput="setFingerCurl(1, this.value)" class="w-full">
+                        <div class="flex justify-between text-xs mb-1">
+                            <span class="text-slate-700">Index Curl</span>
+                            <span id="indexCurlVal" class="mono text-slate-500">0%</span>
+                        </div>
+                        <input id="indexCurlSlider" type="range" min="0" max="100" value="0" oninput="applyFingerCurl(1, this.value)" class="w-full">
                     </div>
                     <div>
-                        <div class="flex justify-between mb-1"><span class="text-slate-300">Middle Finger</span><span id="curlVal2" class="mono text-slate-400">0%</span></div>
-                        <input id="curlSlider2" type="range" min="0" max="100" value="0" oninput="setFingerCurl(2, this.value)" class="w-full">
+                        <div class="flex justify-between text-xs mb-1">
+                            <span class="text-slate-700">Middle Curl</span>
+                            <span id="middleCurlVal" class="mono text-slate-500">0%</span>
+                        </div>
+                        <input id="middleCurlSlider" type="range" min="0" max="100" value="0" oninput="applyFingerCurl(2, this.value)" class="w-full">
                     </div>
                     <div>
-                        <div class="flex justify-between mb-1"><span class="text-slate-300">Ring Finger</span><span id="curlVal3" class="mono text-slate-400">0%</span></div>
-                        <input id="curlSlider3" type="range" min="0" max="100" value="0" oninput="setFingerCurl(3, this.value)" class="w-full">
+                        <div class="flex justify-between text-xs mb-1">
+                            <span class="text-slate-700">Ring Curl</span>
+                            <span id="ringCurlVal" class="mono text-slate-500">0%</span>
+                        </div>
+                        <input id="ringCurlSlider" type="range" min="0" max="100" value="0" oninput="applyFingerCurl(3, this.value)" class="w-full">
                     </div>
                     <div>
-                        <div class="flex justify-between mb-1"><span class="text-slate-300">Pinky Finger</span><span id="curlVal4" class="mono text-slate-400">0%</span></div>
-                        <input id="curlSlider4" type="range" min="0" max="100" value="0" oninput="setFingerCurl(4, this.value)" class="w-full">
+                        <div class="flex justify-between text-xs mb-1">
+                            <span class="text-slate-700">Pinky Curl</span>
+                            <span id="pinkyCurlVal" class="mono text-slate-500">0%</span>
+                        </div>
+                        <input id="pinkyCurlSlider" type="range" min="0" max="100" value="0" oninput="applyFingerCurl(4, this.value)" class="w-full">
                     </div>
                 </div>
             </div>
 
-            <!-- Head & Trunk Pose Adjusters -->
-            <div class="p-4 space-y-3">
-                <div class="flex items-center justify-between">
-                    <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Face & Expression Studio [0–10]</span>
-                    <button onclick="resetFacialExpression()" class="text-[11px] text-cyan-400 hover:underline">Reset Face</button>
-                </div>
+            <!-- Head & Facial Macros -->
+            <div class="p-4 space-y-3 shrink-0">
+                <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Head & Facial Expression</span>
                 <div>
                     <div class="flex justify-between text-xs mb-1">
-                        <span class="text-slate-300">Head Turn (Yaw)</span>
-                        <span id="headYawVal" class="mono text-slate-400">0°</span>
+                        <span class="text-slate-700">Head Yaw (Turn)</span>
+                        <span id="headYawVal" class="mono text-slate-500">0°</span>
                     </div>
                     <input id="headYawSlider" type="range" min="-45" max="45" value="0" oninput="applyHeadTrunkMacro()" class="w-full">
                 </div>
                 <div>
                     <div class="flex justify-between text-xs mb-1">
-                        <span class="text-slate-300">Head Nod (Pitch)</span>
-                        <span id="headPitchVal" class="mono text-slate-400">0°</span>
+                        <span class="text-slate-700">Head Pitch (Tilt)</span>
+                        <span id="headPitchVal" class="mono text-slate-500">0°</span>
                     </div>
-                    <input id="headPitchSlider" type="range" min="-35" max="35" value="0" oninput="applyHeadTrunkMacro()" class="w-full">
+                    <input id="headPitchSlider" type="range" min="-30" max="30" value="0" oninput="applyHeadTrunkMacro()" class="w-full">
                 </div>
                 <div>
                     <div class="flex justify-between text-xs mb-1">
-                        <span class="text-slate-300">Head Tilt (Roll)</span>
-                        <span id="headRollVal" class="mono text-slate-400">0°</span>
-                    </div>
-                    <input id="headRollSlider" type="range" min="-25" max="25" value="0" oninput="applyHeadTrunkMacro()" class="w-full">
-                </div>
-                <div>
-                    <div class="flex justify-between text-xs mb-1">
-                        <span class="text-slate-300">Jaw / Mouth Open (9–10)</span>
-                        <span id="mouthOpenVal" class="mono text-slate-400">12%</span>
+                        <span class="text-slate-700">Jaw / Mouth Open (9–10)</span>
+                        <span id="mouthOpenVal" class="mono text-slate-500">12%</span>
                     </div>
                     <input id="mouthOpenSlider" type="range" min="0" max="100" value="12" oninput="applyHeadTrunkMacro()" class="w-full">
                 </div>
                 <div>
                     <div class="flex justify-between text-xs mb-1">
-                        <span class="text-slate-300">Smile / Lip Corner (9–10)</span>
-                        <span id="smileVal" class="mono text-slate-400">25%</span>
+                        <span class="text-slate-700">Smile / Lip Corner (9–10)</span>
+                        <span id="smileVal" class="mono text-slate-500">25%</span>
                     </div>
                     <input id="smileSlider" type="range" min="-50" max="100" value="25" oninput="applyHeadTrunkMacro()" class="w-full">
                 </div>
                 <div>
                     <div class="flex justify-between text-xs mb-1">
-                        <span class="text-slate-300">Eyebrow Arch (1–6)</span>
-                        <span id="browRaiseVal" class="mono text-slate-400">15%</span>
+                        <span class="text-slate-700">Eyebrow Arch (1–6)</span>
+                        <span id="browRaiseVal" class="mono text-slate-500">15%</span>
                     </div>
                     <input id="browRaiseSlider" type="range" min="-40" max="100" value="15" oninput="applyHeadTrunkMacro()" class="w-full">
                 </div>
             </div>
         </aside>
+
+    </div>
+
+    <!-- LAST LINE: Bottom Timeline & Keyframe Animation Player as it is -->
+    <div class="h-16 sm:h-20 glass-panel border-t border-slate-200/80 px-3 sm:px-4 flex items-center gap-2 sm:gap-4 z-20 shrink-0">
+        <div class="flex items-center gap-2 shrink-0">
+            <button id="playPauseBtn" onclick="togglePlayAnimation()" class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white flex items-center justify-center shadow-md shadow-indigo-500/25 transition">
+                <svg id="playIcon" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"></path>
+                </svg>
+                <svg id="pauseIcon" class="w-5 h-5 hidden" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                </svg>
+            </button>
+            <button onclick="resetToNeutralPose()" title="Reset All 75 Benchmarks to T-Pose" class="px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-xs text-slate-700 border border-slate-200 transition font-medium">
+                Reset Pose
+            </button>
+        </div>
+
+        <!-- Scrubber Bar -->
+        <div class="flex-1 flex flex-col gap-0.5 min-w-0">
+            <div class="flex justify-between items-center text-[11px]">
+                <span class="text-slate-500 truncate">Sign Sequence Timeline (<span id="timelineSignName" class="text-indigo-600 font-semibold">Hello / Salute</span>)</span>
+                <span class="mono text-slate-600 font-medium shrink-0"><span id="timelineProgressText">0%</span> | Frame <span id="frameCounterText">0 / 60</span></span>
+            </div>
+            <input id="timelineSlider" type="range" min="0" max="100" value="0" step="0.5" oninput="scrubTimeline(this.value)" class="w-full">
+        </div>
+
+        <!-- Playback Speed & Keyframe Capture -->
+        <div class="flex items-center gap-2 shrink-0">
+            <div class="flex flex-col">
+                <label class="text-[9px] text-slate-400 uppercase mono">Speed</label>
+                <select id="speedSelect" onchange="setPlaybackSpeed(this.value)" class="bg-white border border-slate-200 rounded-lg px-2 py-1 text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                    <option value="0.5">0.5x</option>
+                    <option value="1" selected>1.0x</option>
+                    <option value="1.5">1.5x</option>
+                    <option value="2">2.0x</option>
+                    <option value="3">3.0x</option>
+                    <option value="4">4.0x</option>
+                </select>
+            </div>
+            <button onclick="captureCustomKeyframe()" class="hidden sm:block px-2.5 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-300 text-xs font-semibold transition">
+                + Keyframe (<span id="customKfCount">0</span>)
+            </button>
+        </div>
     </div>
 
     <!-- JSON Importer / Exporter Modal -->
-    <div id="jsonModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden items-center justify-center p-4">
-        <div class="glass-panel border border-slate-700 rounded-2xl w-full max-w-3xl flex flex-col max-h-[85vh] shadow-2xl">
-            <div class="p-4 border-b border-slate-800 flex items-center justify-between">
+    <div id="jsonModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+        <div class="bg-white border border-slate-200 rounded-2xl w-full max-w-3xl flex flex-col max-h-[85vh] shadow-2xl">
+            <div class="p-4 border-b border-slate-200 flex items-center justify-between">
                 <div>
-                    <h2 class="text-base font-bold text-white">75-Benchmark Holistic JSON Data I/O</h2>
-                    <p class="text-xs text-slate-400">Compatible with MediaPipe Holistic 75-Landmark arrays (Indices 0–32 Pose, 33–53 Left Hand, 54–74 Right Hand)</p>
+                    <h2 class="text-base font-bold text-slate-900">75-Benchmark Holistic JSON Data I/O</h2>
+                    <p class="text-xs text-slate-500">Compatible with MediaPipe Holistic 75-Landmark arrays (Indices 0–32 Pose, 33–53 Left Hand, 54–74 Right Hand)</p>
                 </div>
-                <button onclick="closeJsonModal()" class="text-slate-400 hover:text-white p-1">✕</button>
+                <button onclick="closeJsonModal()" class="text-slate-400 hover:text-slate-700 p-1 font-bold">✕</button>
             </div>
             <div class="p-4 flex-1 overflow-hidden flex flex-col gap-3">
                 <div class="flex items-center justify-between">
                     <div class="flex gap-2">
-                        <button onclick="exportCurrentPoseJSON()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs text-cyan-300 border border-slate-700">
+                        <button onclick="exportCurrentPoseJSON()" class="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-xs text-indigo-700 font-semibold border border-slate-200">
                             Load Current 75 Points
                         </button>
-                        <button onclick="copyJsonToClipboard()" class="px-3 py-1.5 rounded-lg bg-cyan-500/20 hover:bg-cyan-500/30 text-xs text-cyan-300 border border-cyan-500/40">
+                        <button onclick="copyJsonToClipboard()" class="px-3 py-1.5 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-xs text-indigo-700 font-semibold border border-indigo-200">
                             Copy JSON to Clipboard
                         </button>
                     </div>
-                    <span id="jsonStatusMsg" class="text-xs mono text-emerald-400"></span>
+                    <span id="jsonStatusMsg" class="text-xs mono text-emerald-600 font-semibold"></span>
                 </div>
-                <textarea id="jsonTextarea" spellcheck="false" class="w-full flex-1 min-h-[320px] bg-slate-950 border border-slate-800 rounded-xl p-3 mono text-xs text-emerald-300 focus:outline-none focus:border-cyan-500"></textarea>
+                <textarea id="jsonTextarea" spellcheck="false" class="w-full flex-1 min-h-[320px] bg-slate-50 border border-slate-200 rounded-xl p-3 mono text-xs text-slate-800 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"></textarea>
             </div>
-            <div class="p-4 border-t border-slate-800 flex justify-end gap-2">
-                <button onclick="closeJsonModal()" class="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs text-slate-300">Cancel</button>
-                <button onclick="importPoseFromJSON()" class="px-4 py-2 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-600 text-xs font-semibold text-white shadow-lg">
+            <div class="p-4 border-t border-slate-200 flex justify-end gap-2">
+                <button onclick="closeJsonModal()" class="px-4 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-xs text-slate-700 font-medium">Cancel</button>
+                <button onclick="importPoseFromJSON()" class="px-4 py-2 rounded-lg bg-gradient-to-r from-indigo-600 to-purple-600 text-xs font-semibold text-white shadow-md shadow-indigo-500/20">
                     Apply 75 Benchmarks to 3D Model
                 </button>
             </div>
@@ -471,8 +493,8 @@
                     index: i,
                     name: POSE_NAMES[i],
                     group: "POSE",
-                    colorHex: 0x38bdf8,
-                    badgeClass: "text-cyan-300 bg-cyan-500/15 border-cyan-500/30",
+                    colorHex: 0x4f46e5,
+                    badgeClass: "text-indigo-700 bg-indigo-50 border-indigo-200",
                     radius: (i >= 11 && i <= 16) || (i >= 23 && i <= 24) ? 0.025 : 0.016
                 });
             } else if (i < 54) {
@@ -481,8 +503,8 @@
                     index: i,
                     name: `LEFT_${HAND_JOINT_SUFFIXES[hIdx]}`,
                     group: "LEFT_HAND",
-                    colorHex: 0x34d399,
-                    badgeClass: "text-emerald-300 bg-emerald-500/15 border-emerald-500/30",
+                    colorHex: 0x10b981,
+                    badgeClass: "text-emerald-700 bg-emerald-50 border-emerald-200",
                     radius: hIdx === 0 ? 0.020 : 0.013
                 });
             } else {
@@ -491,8 +513,8 @@
                     index: i,
                     name: `RIGHT_${HAND_JOINT_SUFFIXES[hIdx]}`,
                     group: "RIGHT_HAND",
-                    colorHex: 0xfbbf24,
-                    badgeClass: "text-amber-300 bg-amber-500/15 border-amber-500/30",
+                    colorHex: 0x8b5cf6,
+                    badgeClass: "text-purple-700 bg-purple-50 border-purple-200",
                     radius: hIdx === 0 ? 0.020 : 0.013
                 });
             }
@@ -880,8 +902,8 @@
 
         let layerVisibility = {
             skin: true,
-            bones: true,
-            points: true,
+            bones: false,
+            points: false,
             labels: false
         };
         let currentAvatarStyle = "REALISTIC";
@@ -898,8 +920,79 @@
         // Animation Player State
         let isPlaying = false;
         let playbackSpeed = 1.0;
-        let timelineProgress = 0; // 0 to 100
         let activeSignId = "NEUTRAL";
+
+        // Collapsible Drawer State (Left Presets & Right Inspector)
+        const drawerState = { left: false, right: false };
+
+        function toggleDrawer(side, forceOpen) {
+            const otherSide = side === 'left' ? 'right' : 'left';
+            const el = side === 'left' ? document.getElementById("leftSidebar") : document.getElementById("rightSidebar");
+            const otherEl = side === 'left' ? document.getElementById("rightSidebar") : document.getElementById("leftSidebar");
+            const btn = side === 'left' ? document.getElementById("btnToggleLeft") : document.getElementById("btnToggleRight");
+            const otherBtn = side === 'left' ? document.getElementById("btnToggleRight") : document.getElementById("btnToggleLeft");
+            if (!el) return;
+
+            if (forceOpen !== undefined) {
+                drawerState[side] = forceOpen;
+            } else {
+                drawerState[side] = !drawerState[side];
+            }
+
+            // Mutual exclusivity: only one drawer can be active at a time!
+            if (drawerState[side]) {
+                drawerState[otherSide] = false;
+                if (otherEl) {
+                    otherEl.classList.add("hidden");
+                    otherEl.classList.remove("flex");
+                }
+                if (otherBtn) {
+                    otherBtn.classList.remove("bg-indigo-600", "text-white", "border-indigo-600", "shadow-sm");
+                    otherBtn.classList.add("bg-white", "text-slate-700", "border-slate-200");
+                }
+            }
+
+            const isOpen = drawerState[side];
+            if (isOpen) {
+                el.classList.remove("hidden");
+                el.classList.add("flex");
+                if (btn) {
+                    btn.classList.add("bg-indigo-600", "text-white", "border-indigo-600", "shadow-sm");
+                    btn.classList.remove("bg-white", "text-slate-700", "border-slate-200");
+                }
+            } else {
+                el.classList.add("hidden");
+                el.classList.remove("flex");
+                if (btn) {
+                    btn.classList.remove("bg-indigo-600", "text-white", "border-indigo-600", "shadow-sm");
+                    btn.classList.add("bg-white", "text-slate-700", "border-slate-200");
+                }
+            }
+
+            // Immediately resize 3D canvas so avatar remains centered and 100% visible
+            onWindowResize();
+            setTimeout(onWindowResize, 60);
+            setTimeout(onWindowResize, 180);
+        }
+
+        function renderCommonSignsBar() {
+            const bar = document.getElementById("commonSignsBar");
+            if (!bar) return;
+            bar.innerHTML = SIGN_PRESETS.map(preset => {
+                const isActive = preset.id === activeSignId;
+                return `
+                    <button onclick="triggerSignPreset('${preset.id}', '${preset.label}')"
+                        class="px-3 py-1 rounded-lg text-xs font-semibold whitespace-nowrap transition-all duration-150 flex items-center gap-1.5 shrink-0 shadow-xs ${
+                            isActive
+                                ? 'bg-indigo-600 text-white shadow-sm shadow-indigo-500/20 ring-1 ring-indigo-500'
+                                : 'bg-white hover:bg-indigo-50 text-slate-700 hover:text-indigo-900 border border-slate-200'
+                        }">
+                        <span class="text-sm">${preset.icon}</span>
+                        <span>${preset.label}</span>
+                    </button>
+                `;
+            }).join('');
+        }
 
         // Three.js Core Objects
         let scene, camera, renderer, orbitControls, transformControl;
@@ -1063,10 +1156,10 @@
                     };
                 }
                 return {
-                    skin: { light: "#f6d5be", mid: "#e6b89c", dark: "#9c6b53", stroke: "rgba(120,73,52,0.35)" },
-                    suit: { light: "#334155", mid: "#1e293b", dark: "#0f172a", stroke: "rgba(56,189,248,0.32)" },
-                    hair: "#1c1917",
-                    lip: "#c97a76",
+                    skin: { light: "#f6d5be", mid: "#deb89e", dark: "#9c6b53", stroke: "rgba(120,73,52,0.30)" },
+                    suit: { light: "#6366f1", mid: "#4338ca", dark: "#312e81", stroke: "rgba(99,102,241,0.35)" },
+                    hair: "#241d19",
+                    lip: "#ca7b79",
                     alpha: 1.0
                 };
             }
@@ -1085,7 +1178,7 @@
                     ctx.clearRect(0, 0, width, height);
 
                     // 1. Draw Studio Floor Grid (-0.95 Y)
-                    ctx.strokeStyle = "rgba(30, 41, 59, 0.55)";
+                    ctx.strokeStyle = "rgba(165, 180, 252, 0.45)";
                     ctx.lineWidth = 1;
                     for (let g = -1.5; g <= 1.5; g += 0.25) {
                         const a = projectPoint(g, -0.95, -1.5, cam);
@@ -1479,7 +1572,7 @@
             scene = new THREE.Scene();
 
             camera = new THREE.PerspectiveCamera(40, width / height, 0.05, 50);
-            camera.position.set(0, 0.34, 1.85);
+            camera.position.set(0, 0.32, 1.80);
 
             renderer = createResilientRenderer(width, height);
             container.appendChild(renderer.domElement);
@@ -1490,45 +1583,45 @@
             if (modeText && modeDot) {
                 if (isSoftwareRenderer) {
                     modeText.textContent = "3D Canvas Projection Engine (WebGL-Free)";
-                    modeDot.className = "w-2 h-2 rounded-full bg-cyan-400";
+                    modeDot.className = "w-2 h-2 rounded-full bg-indigo-500";
                 } else {
                     modeText.textContent = "WebGL 3D Hardware Accelerated";
-                    modeDot.className = "w-2 h-2 rounded-full bg-emerald-400";
+                    modeDot.className = "w-2 h-2 rounded-full bg-emerald-500";
                 }
             }
 
             // Three-Point Cinematic Studio Lighting for Sculpted Face & Finger Definition
-            const ambientLight = new THREE.HemisphereLight(0xf8fafc, 0x0f172a, 0.72);
+            const ambientLight = new THREE.HemisphereLight(0xffffff, 0xe0e7ff, 0.95);
             scene.add(ambientLight);
 
             // Warm Key Light (Front-Right)
-            const keyLight = new THREE.DirectionalLight(0xfff7ed, 1.25);
+            const keyLight = new THREE.DirectionalLight(0xfffbf5, 1.15);
             keyLight.position.set(1.8, 2.6, 2.8);
             scene.add(keyLight);
 
             // Soft Cool Fill Light (Front-Left)
-            const fillLight = new THREE.DirectionalLight(0xbae6fd, 0.65);
+            const fillLight = new THREE.DirectionalLight(0xe0e7ff, 0.70);
             fillLight.position.set(-2.2, 1.4, 2.0);
             scene.add(fillLight);
 
-            // Crisp Cyan Back Rim Light (Separates shoulders, hair & fingers from dark background)
-            const backRimLight = new THREE.DirectionalLight(0x38bdf8, 0.85);
+            // Crisp Violet/Indigo Back Rim Light (Separates shoulders, hair & fingers from background)
+            const backRimLight = new THREE.DirectionalLight(0x818cf8, 0.65);
             backRimLight.position.set(0.0, 2.2, -2.5);
             scene.add(backRimLight);
 
             // Subtle Warm Under-Fill for Chin & Palm Contours
-            const bounceLight = new THREE.PointLight(0xfde68a, 0.35, 4);
+            const bounceLight = new THREE.PointLight(0xfef08a, 0.25, 4);
             bounceLight.position.set(0, -0.4, 1.2);
             scene.add(bounceLight);
 
-            // Studio Floor Grid & Subtle Pedestal Ring
-            const gridHelper = new THREE.GridHelper(3.2, 32, 0x1e293b, 0x0f172a);
+            // Studio Floor Grid (Soft Indigo Center Axis & Slate-200 Floor Grid)
+            const gridHelper = new THREE.GridHelper(3.2, 32, 0xa5b4fc, 0xe2e8f0);
             gridHelper.position.y = -0.95;
             scene.add(gridHelper);
 
-            // OrbitControls
+            // OrbitControls - Center Avatar in Viewport
             orbitControls = new THREE.OrbitControls(camera, renderer.domElement);
-            orbitControls.target.set(0, 0.25, 0.08);
+            orbitControls.target.set(0, 0.25, 0.0);
             orbitControls.enableDamping = true;
             orbitControls.dampingFactor = 0.08;
             orbitControls.maxDistance = 5;
@@ -1597,13 +1690,14 @@
                 });
                 const mesh = new THREE.Mesh(geom, mat);
                 mesh.scale.setScalar(benchmarkNodeScale);
+                mesh.visible = layerVisibility.points;
                 mesh.userData = { benchmarkIndex: i, name: meta.name, group: meta.group };
                 scene.add(mesh);
                 landmarkMeshes.push(mesh);
 
                 // Create 2D floating label
                 const lbl = document.createElement("div");
-                lbl.className = "absolute px-1 py-0.2 rounded text-[9px] mono font-semibold bg-slate-950/85 text-white border border-slate-700/80 -translate-x-1/2 -translate-y-full pointer-events-none";
+                lbl.className = "absolute px-1 py-0.2 rounded text-[9px] mono font-bold bg-white/95 text-slate-800 border border-slate-300 shadow-sm -translate-x-1/2 -translate-y-full pointer-events-none";
                 lbl.textContent = i;
                 labelsOverlay.appendChild(lbl);
                 labelElements.push(lbl);
@@ -1611,30 +1705,32 @@
 
             // Selection Halo Ring
             const ringGeom = new THREE.RingGeometry(0.024, 0.031, 32);
-            const ringMat = new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide });
+            const ringMat = new THREE.MeshBasicMaterial({ color: 0x6366f1, side: THREE.DoubleSide });
             selectionRingMesh = new THREE.Mesh(ringGeom, ringMat);
+            selectionRingMesh.visible = layerVisibility.points;
             scene.add(selectionRingMesh);
 
             // 2. Create Cylindrical Bones Connecting the 75 Benchmarks
             const unitCylGeom = new THREE.CylinderGeometry(1, 1, 1, 10);
             BONE_CONNECTIONS.forEach(([a, b]) => {
-                let boneColor = 0x38bdf8;
+                let boneColor = 0x818cf8;
                 let radius = 0.0055;
                 if (a >= 33 && b >= 33 && a < 54 && b < 54) {
                     boneColor = 0x10b981;
                     radius = 0.0038;
                 } else if (a >= 54 && b >= 54) {
-                    boneColor = 0xf59e0b;
+                    boneColor = 0xa78bfa;
                     radius = 0.0038;
                 }
                 const mat = new THREE.MeshStandardMaterial({
                     color: boneColor,
                     roughness: 0.35,
-                    metalness: 0.3,
+                    metalness: 0.25,
                     transparent: true,
-                    opacity: 0.65
+                    opacity: 0.70
                 });
                 const cyl = new THREE.Mesh(unitCylGeom, mat);
+                cyl.visible = layerVisibility.bones;
                 cyl.userData = { a, b, radius };
                 scene.add(cyl);
                 boneMeshes.push(cyl);
@@ -1723,9 +1819,10 @@
 
             window.addEventListener('resize', onWindowResize);
 
-            // Sync Initial Positions & Attach Gizmo to Default Selected Benchmark
+            // Sync Initial Positions & Prepare Benchmark Inspector
             sync3DSceneToLandmarks();
-            selectBenchmark(16);
+            selectedIndex = 16;
+            updateInspectorUI();
         }
 
         /***********************************************************************
@@ -1884,20 +1981,20 @@
 
             // PBR Subsurface-like Warm Skin Material
             skinMaterial = new THREE.MeshPhysicalMaterial({
-                color: 0xe6b89c,
-                roughness: 0.36,
-                metalness: 0.04,
-                clearcoat: 0.18,
-                clearcoatRoughness: 0.35,
-                reflectivity: 0.45,
+                color: 0xdeb89e,
+                roughness: 0.38,
+                metalness: 0.02,
+                clearcoat: 0.20,
+                clearcoatRoughness: 0.30,
+                reflectivity: 0.50,
                 side: THREE.DoubleSide
             });
 
-            // Fabric Underwear Material (Replacing the full mocap suit)
+            // Indigo Athletic Shorts/Briefs Material (matching SignSpeak app)
             suitMaterial = new THREE.MeshStandardMaterial({
-                color: 0x1e293b,
-                roughness: 0.9,
-                metalness: 0.1,
+                color: 0x4338ca,
+                roughness: 0.75,
+                metalness: 0.10,
                 side: THREE.DoubleSide
             });
 
@@ -2453,9 +2550,9 @@
             const container = document.getElementById("presetButtonsContainer");
             container.innerHTML = SIGN_PRESETS.map(preset => `
                 <button onclick="triggerSignPreset('${preset.id}', '${preset.label}')"
-                    class="px-2.5 py-2 rounded-lg text-left text-xs font-medium bg-slate-900/90 hover:bg-slate-800 border border-slate-800 hover:border-cyan-500/40 transition flex items-center gap-2 group">
+                    class="px-2.5 py-2 rounded-xl text-left text-xs font-medium bg-white hover:bg-indigo-50/70 border border-slate-200/90 hover:border-indigo-300 text-slate-700 hover:text-indigo-950 transition flex items-center gap-2 group shadow-sm">
                     <span class="text-sm">${preset.icon}</span>
-                    <span class="truncate text-slate-200 group-hover:text-white">${preset.label}</span>
+                    <span class="truncate font-semibold text-slate-700 group-hover:text-indigo-900">${preset.label}</span>
                 </button>
             `).join('');
         }
@@ -2465,9 +2562,9 @@
             ['ALL', 'POSE', 'LEFT_HAND', 'RIGHT_HAND'].forEach(c => {
                 const btn = document.getElementById(`cat_${c}`);
                 if (c === cat) {
-                    btn.className = "py-1 rounded bg-cyan-500 text-slate-950 font-semibold";
+                    btn.className = "py-1 rounded-lg bg-indigo-600 text-white font-semibold shadow-sm";
                 } else {
-                    btn.className = "py-1 rounded bg-slate-900 text-slate-400 hover:bg-slate-800";
+                    btn.className = "py-1 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200";
                 }
             });
             renderLandmarkList();
@@ -2490,8 +2587,8 @@
                     <button onclick="selectBenchmark(${meta.index})"
                         class="w-full px-2.5 py-1.5 rounded-lg text-left transition flex items-center justify-between border ${
                             isSel
-                                ? 'bg-cyan-500/20 border-cyan-500/60 text-white shadow'
-                                : 'bg-slate-900/50 border-transparent hover:bg-slate-800/70 text-slate-300'
+                                ? 'bg-indigo-50 border-indigo-400 text-indigo-950 font-semibold shadow-sm'
+                                : 'bg-white border-slate-100 hover:bg-slate-50 text-slate-700'
                         }">
                         <div class="flex items-center gap-2 min-w-0">
                             <span class="mono text-[11px] font-bold px-1.5 py-0.5 rounded border ${meta.badgeClass}">#${meta.index}</span>
@@ -2511,6 +2608,7 @@
             }
             updateInspectorUI();
             renderLandmarkList();
+            toggleDrawer('right', true);
         }
 
         function updateInspectorUI() {
@@ -2565,12 +2663,12 @@
             const btnFK = document.getElementById("btnModeFK");
             const btnFree = document.getElementById("btnModeFree");
             if (isHierarchical) {
-                btnFK.className = "px-2.5 py-1 rounded-md text-xs font-medium transition-all bg-cyan-500 text-slate-950 shadow";
-                btnFree.className = "px-2.5 py-1 rounded-md text-xs font-medium transition-all text-slate-300 hover:text-white";
+                btnFK.className = "px-2.5 py-1 rounded-md text-xs font-semibold transition-all bg-white text-indigo-700 shadow-sm";
+                btnFree.className = "px-2.5 py-1 rounded-md text-xs font-medium transition-all text-slate-600 hover:text-slate-900";
                 showToast("Hierarchical Mode: Moving shoulders, elbows, or wrists moves attached hand landmarks.");
             } else {
-                btnFree.className = "px-2.5 py-1 rounded-md text-xs font-medium transition-all bg-cyan-500 text-slate-950 shadow";
-                btnFK.className = "px-2.5 py-1 rounded-md text-xs font-medium transition-all text-slate-300 hover:text-white";
+                btnFree.className = "px-2.5 py-1 rounded-md text-xs font-semibold transition-all bg-white text-indigo-700 shadow-sm";
+                btnFK.className = "px-2.5 py-1 rounded-md text-xs font-medium transition-all text-slate-600 hover:text-slate-900";
                 showToast("Single Point Mode: Each of the 75 benchmarks moves independently.");
             }
         }
@@ -2583,11 +2681,11 @@
             const btnL = document.getElementById("artHandLeft");
             const btnR = document.getElementById("artHandRight");
             if (side === "LEFT") {
-                btnL.className = "py-1 rounded font-medium text-emerald-300 bg-emerald-500/20 border border-emerald-500/40";
-                btnR.className = "py-1 rounded font-medium text-slate-400 hover:text-white";
+                btnL.className = "py-1 rounded font-semibold text-emerald-700 bg-white shadow-sm border border-slate-200";
+                btnR.className = "py-1 rounded font-medium text-slate-600 hover:text-slate-900";
             } else {
-                btnR.className = "py-1 rounded font-medium text-amber-300 bg-amber-500/20 border border-amber-500/40";
-                btnL.className = "py-1 rounded font-medium text-slate-400 hover:text-white";
+                btnR.className = "py-1 rounded font-semibold text-amber-700 bg-white shadow-sm border border-slate-200";
+                btnL.className = "py-1 rounded font-medium text-slate-600 hover:text-slate-900";
             }
             for (let i = 0; i < 5; i++) {
                 const pct = Math.round(handCurlState[side][i] * 100);
@@ -2722,32 +2820,32 @@
             avatarSkinGroup.visible = true;
 
             if (style === "REALISTIC") {
-                skinMaterial.color.setHex(0xe6b89c);
+                skinMaterial.color.setHex(0xdeb89e);
                 skinMaterial.transparent = false;
                 skinMaterial.opacity = 1.0;
-                skinMaterial.roughness = 0.36;
+                skinMaterial.roughness = 0.38;
 
-                suitMaterial.color.setHex(0x1e293b);
+                suitMaterial.color.setHex(0x4338ca);
                 suitMaterial.transparent = false;
                 suitMaterial.opacity = 1.0;
                 hairCapMesh.visible = true;
             } else if (style === "MANNEQUIN") {
-                skinMaterial.color.setHex(0xcbd5e1);
+                skinMaterial.color.setHex(0xe2e8f0);
                 skinMaterial.transparent = false;
                 skinMaterial.opacity = 1.0;
                 skinMaterial.roughness = 0.22;
 
-                suitMaterial.color.setHex(0x475569);
+                suitMaterial.color.setHex(0x6366f1);
                 suitMaterial.transparent = false;
                 suitMaterial.opacity = 1.0;
                 hairCapMesh.visible = true;
             } else if (style === "XRAY") {
-                skinMaterial.color.setHex(0x38bdf8);
+                skinMaterial.color.setHex(0x818cf8);
                 skinMaterial.transparent = true;
                 skinMaterial.opacity = 0.34;
                 skinMaterial.roughness = 0.15;
 
-                suitMaterial.color.setHex(0x1e293b);
+                suitMaterial.color.setHex(0x4338ca);
                 suitMaterial.transparent = true;
                 suitMaterial.opacity = 0.38;
                 hairCapMesh.visible = false;
@@ -2766,8 +2864,13 @@
          ***********************************************************************/
         function triggerSignPreset(presetId, label) {
             activeSignId = presetId;
-            document.getElementById("activeSignBadge").textContent = label;
-            document.getElementById("timelineSignName").textContent = label;
+            const badge = document.getElementById("activeSignBadge");
+            if (badge) badge.textContent = label;
+            const tlName = document.getElementById("timelineSignName");
+            if (tlName) tlName.textContent = label;
+
+            renderCommonSignsBar();
+            renderPresetButtons();
 
             // Interpolate smoothly from current pose to target preset
             startKeyframe = JSON.parse(JSON.stringify(currentLandmarks));
@@ -2859,37 +2962,51 @@
 
             if (layer === 'skin') {
                 avatarSkinGroup.visible = isVis;
-                document.getElementById("toggleSkinBtn").className = isVis
-                    ? "px-3 py-1.5 rounded-lg text-xs font-medium bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 transition flex items-center gap-1.5"
-                    : "px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-900 text-slate-500 border border-slate-800 transition flex items-center gap-1.5";
+                const btn = document.getElementById("toggleSkinBtn");
+                if (btn) {
+                    btn.className = isVis
+                        ? "px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200 hover:bg-indigo-100 transition flex items-center gap-1.5"
+                        : "px-2.5 py-1.5 rounded-lg text-xs font-medium bg-slate-100 text-slate-500 border border-slate-200 transition flex items-center gap-1.5";
+                }
             }
             if (layer === 'bones') {
                 boneMeshes.forEach(b => b.visible = isVis);
-                document.getElementById("toggleBonesBtn").className = isVis
-                    ? "px-3 py-1.5 rounded-lg text-xs font-medium bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 transition flex items-center gap-1.5"
-                    : "px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-900 text-slate-500 border border-slate-800 transition flex items-center gap-1.5";
+                const btn = document.getElementById("toggleBonesBtn");
+                if (btn) {
+                    btn.className = isVis
+                        ? "px-2.5 py-1 rounded-lg text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200 hover:bg-indigo-100 transition flex items-center gap-1.5 shadow-xs"
+                        : "px-2.5 py-1 rounded-lg text-xs font-medium bg-slate-100 text-slate-600 border border-slate-200 hover:text-slate-900 transition flex items-center gap-1.5 shadow-xs";
+                    btn.innerHTML = `<span class="w-2 h-2 rounded-full ${isVis ? 'bg-indigo-500' : 'bg-slate-400'}"></span> Bones`;
+                }
             }
             if (layer === 'points') {
                 landmarkMeshes.forEach(m => m.visible = isVis);
                 selectionRingMesh.visible = isVis;
                 transformControl.visible = isVis;
-                document.getElementById("togglePointsBtn").className = isVis
-                    ? "px-3 py-1.5 rounded-lg text-xs font-medium bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 transition flex items-center gap-1.5"
-                    : "px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-900 text-slate-500 border border-slate-800 transition flex items-center gap-1.5";
+                const btn = document.getElementById("togglePointsBtn");
+                if (btn) {
+                    btn.className = isVis
+                        ? "px-2.5 py-1 rounded-lg text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 transition flex items-center gap-1.5 shadow-xs"
+                        : "px-2.5 py-1 rounded-lg text-xs font-medium bg-slate-100 text-slate-600 border border-slate-200 hover:text-slate-900 transition flex items-center gap-1.5 shadow-xs";
+                    btn.innerHTML = `<span class="w-2 h-2 rounded-full ${isVis ? 'bg-emerald-500' : 'bg-slate-400'}"></span> Nodes`;
+                }
             }
             if (layer === 'labels') {
                 const overlay = document.getElementById("labelsOverlay");
                 overlay.classList.toggle("hidden", !isVis);
-                document.getElementById("toggleLabelsBtn").className = isVis
-                    ? "px-2.5 py-1.5 rounded-lg text-xs font-medium bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 transition"
-                    : "px-2.5 py-1.5 rounded-lg text-xs font-medium bg-slate-800 text-slate-400 border border-slate-700 hover:text-white transition";
+                const btn = document.getElementById("toggleLabelsBtn");
+                if (btn) {
+                    btn.className = isVis
+                        ? "px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200 transition"
+                        : "px-2.5 py-1.5 rounded-lg text-xs font-medium bg-slate-100 text-slate-500 border border-slate-200 transition";
+                }
             }
         }
 
         function setCameraView(preset) {
             if (preset === 'front') {
-                camera.position.set(0, 0.30, 1.95);
-                orbitControls.target.set(0, 0.22, 0.08);
+                camera.position.set(0, 0.32, 1.80);
+                orbitControls.target.set(0, 0.25, 0.0);
             } else if (preset === 'portrait') {
                 const nose = currentLandmarks[0];
                 camera.position.set(0, nose.y + 0.02, nose.z + 0.48);
@@ -3036,9 +3153,19 @@
 
         window.onload = function () {
             renderPresetButtons();
+            renderCommonSignsBar();
             initThreeScene();
             renderLandmarkList();
             animateLoop();
+
+            // Observe canvasContainer resizing so Three.js adapts whenever sidebars dock or undock
+            const canvasElem = document.getElementById("canvasContainer");
+            if (window.ResizeObserver && canvasElem) {
+                const ro = new ResizeObserver(() => {
+                    onWindowResize();
+                });
+                ro.observe(canvasElem);
+            }
         };
     </script>
 </body>
